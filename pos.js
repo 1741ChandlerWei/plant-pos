@@ -30,7 +30,7 @@ function renderPos() {
             <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}天</div>
             <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
           </div>
-          <div class="pright"><div class="pprice">${vnd(p.price)}</div><div class="psub" style="color:${mc}">${mg}%</div></div>
+          <div class="pright"><div class="pprice">${vnd(p.price)}</div><div class="psub" style="color:${mc}">${vnd(p.price - ac)}</div><div class="psub" style="color:${mc}">${mg}%</div></div>
         </div>`;
       }).join('');
 

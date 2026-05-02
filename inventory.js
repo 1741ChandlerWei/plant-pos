@@ -1,4 +1,3 @@
-// v5 - 2026-05-02 17:40
 // ==================== INVENTORY MODULE ====================
 
 function invTab(t) {
@@ -41,7 +40,7 @@ function renderInvPlants() {
             <div class="pname">${p.name} ${lb}</div>
             <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}ngày/天</div>
             <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
-            ${ROLE === 'owner' ? `<div style="font-size:10px;color:var(--text3);margin-top:3px">CP ${vnd(ac)} · Lợi nhuận / 毛利 ${mg}%</div>` : ''}
+            ${ROLE === 'owner' ? `<div style="font-size:10px;color:var(--text3);margin-top:3px">CP ${vnd(ac)} · LN ${vnd(p.price - ac)} (${mg}%)</div>` : ''}
             ${btns}
           </div>
           <div class="pright"><div class="pprice">${vnd(p.price)}</div></div>
@@ -124,7 +123,7 @@ function openPlantDetail(id) {
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
     <div class="metric"><div class="ml">Giá vốn HT / 當前成本</div><div class="mv amber" style="font-size:15px">${vnd(ac)}</div></div>
     <div class="metric"><div class="ml">Giá bán ĐX / 建議售價</div><div class="mv blue" style="font-size:15px">${vnd(p.price)}</div></div>
-    <div class="metric"><div class="ml">Tỷ lệ LN / 毛利率</div><div class="mv" style="font-size:15px;color:${parseFloat(mg) > 30 ? 'var(--green)' : 'var(--red)'}">${mg}%</div></div>
+    <div class="metric"><div class="ml">Lợi nhuận / 毛利</div><div class="mv" style="font-size:13px;color:${parseFloat(mg) > 30 ? 'var(--green)' : 'var(--red)'}">${vnd(p.price - ac)}<br><span style='font-size:11px'>${mg}%</span></div></div>
     <div class="metric"><div class="ml">Ngày trong kho / 在庫天數</div><div class="mv" style="font-size:15px">${days}天</div></div>
   </div>
   <div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:12px;font-size:12px">

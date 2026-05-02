@@ -154,6 +154,7 @@ function renderRepPlantsSold() {
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Tên cây / 品名</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">SL / 數量</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Doanh thu / 營收</th>
+    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN / 毛利</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN% / 毛利率</th>
   </tr>`;
   Object.keys(ps).sort((a, b) => ps[b].rev - ps[a].rev).forEach(name => {
@@ -163,6 +164,7 @@ function renderRepPlantsSold() {
       <td style="padding:8px 6px;font-weight:500">${name}</td>
       <td style="padding:8px 6px;text-align:right">${s.qty}</td>
       <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(s.rev)}</td>
+      <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(s.profit)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--green)">${mg}%</td>
     </tr>`;
   });
@@ -183,6 +185,7 @@ function renderInvStatus() {
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Vị trí / 位置</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Ngày / 天數</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Giá vốn HT / 當前成本</th>
+    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN / 毛利</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN% / 毛利率</th>
   </tr>`;
   active.forEach(p => {
@@ -190,11 +193,13 @@ function renderInvStatus() {
     const ac = agedCost(p.cost_vnd, p.purchase_date);
     const mg = margin(p.price, p.cost_vnd, p.purchase_date);
     const mgc = parseFloat(mg) > 30 ? 'var(--green)' : 'var(--red)';
+    const profit = p.price - ac;
     h += `<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:8px 6px;font-weight:500">${p.name} ×${p.qty}</td>
       <td style="padding:8px 6px"><span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></td>
       <td style="padding:8px 6px;text-align:right">${days}</td>
       <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(ac)}</td>
+      <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(profit)}</td>
       <td style="padding:8px 6px;text-align:right;color:${mgc}">${mg}%</td>
     </tr>`;
   });
