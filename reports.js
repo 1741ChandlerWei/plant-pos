@@ -187,8 +187,8 @@ function renderInvStatus() {
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Vị trí / 位置</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Ngày / 天數</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Giá vốn HT / 當前成本</th>
-    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN / 毛利</th>
-    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN% / 毛利率</th>
+    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN / Est.毛利</th>
+    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN% / Est.毛利率</th>
   </tr>`;
   active.forEach(p => {
     const days = daysSince(p.purchase_date);
