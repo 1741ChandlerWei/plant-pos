@@ -378,24 +378,45 @@ function renderPurItems() {
 async function savePurchase() {
   const vendor = document.getElementById('pur-vendor').value.trim();
   if (!vendor || purItems.length === 0) { showToast('Vui lòng nhập đầy đủ / 請填寫廠商和品項', 'error'); return; }
+  const addToStock = document.getElementById('pur-add-stock').checked;
+  const stockLoc = document.getElementById('pur-stock-loc').value;
   const items = purItems.map(i => ({
     item_name: i.name, qty: i.qty,
     cost_ntd: i.cost_ntd, cost_vnd: i.cost_ntd * CFG.rate,
     total_vnd: i.qty * i.cost_ntd * CFG.rate
   }));
   const totalVnd = items.reduce((s, i) => s + i.total_vnd, 0);
+  const purchaseDate = document.getElementById('pur-date').value || todayStr();
   showLoading(true);
   await DB.addPurchase({
-    vendor, purchase_date: document.getElementById('pur-date').value || todayStr(),
+    vendor, purchase_date: purchaseDate,
     note: document.getElementById('pur-note').value, total_vnd: totalVnd
   }, items);
+  // 同步加入庫存
+  if (addToStock) {
+    for (const i of items) {
+      if (!i.item_name) continue;
+      const existing = DATA.plants.find(p => p.name === i.item_name && p.loc === stockLoc && p.status === 'ok');
+      if (existing) {
+        await DB.updatePlant(existing.id, { qty: existing.qty + i.qty });
+      } else {
+        await DB.addPlant({
+          name: i.item_name, cat: '植物',
+          cost_ntd: i.cost_ntd, cost_vnd: i.cost_vnd,
+          price: 0, qty: i.qty,
+          purchase_date: purchaseDate,
+          loc: stockLoc, note: vendor, status: 'ok'
+        });
+      }
+    }
+  }
   purItems = [];
   ['pur-vendor','pur-note'].forEach(id => document.getElementById(id).value = '');
   await loadAllData();
   showLoading(false);
   closeM('m-newpur');
   renderPur();
-  showToast('Đã lưu lô hàng / 已儲存進貨批次');
+  showToast(addToStock ? 'Đã lưu và thêm vào kho / 已儲存並加入庫存' : 'Đã lưu lô hàng / 已儲存進貨批次');
 }
 
 // BOARD EDIT

@@ -245,6 +245,20 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="pur-note" placeholder="Ghi chú..."></div>
     <div id="pur-items-wrap"></div>
     <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ Thêm mặt hàng / 新增品項</button>
+    <div style="background:var(--gbg);border:1px solid var(--gborder);border-radius:var(--r);padding:12px;margin-bottom:12px">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">
+        <input type="checkbox" id="pur-add-stock" checked style="width:16px;height:16px;accent-color:var(--acc)">
+        <span style="font-size:13px;font-weight:500;color:var(--green)">Tự động thêm vào kho / 自動加入庫存</span>
+      </label>
+      <div class="field" style="margin-bottom:0">
+        <label class="flabel">Nhập vào kho tại / 入庫位置</label>
+        <select class="inp" id="pur-stock-loc">
+          <option value="mine">Nhà chủ / 我家</option>
+          <option value="quang">Nhà Quang / Quang家</option>
+          <option value="helper">Nhà trợ lý / 小幫手家</option>
+        </select>
+      </div>
+    </div>
     <button class="btn btnp btnf" onclick="savePurchase()">Lưu lô hàng / 儲存批次</button>
   </div>
 </div>
