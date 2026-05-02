@@ -386,14 +386,15 @@ function addPurItem() {
 }
 
 function renderPurItems() {
+  // 加入 data-index 方便後續讀取
   document.getElementById('pur-items-wrap').innerHTML = purItems.map((item, i) => `
     <div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px">
-      <div class="field" style="margin-bottom:7px"><input class="inp" placeholder="Tên cây / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value"></div>
+      <div class="field" style="margin-bottom:7px"><input class="inp" id="pur-name-${i}" placeholder="Tên cây / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value" onchange="purItems[${i}].name=this.value"></div>
       <div class="irow" style="margin-bottom:7px">
-        <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="SL / 數量" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0"></div>
-        <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" oninput="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
+        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-qty-${i}" type="number" placeholder="SL / 數量" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0" onchange="purItems[${i}].qty=parseInt(this.value)||0"></div>
+        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-cost-${i}" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" oninput="purItems[${i}].cost_ntd=parseInt(this.value)||0" onchange="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
       </div>
-      <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="Giá bán VND / 建議售價 VND" value="${item.price || ''}" oninput="purItems[${i}].price=parseInt(this.value)||0"></div>
+      <div class="field" style="margin-bottom:0"><input class="inp" id="pur-price-${i}" type="number" placeholder="Giá bán VND / 建議售價 VND" value="${item.price || ''}" oninput="purItems[${i}].price=parseInt(this.value)||0" onchange="purItems[${i}].price=parseInt(this.value)||0"></div>
     </div>`).join('');
 }
 
@@ -405,6 +406,18 @@ async function savePurchase() {
   }
   const addToStock = document.getElementById('pur-add-stock').checked;
   const stockLoc = document.getElementById('pur-stock-loc').value;
+
+  // 儲存前用 id 讀取最新值（Safari 相容）
+  purItems.forEach((item, i) => {
+    const n = document.getElementById('pur-name-' + i);
+    const q = document.getElementById('pur-qty-' + i);
+    const c = document.getElementById('pur-cost-' + i);
+    const p = document.getElementById('pur-price-' + i);
+    if (n) item.name = n.value;
+    if (q) item.qty = parseInt(q.value) || 0;
+    if (c) item.cost_ntd = parseInt(c.value) || 0;
+    if (p) item.price = parseInt(p.value) || 0;
+  });
 
   const items = purItems.map(i => ({
     item_name: i.name,
