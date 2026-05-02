@@ -12,8 +12,7 @@ function posTab(t) {
 }
 
 function renderPos() {
-  const myLoc = ROLE === 'quang' ? 'quang' : ROLE === 'helper' ? 'helper' : null;
-  const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok' && (!myLoc || p.loc === myLoc));
+  const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok');
   
   document.getElementById('pos-plant').innerHTML = avail.length === 0
     ? '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây / 無庫存</div>'
@@ -40,7 +39,6 @@ function renderPos() {
     const locs = { mine: b.qty_mine, quang: b.qty_quang, helper: b.qty_helper };
     Object.keys(locs).forEach(loc => {
       if (locs[loc] <= 0) return;
-      if (myLoc && loc !== myLoc) return;
       boardHtml += `<div class="pi" onclick="addCartBoard(${b.id},'${loc}')">
         <div class="pdot" style="background:var(--blue)"></div>
         <div class="pinfo">
@@ -198,8 +196,7 @@ async function completeOrder() {
 
 // WRITEOFF
 function renderWriteoffForm() {
-  const myLoc = ROLE === 'quang' ? 'quang' : ROLE === 'helper' ? 'helper' : null;
-  const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok' && (!myLoc || p.loc === myLoc));
+  const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok');
   let h = '<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:12px;color:var(--red)">Cây chết/hỏng sẽ trừ khỏi kho và lưu vào báo cáo / 死亡報廢將從庫存中扣除並記錄</div>';
   h += '<div class="field"><label class="flabel">Cây / 植物</label><select class="inp" id="wo-plant">';
   avail.forEach(p => { h += `<option value="${p.id}">${p.name} (${LOC_LABELS[p.loc]}) · ${p.qty}株</option>`; });
