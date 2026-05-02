@@ -363,15 +363,16 @@ async function savePassword() {
 
 // PURCHASE
 let purItems = [];
-function addPurItem() { purItems.push({ name: '', qty: 1, cost_ntd: 0 }); renderPurItems(); }
+function addPurItem() { purItems.push({ name: '', qty: 1, cost_ntd: 0, price: 0 }); renderPurItems(); }
 function renderPurItems() {
   document.getElementById('pur-items-wrap').innerHTML = purItems.map((item, i) => `
     <div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px">
-      <div class="field" style="margin-bottom:7px"><input class="inp" placeholder="Tên cây / 品名" value="${item.name}" onchange="purItems[${i}].name=this.value"></div>
-      <div class="irow">
+      <div class="field" style="margin-bottom:7px"><input class="inp" placeholder="Tên cây / 品名" value="${item.name || ''}" onchange="purItems[${i}].name=this.value"></div>
+      <div class="irow" style="margin-bottom:7px">
         <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="SL / 數量" value="${item.qty || ''}" onchange="purItems[${i}].qty=parseInt(this.value)||0"></div>
-        <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="Giá vốn NTD / 成本" value="${item.cost_ntd || ''}" onchange="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
+        <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" onchange="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
       </div>
+      <div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="Giá bán VND / 建議售價 VND" value="${item.price || ''}" onchange="purItems[${i}].price=parseInt(this.value)||0"></div>
     </div>`).join('');
 }
 
@@ -403,7 +404,7 @@ async function savePurchase() {
         await DB.addPlant({
           name: i.item_name, cat: '植物',
           cost_ntd: i.cost_ntd, cost_vnd: i.cost_vnd,
-          price: 0, qty: i.qty,
+          price: i.price || 0, qty: i.qty,
           purchase_date: purchaseDate,
           loc: stockLoc, note: vendor, status: 'ok'
         });
