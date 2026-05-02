@@ -381,6 +381,16 @@ async function savePurchase() {
   if (!vendor || purItems.length === 0) { showToast('Vui lòng nhập đầy đủ / 請填寫廠商和品項', 'error'); return; }
   const addToStock = document.getElementById('pur-add-stock').checked;
   const stockLoc = document.getElementById('pur-stock-loc').value;
+  // 直接從 DOM 讀取最新值，避免 oninput 在 Safari 上的問題
+  const wrap = document.getElementById('pur-items-wrap');
+  const itemDivs = wrap.querySelectorAll('div[style]');
+  itemDivs.forEach((div, i) => {
+    const inputs = div.querySelectorAll('input');
+    if (inputs[0]) purItems[i].name = inputs[0].value;
+    if (inputs[1]) purItems[i].qty = parseInt(inputs[1].value) || 0;
+    if (inputs[2]) purItems[i].cost_ntd = parseInt(inputs[2].value) || 0;
+    if (inputs[3]) purItems[i].price = parseInt(inputs[3].value) || 0;
+  });
   const items = purItems.map(i => ({
     item_name: i.name, qty: i.qty,
     cost_ntd: i.cost_ntd, cost_vnd: i.cost_ntd * CFG.rate,
