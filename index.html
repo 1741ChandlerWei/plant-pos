@@ -675,7 +675,7 @@ function openCheckout(){
 }
 function completeOrder(){
   var name=document.getElementById('co-name').value.trim();
-  if(!name){alert('請填寫Tên khách / 客戶姓名');return;}
+  if(!name){alert('Vui lòng nhập tên khách / 請填寫客戶姓名');return;}
   var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
   var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
   var o={id:S.nextId++,date:todayStr(),customer:name,contact:document.getElementById('co-contact').value,addr:document.getElementById('co-addr').value,src:document.getElementById('co-src').value,pay:document.getElementById('co-pay').value,seller:document.getElementById('co-seller').value,note:document.getElementById('co-note').value,items:cart.map(function(c){return{type:c.type,name:c.name,qty:c.qty,price:c.price,cost:c.cost,loc:c.loc};}),total:sub,profit:sub-cost};
@@ -710,9 +710,9 @@ function confirmWriteoff(){
   var op=document.getElementById('wo-op').value;
   var p=S.plants.find(function(x){return x.id===pid;});
   if(!p)return;
-  if(qty>p.qty){alert('Vượt SL kho (+p.qty+'株)');return;}
+  if(qty>p.qty){alert('Vượt SL tồn kho / 數量超過庫存');return;}
   if(!reason){alert('Vui lòng nhập lý do / 請填寫死亡原因');return;}
-  if(!confirm('Xác nhận hao hụt? '+p.name+' × '+qty+' 株？此操作無法復原'))return;
+  if(!confirm('Xác nhận? '+p.name+' × '+qty))return;
   S.writeoffs.unshift({id:S.nextId++,date:todayStr(),name:p.name,qty:qty,reason:reason,loc:p.loc,operator:op,cost:agedCost(p)*qty});
   p.qty-=qty;
   alert('Đã ghi nhận / 已記錄報廢');renderAll();renderWriteoffForm();
@@ -897,7 +897,7 @@ function doMoveBoard(){
   closeM('m-moveboard');renderBoardInv();renderMember();
 }
 function addPlant(){
-  var name=document.getElementById('np-name').value.trim();if(!name){alert('請填寫Tên cây / 植物名稱');return;}
+  var name=document.getElementById('np-name').value.trim();if(!name){alert('Vui lòng nhập tên cây / 請填寫植物名稱');return;}
   var cntd=parseInt(document.getElementById('np-cntd').value)||0;
   S.plants.push({id:S.nextId++,name:name,cat:document.getElementById('np-cat').value,costNtd:cntd,costVnd:cntd*CFG.rate,price:parseInt(document.getElementById('np-price').value)||0,qty:parseInt(document.getElementById('np-qty').value)||1,date:document.getElementById('np-date').value||todayStr(),loc:document.getElementById('np-loc').value,note:document.getElementById('np-note').value,status:'ok'});
   document.getElementById('np-name').value='';closeM('m-addplant');renderInv();renderPos();
