@@ -1,6 +1,6 @@
 // Supabase 設定
 const SUPABASE_URL = 'https://edvklxnzhuhmijdwyzrl.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_KK4J8EhdICLs-K98pCvyxA_aD21ixV7';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
 
 // 初始化 Supabase client
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
