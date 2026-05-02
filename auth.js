@@ -40,8 +40,10 @@ async function startApp(userId) {
   USER = userId;
   const badgeMap = { owner: ['Chandler Wei', 'badge ba'], quang: ['Quang', 'badge bg'], helper: ['Trợ lý', 'badge br'] };
   const [label, cls] = badgeMap[userId];
-  document.getElementById('role-badge').textContent = label;
-  document.getElementById('role-badge').className = cls;
+  ['role-badge','role-badge-pos','role-badge-inv','role-badge-orders','role-badge-rep'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = label; el.className = cls; }
+  });
   document.getElementById('home-date').textContent = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 
   // 顯示登入者浮動標示
