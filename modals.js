@@ -41,10 +41,21 @@ document.addEventListener('DOMContentLoaded', () => {
     <input type="hidden" id="ep-id">
     <div class="field"><label class="flabel">Tên cây / 植物名稱</label><input class="inp" id="ep-name"></div>
     <div class="irow">
+      <div class="field"><label class="flabel">Giá vốn NTD / 成本 NTD</label><input class="inp" id="ep-cost-ntd" type="number" min="0" oninput="document.getElementById('ep-cost-vnd').value=Math.round(this.value*CFG.rate)"></div>
+      <div class="field"><label class="flabel">Giá vốn VND / 成本 VND</label><input class="inp" id="ep-cost-vnd" type="number" min="0"></div>
+    </div>
+    <div class="irow">
       <div class="field"><label class="flabel">Giá bán VND / 售價</label><input class="inp" id="ep-price" type="number"></div>
       <div class="field"><label class="flabel">Số lượng / 庫存數量</label><input class="inp" id="ep-qty" type="number" min="0"></div>
     </div>
     <div class="field"><label class="flabel">Ngày nhập / 進貨日期</label><input class="inp" id="ep-date" type="date"></div>
+    <div class="field"><label class="flabel">Vị trí / 位置</label>
+      <select class="inp" id="ep-loc">
+        <option value="mine">Nhà chủ / 我家</option>
+        <option value="quang">Nhà Quang / Quang家</option>
+        <option value="helper">Nhà trợ lý / 小幫手家</option>
+      </select>
+    </div>
     <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="ep-note"></div>
     <button class="btn btnp btnf" onclick="savePlantEdit()">Lưu / 儲存</button>
   </div>

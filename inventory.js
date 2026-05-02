@@ -254,20 +254,28 @@ function openEditPlant(id) {
   if (!p) return;
   document.getElementById('ep-id').value = id;
   document.getElementById('ep-name').value = p.name;
+  document.getElementById('ep-cost-ntd').value = p.cost_ntd || 0;
+  document.getElementById('ep-cost-vnd').value = p.cost_vnd || 0;
   document.getElementById('ep-price').value = p.price;
   document.getElementById('ep-qty').value = p.qty;
   document.getElementById('ep-date').value = p.purchase_date;
+  document.getElementById('ep-loc').value = p.loc;
   document.getElementById('ep-note').value = p.note || '';
   openM('m-editplant');
 }
 
 async function savePlantEdit() {
   const id = parseInt(document.getElementById('ep-id').value);
+  const costNtd = parseInt(document.getElementById('ep-cost-ntd').value) || 0;
+  const costVnd = parseInt(document.getElementById('ep-cost-vnd').value) || costNtd * CFG.rate;
   const updates = {
     name: document.getElementById('ep-name').value,
+    cost_ntd: costNtd,
+    cost_vnd: costVnd,
     price: parseInt(document.getElementById('ep-price').value) || 0,
     qty: parseInt(document.getElementById('ep-qty').value) || 0,
     purchase_date: document.getElementById('ep-date').value,
+    loc: document.getElementById('ep-loc').value,
     note: document.getElementById('ep-note').value
   };
   showLoading(true);
