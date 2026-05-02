@@ -44,6 +44,16 @@ async function startApp(userId) {
   document.getElementById('role-badge').className = cls;
   document.getElementById('home-date').textContent = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 
+  // 顯示登入者浮動標示
+  const indicator = document.getElementById('user-indicator');
+  const dot = document.getElementById('user-dot');
+  const namePill = document.getElementById('user-name-pill');
+  const colors = { owner: '#fbbf24', quang: '#4ade80', helper: '#f87171' };
+  const names = { owner: 'Chandler Wei', quang: 'Quang', helper: 'Trợ lý' };
+  indicator.style.display = 'block';
+  dot.style.background = colors[userId];
+  namePill.textContent = names[userId];
+
   await DB.getConfig();
   await loadAllData();
   showLoading(false);
@@ -61,6 +71,7 @@ function logout() {
   cart = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('user-indicator').style.display = 'none';
 }
 
 function showLoading(show) {

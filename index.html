@@ -230,6 +230,14 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 </div>
 
 <!-- NAV -->
+<!-- 登入者浮動標示 -->
+<div id="user-indicator" style="position:fixed;top:10px;right:10px;z-index:300;display:none">
+  <div id="user-pill" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;font-size:11px;font-weight:600;background:var(--bg2);border:1px solid var(--border2);backdrop-filter:blur(10px)">
+    <div id="user-dot" style="width:7px;height:7px;border-radius:50%"></div>
+    <span id="user-name-pill"></span>
+  </div>
+</div>
+
 <nav class="nav">
   <button class="ni active" onclick="go('home')" id="nav-home">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>

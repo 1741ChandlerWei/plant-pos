@@ -18,8 +18,7 @@ function renderInv() {
 }
 
 function renderInvPlants() {
-  const myLoc = ROLE === 'quang' ? 'quang' : ROLE === 'helper' ? 'helper' : null;
-  const plants = DATA.plants.filter(p => p.status === 'ok' && (!myLoc || p.loc === myLoc));
+  const plants = DATA.plants.filter(p => p.status === 'ok');
   document.getElementById('inv-plant').innerHTML = plants.length === 0
     ? '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây / 無植物庫存</div>'
     : plants.map(p => {
