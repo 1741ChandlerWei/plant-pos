@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hướng dẫn sử dụng – Gốc Thân Lá</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0d;
+  --bg2: #1a1a16;
+  --bg3: #242420;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0ede6;
+  --text2: #9a9890;
+  --text3: #5e5c57;
+  --green: #4ade80;
+  --gbg: rgba(74,222,128,0.1);
+  --gborder: rgba(74,222,128,0.25);
+  --amber: #fbbf24;
+  --abg: rgba(251,191,36,0.08);
+  --aborder: rgba(251,191,36,0.2);
+  --blue: #60a5fa;
+  --bbg: rgba(96,165,250,0.1);
+  --red: #f87171;
+  --rbg: rgba(248,113,113,0.1);
+  --rborder: rgba(248,113,113,0.25);
+  --acc: #a3e635;
+  --accdim: rgba(163,230,53,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+.hero {
+  text-align: center;
+  padding: 60px 24px 40px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(163,230,53,0.04) 0%, transparent 100%);
+}
+.hero-icon { font-size: 52px; margin-bottom: 12px; }
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+.hero-sub {
+  font-size: 14px;
+  color: var(--acc);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.hero-desc {
+  font-size: 13px;
+  color: var(--text2);
+  max-width: 340px;
+  margin: 0 auto 20px;
+}
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--acc);
+  color: #0f0f0d;
+  padding: 10px 22px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+}
+.link-btn:hover { background: #bef264; }
+.container { max-width: 680px; margin: 0 auto; padding: 0 20px 60px; }
+.toc {
+  margin: 32px 0 0;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 20px;
+}
+.toc-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.toc-list { list-style: none; }
+.toc-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.toc-list li:last-child { border-bottom: none; }
+.toc-list a {
+  color: var(--text2);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .15s;
+}
+.toc-list a:hover { color: var(--acc); }
+.toc-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+.section {
+  margin-top: 40px;
+  scroll-margin-top: 20px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accdim);
+  border: 1px solid rgba(163,230,53,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--acc);
+  flex-shrink: 0;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.card-body { padding: 16px; }
+.step-list { list-style: none; }
+.step-list li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.step-list li:last-child { border-bottom: none; }
+.step-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--acc);
+  color: #0f0f0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.note {
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.note.green { background: var(--gbg); border: 1px solid var(--gborder); color: var(--green); }
+.note.amber { background: var(--abg); border: 1px solid var(--aborder); color: var(--amber); }
+.note.red { background: var(--rbg); border: 1px solid var(--rborder); color: var(--red); }
+.note.blue { background: var(--bbg); border: 1px solid rgba(96,165,250,0.25); color: var(--blue); }
+.note-icon { font-size: 16px; flex-shrink: 0; }
+.role-card {
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.role-card.owner { background: var(--abg); border: 1px solid var(--aborder); }
+.role-card.member { background: var(--gbg); border: 1px solid var(--gborder); }
+.role-icon { font-size: 28px; }
+.role-name { font-size: 14px; font-weight: 600; }
+.role-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge.green { background: var(--gbg); color: var(--green); border: 1px solid var(--gborder); }
+.badge.amber { background: var(--abg); color: var(--amber); border: 1px solid var(--aborder); }
+.badge.blue { background: var(--bbg); color: var(--blue); border: 1px solid rgba(96,165,250,0.25); }
+.badge.red { background: var(--rbg); color: var(--red); border: 1px solid var(--rborder); }
+.screen-mock {
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 12px;
+  border: 1px solid var(--border2);
+}
+.screen-mock .mock-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+.mock-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.mock-row:last-child { border-bottom: none; }
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 32px 0;
+}
+.footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text3);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+.tab-demo {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.tab-demo span {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+.tab-demo span.active {
+  background: var(--accdim);
+  color: var(--acc);
+  border-color: rgba(163,230,53,0.3);
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-icon">🌿</div>
+  <div class="hero-title">Gốc Thân Lá</div>
+  <div class="hero-sub">Hướng dẫn sử dụng ứng dụng</div>
+  <div class="hero-desc">Hệ thống quản lý bán hàng & kho cây cảnh dành cho thành viên</div>
+  <a href="https://plant-pos.vercel.app" class="link-btn" target="_blank">🔗 Mở ứng dụng</a>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <div class="toc-title">Mục lục</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">1</span> Đăng nhập</a></li>
+      <li><a href="#s2"><span class="toc-num">2</span> Xem kho hàng của bạn</a></li>
+      <li><a href="#s3"><span class="toc-num">3</span> Tạo đơn hàng</a></li>
+      <li><a href="#s4"><span class="toc-num">4</span> Báo cáo hao hụt (cây chết)</a></li>
+      <li><a href="#s5"><span class="toc-num">5</span> Khu chỉnh sửa (cây bị hỏng)</a></li>
+      <li><a href="#s6"><span class="toc-num">6</span> Xem lịch sử đơn hàng</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">Đăng nhập</div>
+    </div>
+
+    <div class="note blue">
+      <span class="note-icon">🔗</span>
+      <div>Truy cập ứng dụng tại: <strong>https://plant-pos.vercel.app</strong> — mở bằng trình duyệt trên điện thoại hoặc máy tính, không cần cài đặt.</div>
+    </div>
+
+    <div class="role-card owner">
+      <div class="role-icon">👑</div>
+      <div>
+        <div class="role-name">Chandler Wei</div>
+        <div class="role-desc">Chủ — toàn quyền quản lý, xem tất cả báo cáo và cài đặt hệ thống</div>
+      </div>
+    </div>
+    <div class="role-card member">
+      <div class="role-icon">🌱</div>
+      <div>
+        <div class="role-name">Quang</div>
+        <div class="role-desc">Thành viên — xem kho của mình, tạo đơn hàng, xem lịch sử đơn</div>
+      </div>
+    </div>
+    <div class="role-card member" style="background:var(--rbg);border-color:var(--rborder)">
+      <div class="role-icon">🪴</div>
+      <div>
+        <div class="role-name">Trợ lý</div>
+        <div class="role-desc">Thành viên — xem kho của mình, tạo đơn hàng, xem lịch sử đơn</div>
+      </div>
+    </div>
+
+    <div class="note amber">
+      <span class="note-icon">⚠️</span>
+      <div>Mỗi người chọn đúng tên của mình khi đăng nhập. Nếu chọn sai tên, kho hàng hiển thị sẽ không chính xác.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">Xem kho hàng của bạn</div>
+    </div>
+
+    <div class="note green">
+      <span class="note-icon">📦</span>
+      <div>Nhấn vào tab <strong>Kho hàng</strong> ở thanh điều hướng phía dưới màn hình.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="tab-demo">
+          <span class="active">Cây</span>
+          <span>Tấm gỗ</span>
+          <span>Kho TV</span>
+          <span>Chỉnh sửa</span>
+        </div>
+        <ul class="step-list">
+          <li>
+            <span class="step-dot">🌿</span>
+            <div><strong>Tab Cây</strong> — hiển thị tất cả cây trong kho của bạn, kèm số lượng, số ngày trong kho và giá bán đề xuất.</div>
+          </li>
+          <li>
+            <span class="step-dot">🪵</span>
+            <div><strong>Tab Tấm gỗ</strong> — xem số lượng tấm gỗ đang có tại từng vị trí (nhà chủ / nhà Quang / nhà trợ lý).</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen-mock">
+      <div class="mock-title">Ví dụ: Danh sách cây trong kho</div>
+      <div class="mock-row"><span>AR SP <span style="color:#60a5fa;font-size:10px;border:1px solid rgba(96,165,250,.3);padding:1px 5px;border-radius:4px">Nhà chủ</span></span><span style="color:#a3e635">₫1,200,000</span></div>
+      <div class="mock-row"><span>mew <span style="color:#a3e635;font-size:10px;border:1px solid rgba(163,230,53,.3);padding:1px 5px;border-radius:4px">Quang</span></span><span style="color:#a3e635">₫950,000</span></div>
+      <div class="mock-row"><span>ELSA <span style="color:#f87171;font-size:10px;border:1px solid rgba(248,113,113,.3);padding:1px 5px;border-radius:4px">Trợ lý</span></span><span style="color:#a3e635">₫520,000</span></div>
+    </div>
+
+    <div class="note blue">
+      <span class="note-icon">ℹ️</span>
+      <div>Nhấn vào tên cây để xem chi tiết: giá vốn hiện tại, tỷ lệ lợi nhuận, số ngày trong kho và thông tin đầy đủ.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">Tạo đơn hàng</div>
+    </div>
+
+    <div class="note green">
+      <span class="note-icon">🛒</span>
+      <div>Nhấn vào tab <strong>Tạo đơn</strong> ở thanh điều hướng phía dưới.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <ul class="step-list">
+          <li>
+            <span class="step-dot">1</span>
+            <div>
+              <strong>Chọn cây hoặc tấm gỗ</strong><br>
+              <span style="color:var(--text2);font-size:13px">Mỗi sản phẩm hiển thị vị trí đang để <span style="color:#60a5fa">Nhà chủ</span> / <span style="color:#a3e635">Quang</span> / <span style="color:#f87171">Trợ lý</span>. Nhấn vào để thêm vào giỏ hàng.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-dot">2</span>
+            <div>
+              <strong>Kiểm tra giỏ hàng</strong><br>
+              <span style="color:var(--text2);font-size:13px">Nhấn tab <strong>Giỏ hàng</strong>. Có thể chỉnh số lượng (+/−) và thay đổi giá bán nếu cần (ví dụ: giá thương lượng với khách).</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-dot">3</span>
+            <div>
+              <strong>Nhấn "Kết thúc thanh toán →"</strong><br>
+              <span style="color:var(--text2);font-size:13px">Điền thông tin khách hàng:</span>
+              <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px">
+                <span class="badge green">Tên khách ✱</span>
+                <span class="badge blue">Liên hệ</span>
+                <span class="badge blue">Địa chỉ</span>
+                <span class="badge blue">Nguồn đơn</span>
+                <span class="badge blue">Thanh toán</span>
+                <span class="badge amber">Người bán ✱</span>
+              </div>
+              <div style="font-size:12px;color:var(--text3);margin-top:6px">✱ bắt buộc điền</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-dot">4</span>
+            <div>
+              <strong>Xác nhận → Phiếu xuất hàng</strong><br>
+              <span style="color:var(--text2);font-size:13px">Hệ thống tự động trừ kho và tạo phiếu xuất hàng. Có thể in phiếu hoặc chụp màn hình gửi cho khách.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note amber">
+      <span class="note-icon">💡</span>
+      <div>Nếu khách <strong>tự đến lấy</strong>, bỏ trống ô địa chỉ — phiếu xuất sẽ ghi "Tự lấy" tự động.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">Báo cáo hao hụt (cây chết)</div>
+    </div>
+
+    <div class="note red">
+      <span class="note-icon">🥀</span>
+      <div>Khi có cây bị chết hoặc hỏng không thể bán, cần ghi nhận vào hệ thống để kho được chính xác.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="tab-demo">
+          <span>Cây</span>
+          <span>Tấm gỗ</span>
+          <span class="active">Hao hụt</span>
+          <span>Giỏ hàng</span>
+        </div>
+        <ul class="step-list">
+          <li>
+            <span class="step-dot">1</span>
+            <div>Vào tab <strong>Tạo đơn</strong> → chọn tab <strong>Hao hụt</strong></div>
+          </li>
+          <li>
+            <span class="step-dot">2</span>
+            <div>Chọn <strong>tên cây</strong> bị chết từ danh sách</div>
+          </li>
+          <li>
+            <span class="step-dot">3</span>
+            <div>Nhập <strong>số lượng</strong> cây bị chết</div>
+          </li>
+          <li>
+            <span class="step-dot">4</span>
+            <div>Điền <strong>lý do</strong> (ví dụ: rễ bị thối, lá khô héo...)</div>
+          </li>
+          <li>
+            <span class="step-dot">5</span>
+            <div>Nhấn <strong>"Xác nhận báo cáo"</strong> — kho tự động trừ, lưu vào báo cáo hao hụt</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note amber">
+      <span class="note-icon">⚠️</span>
+      <div>Thao tác này <strong>không thể hoàn tác</strong>. Vui lòng kiểm tra kỹ tên cây và số lượng trước khi xác nhận.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Khu chỉnh sửa (cây bị hỏng)</div>
+    </div>
+
+    <div class="note amber">
+      <span class="note-icon">🔧</span>
+      <div>Khu chỉnh sửa dành cho những cây <strong>chưa chết nhưng cần phục hồi</strong> — lá bị hư, rễ yếu, cần chăm sóc đặc biệt trước khi bán lại.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px"><strong style="color:var(--text)">Cách chuyển cây vào khu chỉnh sửa:</strong></p>
+        <ul class="step-list">
+          <li>
+            <span class="step-dot">1</span>
+            <div>Vào <strong>Kho hàng</strong> → Tab <strong>Cây</strong> → nhấn vào tên cây</div>
+          </li>
+          <li>
+            <span class="step-dot">2</span>
+            <div>Nhấn nút <strong>"→ Khu chỉnh sửa"</strong> ở cuối trang chi tiết</div>
+          </li>
+          <li>
+            <span class="step-dot">3</span>
+            <div>Nhập <strong>số lượng</strong> cần chuyển và <strong>lý do</strong></div>
+          </li>
+          <li>
+            <span class="step-dot">4</span>
+            <div>Hệ thống tự cấp mã <span style="font-family:DM Mono,monospace;color:var(--amber)">R-001</span>, <span style="font-family:DM Mono,monospace;color:var(--amber)">R-002</span>... để theo dõi</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px"><strong style="color:var(--text)">Xem cây đang trong khu chỉnh sửa:</strong></p>
+        <ul class="step-list">
+          <li>
+            <span class="step-dot">📋</span>
+            <div>Vào <strong>Kho hàng</strong> → Tab <strong>Chỉnh sửa</strong></div>
+          </li>
+          <li>
+            <span class="step-dot">📅</span>
+            <div>Mỗi cây hiển thị <strong>số ngày trong kho</strong> (từ ngày nhập) và <strong>số ngày đang chỉnh sửa</strong> (từ ngày chuyển vào khu)</div>
+          </li>
+          <li>
+            <span class="step-dot">↩️</span>
+            <div>Khi cây đã hồi phục, nhấn <strong>"Chuyển lại kho"</strong> — chọn vị trí và số lượng muốn chuyển về</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note blue">
+      <span class="note-icon">ℹ️</span>
+      <div>Cây trong khu chỉnh sửa <strong>không xuất hiện trong danh sách bán hàng</strong> cho đến khi được chuyển lại kho.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Xem lịch sử đơn hàng</div>
+    </div>
+
+    <div class="note green">
+      <span class="note-icon">📄</span>
+      <div>Nhấn vào tab <strong>Đơn hàng</strong> ở thanh điều hướng phía dưới để xem tất cả đơn đã hoàn thành.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <ul class="step-list">
+          <li>
+            <span class="step-dot">📅</span>
+            <div>Đơn hàng được nhóm theo <strong>tháng</strong>, hiển thị tổng doanh thu và lợi nhuận của mỗi tháng.</div>
+          </li>
+          <li>
+            <span class="step-dot">🔍</span>
+            <div>Nhấn vào từng tháng để <strong>mở rộng / thu gọn</strong> danh sách đơn trong tháng đó.</div>
+          </li>
+          <li>
+            <span class="step-dot">🧾</span>
+            <div>Nhấn vào bất kỳ đơn hàng nào để <strong>xem lại phiếu xuất hàng</strong> và in nếu cần.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen-mock">
+      <div class="mock-title">Ví dụ: Tháng 1/2025</div>
+      <div class="mock-row"><span style="color:var(--text2);font-size:10px">Doanh thu</span><span style="color:var(--blue)">₫3,380,000</span></div>
+      <div class="mock-row"><span style="color:var(--text2);font-size:10px">Lợi nhuận</span><span style="color:var(--green)">₫1,709,000</span></div>
+      <div class="mock-row"><span style="color:var(--text2);font-size:10px">Tỷ lệ LN</span><span style="color:var(--green)">50.6%</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="note green" style="margin-top:0">
+    <span class="note-icon">✅</span>
+    <div>Nếu có vấn đề hoặc cần hỗ trợ, liên hệ <strong>Chandler Wei</strong> trực tiếp. Chúc bán hàng tốt! 🌿</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Gốc Thân Lá · Hướng dẫn sử dụng nội bộ · plant-pos.vercel.app
+</div>
+
+</body>
+</html>
