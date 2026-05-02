@@ -307,51 +307,71 @@ async function confirmRehab() {
   const note = document.getElementById('rehab-note').value;
   if (qty > p.qty) { showToast('Vượt SL / 數量超過庫存', 'error'); return; }
   showLoading(true);
-  const rid = await DB.getNextRid();
-  await DB.addRehab({
-    rid, plant_id: p.id, plant_name: p.name, qty,
-    purchase_date: p.purchase_date, rehab_date: todayStr(),
-    note, loc: p.loc, status: 'rehab'
-  });
+  // 每株建立獨立記錄
+  const firstRid = await DB.getNextRid();
+  const firstNum = parseInt(firstRid.replace('R-', ''));
+  for (let i = 0; i < qty; i++) {
+    const rid = 'R-' + String(firstNum + i).padStart(3, '0');
+    await DB.addRehab({
+      rid, plant_id: p.id, plant_name: p.name, qty: 1,
+      purchase_date: p.purchase_date, rehab_date: todayStr(),
+      note, loc: p.loc, status: 'rehab'
+    });
+  }
   await DB.updatePlant(p.id, { qty: p.qty - qty });
   await loadAllData();
   showLoading(false);
   closeM('m-rehab');
   renderInv();
   invTab('rehab');
-  showToast(`Đã chuyển vào khu CS / 已移入修整區 · ${rid}`);
+  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(3, '0');
+  showToast(`已移入修整區 ${firstRid} ~ ${lastRid}`);
 }
 
 function renderRehab() {
   const el = document.getElementById('inv-rehab');
   if (DATA.rehab.length === 0) { el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây trong khu CS / 修整區無植物</div>'; return; }
-  let h = '';
+  // 按植物名稱分組顯示
+  const groups = {};
   DATA.rehab.forEach(r => {
-    const stockDays = daysSince(r.purchase_date);
-    const rehabDays = daysSince(r.rehab_date);
-    h += `<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);padding:13px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">${r.rid}</span>
-        <span class="badge ba">${r.qty}株 Đang CS / 修整中</span>
-      </div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">${r.plant_name}</div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:8px"><span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center">
-          <div style="font-size:10px;color:var(--text2);margin-bottom:3px">Ngày trong kho / 在庫天數</div>
-          <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+    if (!groups[r.plant_name]) groups[r.plant_name] = [];
+    groups[r.plant_name].push(r);
+  });
+  let h = '';
+  Object.keys(groups).forEach(plantName => {
+    const plants = groups[plantName];
+    h += `<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg3);border-bottom:1px solid var(--border)">
+        <span style="font-size:14px;font-weight:700">${plantName}</span>
+        <span class="badge ba">${plants.length}株 修整中</span>
+      </div>`;
+    plants.forEach(r => {
+      const stockDays = daysSince(r.purchase_date);
+      const rehabDays = daysSince(r.rehab_date);
+      const bc = rehabDays > 14 ? 'var(--red)' : rehabDays > 7 ? 'var(--amber)' : 'var(--green)';
+      h += `<div style="padding:11px 14px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--amber);font-weight:700">${r.rid}</span>
+          <span class="${LOC_CLASS[r.loc]}" style="font-size:10px">${LOC_LABELS[r.loc]}</span>
         </div>
-        <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center">
-          <div style="font-size:10px;color:var(--text2);margin-bottom:3px">Ngày chỉnh sửa / 修整天數</div>
-          <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">${rehabDays}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
+            <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+            <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+          </div>
+          <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
+            <div style="font-size:9px;color:var(--text2)">修整天數</div>
+            <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${rehabDays}</div>
+          </div>
         </div>
-      </div>
-      ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px">${r.note}</div>` : ''}
-      ${ROLE === 'owner' ? `<div style="display:flex;gap:8px">
-        <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">Sửa ngày / 編輯日期</button>
-        <button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab('${r.rid}')">Chuyển lại kho / 移回庫存</button>
-      </div>` : ''}
-    </div>`;
+        ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:7px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
+        ${ROLE === 'owner' ? `<div style="display:flex;gap:6px">
+          <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
+          <button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab('${r.rid}')">移回庫存</button>
+        </div>` : ''}
+      </div>`;
+    });
+    h += '</div>';
   });
   el.innerHTML = h;
 }
@@ -395,25 +415,20 @@ async function doReleaseRehab() {
   const rid = document.getElementById('rr-rid').value;
   const r = DATA.rehab.find(x => x.rid === rid);
   if (!r) return;
-  const qty = parseInt(document.getElementById('rr-qty').value) || 1;
   const toLoc = document.getElementById('rr-loc').value;
-  if (qty > r.qty) { showToast('Vượt SL / 數量超過修整區庫存', 'error'); return; }
   showLoading(true);
+  // 每筆都是 qty=1，直接移回
   const existing = DATA.plants.find(p => p.name === r.plant_name && p.loc === toLoc && p.status === 'ok');
   if (existing) {
-    await DB.updatePlant(existing.id, { qty: existing.qty + qty });
+    await DB.updatePlant(existing.id, { qty: existing.qty + 1 });
   } else {
-    await DB.addPlant({ name: r.plant_name, cat: '植物', cost_ntd: 0, cost_vnd: 0, price: 0, qty, purchase_date: r.purchase_date || todayStr(), loc: toLoc, note: 'Từ khu CS / 從修整區移回', status: 'ok' });
+    await DB.addPlant({ name: r.plant_name, cat: '植物', cost_ntd: 0, cost_vnd: 0, price: 0, qty: 1, purchase_date: r.purchase_date || todayStr(), loc: toLoc, note: 'Từ khu CS / 從修整區移回', status: 'ok' });
   }
-  if (qty >= r.qty) {
-    await DB.releaseRehab(r.id);
-  } else {
-    await DB.updateRehab(r.id, { qty: r.qty - qty });
-  }
+  await DB.releaseRehab(r.id);
   await loadAllData();
   showLoading(false);
   closeM('m-releaserhab');
   renderRehab();
   renderInv();
-  showToast('Đã chuyển lại kho / 已移回庫存');
+  showToast(`${rid} 已移回庫存`);
 }

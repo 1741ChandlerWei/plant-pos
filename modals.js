@@ -162,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <option value="helper">Nhà trợ lý / 小幫手家</option>
       </select>
     </div>
-    <div class="field"><label class="flabel">Số lượng / 數量</label><input class="inp" id="rr-qty" type="number" min="1" value="1"></div>
     <button class="btn btnp btnf" onclick="doReleaseRehab()">Xác nhận / 確認移回</button>
   </div>
 </div>
