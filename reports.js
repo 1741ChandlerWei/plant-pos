@@ -384,7 +384,8 @@ async function savePurchase() {
   const items = purItems.map(i => ({
     item_name: i.name, qty: i.qty,
     cost_ntd: i.cost_ntd, cost_vnd: i.cost_ntd * CFG.rate,
-    total_vnd: i.qty * i.cost_ntd * CFG.rate
+    total_vnd: i.qty * i.cost_ntd * CFG.rate,
+    price: i.price || 0
   }));
   const totalVnd = items.reduce((s, i) => s + i.total_vnd, 0);
   const purchaseDate = document.getElementById('pur-date').value || todayStr();
