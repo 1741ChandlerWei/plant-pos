@@ -424,9 +424,10 @@ async function savePurchase() {
     qty: i.qty,
     cost_ntd: i.cost_ntd,
     cost_vnd: i.cost_ntd * CFG.rate,
-    total_vnd: i.qty * i.cost_ntd * CFG.rate,
-    price: i.price || 0
+    total_vnd: i.qty * i.cost_ntd * CFG.rate
   }));
+  // price 只用於庫存，不存入 purchase_items
+  const itemPrices = purItems.map(i => i.price || 0);
 
   const totalVnd = items.reduce((s, i) => s + i.total_vnd, 0);
   const purchaseDate = document.getElementById('pur-date').value || todayStr();
@@ -439,7 +440,8 @@ async function savePurchase() {
   }, items);
 
   if (addToStock) {
-    for (const i of items) {
+    for (let idx = 0; idx < items.length; idx++) {
+      const i = items[idx];
       if (!i.item_name) continue;
       const existing = DATA.plants.find(p => p.name === i.item_name && p.loc === stockLoc && p.status === 'ok');
       if (existing) {
@@ -450,7 +452,7 @@ async function savePurchase() {
           cat: '植物',
           cost_ntd: i.cost_ntd,
           cost_vnd: i.cost_vnd,
-          price: i.price || 0,
+          price: itemPrices[idx],
           qty: i.qty,
           purchase_date: purchaseDate,
           loc: stockLoc,
