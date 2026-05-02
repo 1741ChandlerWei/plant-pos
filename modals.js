@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="field"><label class="flabel">≈ VND</label><input class="inp" id="np-cvnd" readonly></div>
     </div>
     <div class="irow">
-      <div class="field"><label class="flabel">Giá bán VND / 售價</label><input class="inp" id="np-price" type="number" placeholder="950000"></div>
+      <div class="field"><label class="flabel">Giá bán ước tính VND / 預估售價</label><input class="inp" id="np-price" type="number" placeholder="950000"></div>
       <div class="field"><label class="flabel">Số lượng / 數量</label><input class="inp" id="np-qty" type="number" value="1" min="1"></div>
     </div>
     <div class="field"><label class="flabel">Ngày nhập / 進貨日期</label><input class="inp" id="np-date" type="date"></div>
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="field"><label class="flabel">Giá vốn VND / 成本 VND</label><input class="inp" id="ep-cost-vnd" type="number" min="0"></div>
     </div>
     <div class="irow">
-      <div class="field"><label class="flabel">Giá bán VND / 售價</label><input class="inp" id="ep-price" type="number"></div>
+      <div class="field"><label class="flabel">Giá bán ước tính VND / 預估售價</label><input class="inp" id="ep-price" type="number"></div>
       <div class="field"><label class="flabel">Số lượng / 庫存數量</label><input class="inp" id="ep-qty" type="number" min="0"></div>
     </div>
     <div class="field"><label class="flabel">Ngày nhập / 進貨日期</label><input class="inp" id="ep-date" type="date"></div>
