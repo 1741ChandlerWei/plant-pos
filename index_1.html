@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>根莖葉 / Gốc Thân Lá</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0f0d;--bg2:#1a1a16;--bg3:#242420;--bg4:#2e2e29;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#f0ede6;--text2:#9a9890;--text3:#5e5c57;
+  --green:#4ade80;--gbg:rgba(74,222,128,0.1);--gborder:rgba(74,222,128,0.25);
+  --amber:#fbbf24;--abg:rgba(251,191,36,0.1);--aborder:rgba(251,191,36,0.25);
+  --red:#f87171;--rbg:rgba(248,113,113,0.1);--rborder:rgba(248,113,113,0.25);
+  --blue:#60a5fa;--bbg:rgba(96,165,250,0.1);--bborder:rgba(96,165,250,0.25);
+  --acc:#a3e635;--accdim:rgba(163,230,53,0.15);
+  --r:10px;--rl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans TC','Noto Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden}
+.screen{display:none;flex-direction:column;min-height:100vh;padding-bottom:84px}
+.screen.active{display:flex;animation:fi .18s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:50}
+.ttitle{font-size:16px;font-weight:500}
+.tsub{font-size:11px;color:var(--text2);margin-top:1px;font-family:'Noto Sans',sans-serif}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 3px 7px;font-size:9px;color:var(--text3);cursor:pointer;border:none;background:none;transition:color .15s;line-height:1.2}
+.ni.active{color:var(--acc)}
+.ni svg{width:20px;height:20px}
+.ni .lz{display:block;font-size:9px}
+.ni .lv{display:block;font-size:8px;opacity:.65;font-family:'Noto Sans',sans-serif}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 4px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px}
+.ml{font-size:10px;color:var(--text2);margin-bottom:3px;line-height:1.4}
+.ml .vi{font-size:9px;display:block;color:var(--text3);font-family:'Noto Sans',sans-serif}
+.mv{font-size:19px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px}
+.mv.blue{color:var(--blue)}.mv.green{color:var(--green)}.mv.amber{color:var(--amber)}
+.pi{display:flex;align-items:center;gap:11px;padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.pi:hover{background:var(--bg2)}
+.pdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta{font-size:11px;color:var(--text2);margin-top:1px}
+.pright{text-align:right;flex-shrink:0}
+.pprice{font-size:13px;font-weight:500;font-family:'DM Mono',monospace}
+.psub{font-size:10px;color:var(--text3);margin-top:1px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:500}
+.bg{background:var(--gbg);color:var(--green);border:1px solid var(--gborder)}
+.ba{background:var(--abg);color:var(--amber);border:1px solid var(--aborder)}
+.br{background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
+.bb{background:var(--bbg);color:var(--blue);border:1px solid var(--bborder)}
+.bgr{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btnp{background:var(--acc);color:#0f0f0d}.btnp:hover{background:#bef264}
+.btns{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}.btns:hover{background:var(--bg4)}
+.btnd{background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
+.btnf{width:100%;justify-content:center}
+.btnsm{padding:6px 11px;font-size:12px}
+.btn:active{transform:scale(.97)}
+.field{margin-bottom:12px}
+.flabel{font-size:11px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500}
+.flabel .vi{font-size:10px;color:var(--text3);font-family:'Noto Sans',sans-serif}
+.inp{width:100%;padding:10px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;transition:border-color .15s}
+.inp:focus{outline:none;border-color:var(--acc)}
+.inp::placeholder{color:var(--text3)}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a9890' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+.irow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex;animation:oi .18s ease}
+@keyframes oi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto;animation:su .2s ease;border-top:1px solid var(--border2)}
+@keyframes su{from{transform:translateY(36px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mhandle{width:36px;height:4px;background:var(--bg4);border-radius:2px;margin:0 auto 16px}
+.mtitle{font-size:16px;font-weight:700;margin-bottom:16px}
+.mtitle .vi{font-size:12px;color:var(--text2);font-weight:400;font-family:'Noto Sans',sans-serif;display:block;margin-top:2px}
+.tabs{display:flex;gap:4px;padding:0 16px 12px;flex-wrap:wrap}
+.tab{flex:1;min-width:55px;padding:7px 5px;text-align:center;font-size:12px;font-weight:500;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;font-family:inherit;line-height:1.3}
+.tab .vi{font-size:9px;color:inherit;opacity:.65;font-family:'Noto Sans',sans-serif;display:block;margin-top:1px}
+.tab.active{background:var(--accdim);color:var(--acc);border-color:rgba(163,230,53,.3)}
+.age-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px}
+.age-fill{height:100%;border-radius:2px}
+.divider{height:1px;background:var(--border);margin:10px 0}
+.sec{padding:14px 18px 7px;font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.8px;text-transform:uppercase}
+.loc-m{display:inline-flex;padding:1px 6px;border-radius:5px;font-size:10px;background:var(--bbg);color:var(--blue);border:1px solid var(--bborder)}
+.loc-q{display:inline-flex;padding:1px 6px;border-radius:5px;font-size:10px;background:var(--accdim);color:var(--acc);border:1px solid rgba(163,230,53,.25)}
+.loc-h{display:inline-flex;padding:1px 6px;border-radius:5px;font-size:10px;background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
+.qbtn{width:27px;height:27px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.month-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin:0 16px 12px;overflow:hidden}
+.month-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background .12s}
+.month-header:hover{background:var(--bg3)}
+.month-header.open{border-bottom:1px solid var(--border)}
+.month-chevron{font-size:14px;color:var(--text3);transition:transform .2s}
+.month-chevron.open{transform:rotate(90deg)}
+.month-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.mstat{text-align:center}
+.mstat-label{font-size:9px;color:var(--text2);margin-bottom:2px;font-family:'Noto Sans',sans-serif}
+.mstat-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
+.order-row{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.order-row:hover{background:var(--bg3)}
+.order-row:last-child{border-bottom:none}
+.receipt{background:#fff;color:#111;padding:22px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:12px}
+.rshop{font-size:16px;font-weight:700;letter-spacing:1px;text-align:center;color:#1a1a1a;margin-bottom:2px}
+.rsub{font-size:10px;color:#666;text-align:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #ccc}
+.rrow{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+.rtotal{display:flex;justify-content:space-between;padding:8px 0 0;font-size:14px;font-weight:700;border-top:1px dashed #ccc;margin-top:5px}
+.rsec{margin-top:11px;padding-top:10px;border-top:1px dashed #ccc}
+.rlabel{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.role-btn{width:100%;padding:15px 18px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);cursor:pointer;display:flex;align-items:center;gap:13px;margin-bottom:10px;transition:all .15s;text-align:left;font-family:inherit}
+.role-btn:hover{border-color:var(--acc);background:var(--accdim)}
+.admin-section{margin:0 16px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.admin-section-title{padding:12px 16px;font-size:12px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase}
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.admin-row:last-child{border-bottom:none}
+@media print{body>*:not(#print-area){display:none!important}#print-area{display:block!important}}
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="login-wrap">
+  <div style="font-size:46px;margin-bottom:8px">🌿</div>
+  <div style="font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:2px">根莖葉</div>
+  <div style="font-size:13px;font-family:'Noto Sans',sans-serif;color:var(--acc);margin-bottom:4px">Gốc Thân Lá</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:36px">植物工作室 / Studio Cây Cảnh</div>
+  <div style="width:100%;margin-bottom:20px">
+    <button class="role-btn" onclick="login('owner')">
+      <span style="font-size:26px">👑</span>
+      <div><div style="font-size:14px;font-weight:600;color:var(--text)">Chandler Wei</div><div style="font-size:11px;color:var(--text2);font-family:'Noto Sans',sans-serif">完整後台權限 · Toàn quyền quản lý</div></div>
+    </button>
+    <button class="role-btn" onclick="login('quang')">
+      <span style="font-size:26px">🌱</span>
+      <div><div style="font-size:14px;font-weight:600;color:var(--text)">Quang（成員 / Thành viên）</div><div style="font-size:11px;color:var(--text2);font-family:'Noto Sans',sans-serif">查看植物、開立訂單 · Xem cây, tạo đơn</div></div>
+    </button>
+    <button class="role-btn" onclick="login('helper')">
+      <span style="font-size:26px">🪴</span>
+      <div><div style="font-size:14px;font-weight:600;color:var(--text)">小幫手 / Trợ lý</div><div style="font-size:11px;color:var(--text2);font-family:'Noto Sans',sans-serif">查看植物、開立訂單 · Xem cây, tạo đơn</div></div>
+    </button>
+  </div>
+  <div style="font-size:11px;color:var(--text3);text-align:center;font-family:'Noto Sans',sans-serif">Demo · Chế độ thử nghiệm</div>
+</div>
+
+<div id="app" style="display:none">
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="topbar">
+    <div><div class="ttitle">今日總覽 <span style="font-size:12px;font-family:'Noto Sans',sans-serif;color:var(--text2)">Tổng quan</span></div><div class="tsub" id="home-date"></div></div>
+    <div style="display:flex;gap:7px;align-items:center"><span id="role-badge" class="badge"></span><button class="btn btns btnsm" onclick="logout()">登出</button></div>
+  </div>
+  <div style="height:14px"></div>
+  <div class="metrics" id="home-metrics"></div>
+  <div class="sec">今日訂單 / Đơn hàng hôm nay</div>
+  <div id="today-orders"></div>
+  <div class="sec">低庫存警示 / Cảnh báo tồn kho</div>
+  <div id="low-stock"></div>
+</div>
+
+<!-- POS -->
+<div class="screen" id="screen-pos">
+  <div class="topbar">
+    <div><div class="ttitle">開立訂單</div><div class="tsub">Tạo đơn hàng</div></div>
+    <button class="btn btns btnsm" onclick="clearCart()">清空 / Xóa</button>
+  </div>
+  <div class="tabs" style="margin-top:12px">
+    <button class="tab active" id="ptab-plant" onclick="posTab('plant')">植物<span class="vi">Cây</span></button>
+    <button class="tab" id="ptab-board" onclick="posTab('board')">板子<span class="vi">Tấm gỗ</span></button>
+    <button class="tab" id="ptab-cart" onclick="posTab('cart')">購物車 <span id="cart-badge"></span><span class="vi">Giỏ hàng</span></button>
+  </div>
+  <div id="pos-plant"></div>
+  <div id="pos-board" style="display:none"></div>
+  <div id="pos-cart" style="display:none;padding:0 16px"></div>
+</div>
+
+<!-- INVENTORY -->
+<div class="screen" id="screen-inv">
+  <div class="topbar">
+    <div><div class="ttitle">庫存管理</div><div class="tsub">Quản lý kho</div></div>
+    <div id="inv-addbtn"></div>
+  </div>
+  <div class="tabs" style="margin-top:12px">
+    <button class="tab active" id="itab-plant" onclick="invTab('plant')">植物<span class="vi">Cây</span></button>
+    <button class="tab" id="itab-board" onclick="invTab('board')">板子<span class="vi">Tấm gỗ</span></button>
+    <button class="tab" id="itab-member" onclick="invTab('member')">成員庫存<span class="vi">Kho TV</span></button>
+    <button class="tab" id="itab-rehab" onclick="invTab('rehab')">修整區<span class="vi">Chỉnh sửa</span></button>
+  </div>
+  <div id="inv-plant"></div>
+  <div id="inv-board" style="display:none"></div>
+  <div id="inv-member" style="display:none"></div>
+  <div id="inv-rehab" style="display:none"></div>
+</div>
+
+<!-- ORDERS -->
+<div class="screen" id="screen-orders">
+  <div class="topbar">
+    <div><div class="ttitle">已完成訂單</div><div class="tsub">Đơn hàng đã hoàn thành</div></div>
+    <div style="display:flex;gap:6px;align-items:center"><div id="orders-filter-badge" style="font-size:12px;color:var(--acc)"></div><button class="btn btns btnsm" id="orders-clear-filter" onclick="clearOrderFilter()" style="display:none">全部</button></div>
+  </div>
+  <div style="padding:10px 16px 4px"><div style="font-size:12px;color:var(--text2);font-family:'Noto Sans',sans-serif" id="orders-subtitle"></div></div>
+  <div id="orders-list"></div>
+</div>
+
+<!-- REPORT -->
+<div class="screen" id="screen-rep">
+  <div class="topbar"><div><div class="ttitle">報表</div><div class="tsub">Báo cáo</div></div></div>
+  <div class="tabs" style="margin-top:12px" id="rep-tabs"></div>
+  <div id="rep-summary">
+    <div class="metrics" id="rep-metrics"></div>
+    <div class="sec">月度明細 / Chi tiết hàng tháng</div>
+    <div id="rep-monthly"></div>
+  </div>
+  <div id="rep-purchase" style="display:none">
+    <div class="metrics" style="margin-top:4px" id="pur-metrics"></div>
+    <div style="padding:10px 16px;display:flex;justify-content:flex-end"><button class="btn btnp btnsm" onclick="openM('m-newpur')">+ 新增進貨 / Thêm lô</button></div>
+    <div id="pur-list"></div>
+  </div>
+  <div id="rep-invstatus" style="display:none">
+    <div class="sec">所有植物在庫狀態 / Trạng thái tồn kho</div>
+    <div id="inv-status-list"></div>
+  </div>
+  <div id="rep-admin" style="display:none">
+    <div style="height:12px"></div>
+    <!-- System Settings -->
+    <div class="admin-section">
+      <div class="admin-section-title">系統設定 / Cài đặt hệ thống</div>
+      <div style="padding:14px 16px">
+        <div class="field"><label class="flabel">匯率：1 NTD = ? VND</label><input class="inp" id="cfg-rate" type="number" placeholder="900"></div>
+        <div class="field"><label class="flabel">每月成本增加（VND / 月）<span class="vi">Chi phí tăng mỗi tháng</span></label><input class="inp" id="cfg-monthly-inc" type="number" placeholder="50000"></div>
+        <div class="field"><label class="flabel">最高增加上限（VND）<span class="vi">Giới hạn tăng tối đa</span></label><input class="inp" id="cfg-max-inc" type="number" placeholder="300000"></div>
+        <button class="btn btnp btnf" onclick="saveConfig()">儲存設定 / Lưu</button>
+      </div>
+    </div>
+    <!-- Plant Management -->
+    <div class="admin-section">
+      <div class="admin-section-title">植物管理 / Quản lý cây</div>
+      <div id="admin-plant-list"></div>
+    </div>
+    <!-- Board Management -->
+    <div class="admin-section">
+      <div class="admin-section-title">板子管理 / Quản lý tấm gỗ</div>
+      <div id="admin-board-list"></div>
+      <div style="padding:12px 16px"><button class="btn btns btnf" onclick="openM('m-addboard')">+ 新增板子種類</button></div>
+    </div>
+    <!-- Promo Settings -->
+    <div class="admin-section">
+      <div class="admin-section-title">活動價 / 批發價 / Giá khuyến mãi</div>
+      <div style="padding:14px 16px">
+        <div class="field"><label class="flabel">活動折扣（%）<span class="vi">Giảm giá sự kiện</span></label><input class="inp" id="cfg-promo" type="number" placeholder="10" min="0" max="100"></div>
+        <div class="field"><label class="flabel">活動期間結束日 <span class="vi">Ngày kết thúc</span></label><input class="inp" id="cfg-promo-end" type="date"></div>
+        <div class="field"><label class="flabel">批發客戶名稱 <span class="vi">Tên khách sỉ</span></label><input class="inp" id="cfg-wholesale-name" placeholder="商戶名稱..."></div>
+        <div class="field"><label class="flabel">批發折扣（%）<span class="vi">Giảm giá sỉ</span></label><input class="inp" id="cfg-wholesale-pct" type="number" placeholder="20" min="0" max="100"></div>
+        <button class="btn btnp btnf" onclick="savePromo()">儲存 / Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="ni active" onclick="go('home')" id="nav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="lz">首頁</span><span class="lv">Trang chủ</span>
+  </button>
+  <button class="ni" onclick="go('pos')" id="nav-pos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    <span class="lz">開單</span><span class="lv">Tạo đơn</span>
+  </button>
+  <button class="ni" onclick="go('inv')" id="nav-inv">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    <span class="lz">庫存</span><span class="lv">Kho hàng</span>
+  </button>
+  <button class="ni" onclick="go('orders')" id="nav-orders">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span class="lz">訂單</span><span class="lv">Đơn hàng</span>
+  </button>
+  <button class="ni" onclick="go('rep')" id="nav-rep">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span class="lz">報表</span><span class="lv">Báo cáo</span>
+  </button>
+</nav>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="m-addplant" onclick="bgClose(event,'m-addplant')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">新增植物庫存<span class="vi">Thêm cây vào kho</span></div>
+    <div class="field"><label class="flabel">植物名稱 <span class="vi">Tên cây</span></label><input class="inp" id="np-name" placeholder="AR SP、mew..."></div>
+    <div class="field"><label class="flabel">分類</label><select class="inp" id="np-cat"><option>植物</option><option>植物（代）</option><option>植物（自）</option><option>植物（批）</option></select></div>
+    <div class="irow">
+      <div class="field"><label class="flabel">成本 NTD</label><input class="inp" id="np-cntd" type="number" placeholder="500" oninput="document.getElementById('np-cvnd').value=Math.round(this.value*CFG.rate).toLocaleString()"></div>
+      <div class="field"><label class="flabel">≈ VND</label><input class="inp" id="np-cvnd" readonly></div>
+    </div>
+    <div class="irow">
+      <div class="field"><label class="flabel">建議售價 VND</label><input class="inp" id="np-price" type="number" placeholder="950000"></div>
+      <div class="field"><label class="flabel">數量</label><input class="inp" id="np-qty" type="number" value="1" min="1"></div>
+    </div>
+    <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="np-date" type="date"></div>
+    <div class="field"><label class="flabel">位置</label>
+      <select class="inp" id="np-loc"><option value="mine">在我家 / Nhà chủ</option><option value="quang">在 Quang 家</option><option value="helper">在小幫手家</option></select>
+    </div>
+    <div class="field"><label class="flabel">廠商 / 備註</label><input class="inp" id="np-note" placeholder="廠商名稱..."></div>
+    <button class="btn btnp btnf" onclick="addPlant()">儲存 / Lưu</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-editplant" onclick="bgClose(event,'m-editplant')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">編輯植物 / Sửa cây</div>
+    <input type="hidden" id="ep-id">
+    <div class="field"><label class="flabel">植物名稱</label><input class="inp" id="ep-name"></div>
+    <div class="irow">
+      <div class="field"><label class="flabel">建議售價 VND</label><input class="inp" id="ep-price" type="number"></div>
+      <div class="field"><label class="flabel">庫存數量</label><input class="inp" id="ep-qty" type="number" min="0"></div>
+    </div>
+    <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="ep-date" type="date"></div>
+    <div class="field"><label class="flabel">備註</label><input class="inp" id="ep-note"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btnd" style="flex:1" onclick="deletePlant()">刪除</button>
+      <button class="btn btnp" style="flex:1" onclick="savePlantEdit()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-addboard" onclick="bgClose(event,'m-addboard')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">新增 / 編輯板子</div>
+    <input type="hidden" id="eb-id">
+    <div class="field"><label class="flabel">板子名稱</label><input class="inp" id="eb-name" placeholder="香檳木..."></div>
+    <div class="irow">
+      <div class="field"><label class="flabel">成本 VND</label><input class="inp" id="eb-cost" type="number" placeholder="83000"></div>
+      <div class="field"><label class="flabel">售價 VND</label><input class="inp" id="eb-price" type="number" placeholder="150000"></div>
+    </div>
+    <div class="field"><label class="flabel">庫存數量</label><input class="inp" id="eb-qty" type="number" placeholder="10" min="0"></div>
+    <button class="btn btnp btnf" onclick="saveBoard()">儲存 / Lưu</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-moveplant" onclick="bgClose(event,'m-moveplant')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">指派植物位置<span class="vi">Chỉ định vị trí</span></div>
+    <div id="move-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
+    <div class="field"><label class="flabel">移至 / Chuyển đến</label>
+      <select class="inp" id="move-loc"><option value="mine">在我家 / Nhà chủ</option><option value="quang">在 Quang 家</option><option value="helper">在小幫手家</option></select>
+    </div>
+    <div class="field"><label class="flabel">養護備註</label><input class="inp" id="move-note" placeholder="每天噴水..."></div>
+    <button class="btn btnp btnf" onclick="doMove()">確認移動 / Xác nhận</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-rehab" onclick="bgClose(event,'m-rehab')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">移入修整區<span class="vi">Khu chỉnh sửa</span></div>
+    <div id="rehab-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
+    <div class="field"><label class="flabel">修整原因</label><input class="inp" id="rehab-note" placeholder="葉片受損..."></div>
+    <div style="background:var(--abg);border:1px solid var(--aborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--amber)">移入後自動分配編號 R-XXX · Sẽ được cấp mã R-XXX</div>
+    <button class="btn btnp btnf" id="rehab-confirm-btn">確認移入 / Xác nhận</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-editrehab" onclick="bgClose(event,'m-editrehab')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">編輯修整記錄</div>
+    <input type="hidden" id="er-rid">
+    <div class="field"><label class="flabel">修整開始日期 <span class="vi">Ngày bắt đầu chỉnh sửa</span></label><input class="inp" id="er-date" type="date"></div>
+    <div class="field"><label class="flabel">備註</label><input class="inp" id="er-note"></div>
+    <button class="btn btnp btnf" onclick="saveRehabEdit()">儲存 / Lưu</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-newpur" onclick="bgClose(event,'m-newpur')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">新增進貨批次<span class="vi">Thêm lô nhập hàng</span></div>
+    <div class="field"><label class="flabel">廠商</label><input class="inp" id="pur-vendor" placeholder="Chen Ying..."></div>
+    <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="pur-date" type="date"></div>
+    <div class="field"><label class="flabel">備註</label><input class="inp" id="pur-note" placeholder="備註..."></div>
+    <div id="pur-items-wrap"><div class="sec" style="padding-left:0;padding-top:0">進貨明細</div></div>
+    <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ 新增品項</button>
+    <button class="btn btnp btnf" onclick="savePurchase()">儲存批次 / Lưu</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-checkout" onclick="bgClose(event,'m-checkout')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">完成結帳<span class="vi">Hoàn tất thanh toán</span></div>
+    <div class="field"><label class="flabel">客戶姓名 <span class="vi">Tên khách</span></label><input class="inp" id="co-name" placeholder="Tên khách hàng"></div>
+    <div class="field"><label class="flabel">聯絡方式 <span class="vi">Liên hệ</span></label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
+    <div class="field"><label class="flabel">收件地址（自取免填）<span class="vi">Địa chỉ</span></label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
+    <div class="field"><label class="flabel">訂單來源 <span class="vi">Nguồn đơn</span></label>
+      <select class="inp" id="co-src"><option>FB 訊息 / Tin nhắn FB</option><option>來家選購 / Đến nhà chọn</option><option>Zalo / Line</option><option>其他 / Khác</option></select>
+    </div>
+    <div class="field"><label class="flabel">付款方式 <span class="vi">Thanh toán</span></label>
+      <select class="inp" id="co-pay"><option>現金 / Tiền mặt</option><option>銀行轉帳 / Chuyển khoản</option><option>Momo / LINE Pay</option><option>其他 / Khác</option></select>
+    </div>
+    <div class="field"><label class="flabel">成交人員 <span class="vi">Người bán</span></label>
+      <select class="inp" id="co-seller"><option>Chandler Wei</option><option>Quang</option><option>小幫手 / Trợ lý</option></select>
+    </div>
+    <div class="field"><label class="flabel">備註 <span class="vi">Ghi chú</span></label><input class="inp" id="co-note" placeholder="Ghi chú..."></div>
+    <div id="co-summary" style="background:var(--bg3);border-radius:var(--r);padding:13px;margin-bottom:14px"></div>
+    <button class="btn btnp btnf" onclick="completeOrder()">確認成交 → 出貨單</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-receipt">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">出貨單 <span style="font-size:12px;color:var(--text2);font-weight:400;font-family:'Noto Sans',sans-serif">Phiếu xuất hàng</span></div>
+    <div id="receipt-body"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn btns" style="flex:1" onclick="closeM('m-receipt')">關閉 / Đóng</button>
+      <button class="btn btnp" style="flex:1" onclick="doPrint()">🖨 列印 / In</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-detail" onclick="bgClose(event,'m-detail')">
+  <div class="modal"><div id="detail-inner"></div></div>
+</div>
+
+<div id="print-area" style="display:none"></div>
+
+<script>
+var CFG={rate:900,monthlyInc:50000,maxInc:300000,promoDiscount:0,promoEnd:'',wholesaleName:'',wholesalePct:0};
+var TODAY=new Date();
+function todayStr(){return TODAY.toISOString().split('T')[0];}
+function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
+function monthsSince(d){return daysSince(d)/30.44;}
+function vnd(n){return '\u20ab'+Math.round(n).toLocaleString();}
+function agedCost(p){
+  var months=monthsSince(p.date);
+  var inc=Math.min(Math.round(months)*CFG.monthlyInc,CFG.maxInc);
+  return p.costVnd+inc;
+}
+function mgn(p){var c=agedCost(p);return((p.price-c)/p.price*100).toFixed(1);}
+function monthKey(s){var d=new Date(s);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function monthLabel(s){var d=new Date(s);return 'Tháng '+(d.getMonth()+1)+'/'+d.getFullYear()+' · '+d.getFullYear()+'年'+(d.getMonth()+1)+'月';}
+
+var role='owner';
+var movePlantId=null;
+var cart=[];
+var purItems=[];
+var orderFilterMonth=null;
+var locLabels={mine:'我家/Nhà chủ',quang:'Quang家',helper:'小幫手家'};
+var locClass={mine:'loc-m',quang:'loc-q',helper:'loc-h'};
+
+var S={
+  plants:[
+    {id:1,name:'AR SP',cat:'植物',costNtd:500,costVnd:450000,price:1200000,qty:8,date:'2025-01-20',loc:'mine',note:'蕨跡進',status:'ok'},
+    {id:2,name:'mew',cat:'植物（代）',costNtd:520,costVnd:468000,price:950000,qty:6,date:'2025-01-20',loc:'quang',note:'林亭秀帶',status:'ok'},
+    {id:3,name:'ELSA',cat:'植物',costNtd:300,costVnd:270000,price:520000,qty:5,date:'2025-01-20',loc:'mine',note:'',status:'ok'},
+    {id:4,name:'golden 1in',cat:'植物',costNtd:240,costVnd:216000,price:400000,qty:4,date:'2025-01-20',loc:'helper',note:'',status:'ok'},
+    {id:5,name:'jenny tc 2in',cat:'植物',costNtd:350,costVnd:315000,price:650000,qty:3,date:'2025-01-15',loc:'mine',note:'Edwin wu',status:'ok'},
+    {id:6,name:'OMG 3in',cat:'植物',costNtd:300,costVnd:270000,price:600000,qty:2,date:'2025-01-10',loc:'mine',note:'',status:'ok'},
+    {id:7,name:'酋長 SP',cat:'植物',costNtd:250,costVnd:225000,price:550000,qty:1,date:'2024-12-15',loc:'mine',note:'',status:'ok'},
+  ],
+  boards:[
+    {id:1,name:'木板（標準）/ Gỗ tiêu chuẩn',costVnd:83000,price:150000,qty:18},
+    {id:2,name:'香檳木 / Gỗ Champagne',costVnd:249000,price:380000,qty:7},
+    {id:3,name:'蛇木板 / Gỗ dương xỉ',costVnd:180000,price:280000,qty:5},
+  ],
+  orders:[
+    {id:1,date:'2025-01-22',customer:'林小姐',contact:'LINE: lin8k',addr:'',src:'FB 訊息',pay:'銀行轉帳',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'AR SP',qty:1,price:1200000,cost:450000},{type:'board',name:'香檳木',qty:1,price:380000,cost:249000}],total:1580000,profit:881000},
+    {id:2,date:'2025-01-23',customer:'Nguyễn Thị Mai',contact:'Zalo: mai.nguyen',addr:'Q.1 HCM',src:'FB 訊息',pay:'現金',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:2,price:500000,cost:270000}],total:1000000,profit:460000},
+    {id:3,date:'2025-01-28',customer:'Trần Văn Minh',contact:'0901-234-567',addr:'',src:'來家選購',pay:'現金',seller:'小幫手',note:'',items:[{type:'plant',name:'golden 1in',qty:2,price:400000,cost:216000}],total:800000,profit:368000},
+    {id:4,date:'2024-12-15',customer:'王小明',contact:'LINE: wang',addr:'',src:'來家選購',pay:'現金',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'golden 1in',qty:3,price:400000,cost:216000}],total:1200000,profit:552000},
+    {id:5,date:'2024-12-22',customer:'Lê Thị Hoa',contact:'Zalo: hoa.le',addr:'Q.3 HCM',src:'FB 訊息',pay:'Momo',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:1,price:520000,cost:270000},{type:'board',name:'木板',qty:1,price:150000,cost:83000}],total:670000,profit:317000},
+    {id:6,date:'2024-11-20',customer:'李太太',contact:'0900-111',addr:'台北市',src:'FB 訊息',pay:'銀行轉帳',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'mew',qty:1,price:950000,cost:468000},{type:'board',name:'木板',qty:1,price:150000,cost:83000}],total:1100000,profit:549000},
+  ],
+  purchases:[
+    {id:1,vendor:'林亭秀',date:'2025-01-20',note:'二月採買',items:[{name:'AR SP',qty:80,costNtd:500,costVnd:450000,totalVnd:36000000},{name:'mew',qty:10,costNtd:520,costVnd:468000,totalVnd:4680000}],totalVnd:40680000},
+    {id:2,vendor:'Chen Ying',date:'2024-12-01',note:'十二月補貨',items:[{name:'golden 1in',qty:20,costNtd:240,costVnd:216000,totalVnd:4320000}],totalVnd:4320000},
+  ],
+  rehab:[
+    {rid:'R-001',plantId:99,name:'AR SP（受損株）',date:'2025-01-10',rehabDate:'2025-01-10',note:'葉片受損修剪中',loc:'mine'},
+  ],
+  nextId:30
+};
+
+// AUTH
+function login(r){
+  role=r;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  var badges={owner:'Chandler Wei',quang:'Quang',helper:'小幫手'};
+  var bclass={owner:'badge ba',quang:'badge bg',helper:'badge br'};
+  document.getElementById('role-badge').textContent=badges[r];
+  document.getElementById('role-badge').className=bclass[r];
+  document.getElementById('home-date').textContent=TODAY.toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('np-date').value=todayStr();
+  document.getElementById('pur-date').value=todayStr();
+  buildRepTabs();
+  loadConfig();
+  renderHome();renderPos();renderInv();renderOrders(null);renderRep();renderPur();
+}
+function logout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  cart=[];orderFilterMonth=null;
+}
+
+// NAV
+function go(name){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.ni').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+}
+function goOrdersFiltered(k){orderFilterMonth=k;renderOrders(k);go('orders');}
+function clearOrderFilter(){orderFilterMonth=null;renderOrders(null);}
+
+// CONFIG
+function loadConfig(){
+  document.getElementById('cfg-rate').value=CFG.rate;
+  document.getElementById('cfg-monthly-inc').value=CFG.monthlyInc;
+  document.getElementById('cfg-max-inc').value=CFG.maxInc;
+  document.getElementById('cfg-promo').value=CFG.promoDiscount||'';
+  document.getElementById('cfg-promo-end').value=CFG.promoEnd||'';
+  document.getElementById('cfg-wholesale-name').value=CFG.wholesaleName||'';
+  document.getElementById('cfg-wholesale-pct').value=CFG.wholesalePct||'';
+}
+function saveConfig(){
+  CFG.rate=parseInt(document.getElementById('cfg-rate').value)||900;
+  CFG.monthlyInc=parseInt(document.getElementById('cfg-monthly-inc').value)||50000;
+  CFG.maxInc=parseInt(document.getElementById('cfg-max-inc').value)||300000;
+  alert('設定已儲存 / Đã lưu cài đặt');
+  renderInv();renderPos();renderRep();
+}
+function savePromo(){
+  CFG.promoDiscount=parseInt(document.getElementById('cfg-promo').value)||0;
+  CFG.promoEnd=document.getElementById('cfg-promo-end').value;
+  CFG.wholesaleName=document.getElementById('cfg-wholesale-name').value;
+  CFG.wholesalePct=parseInt(document.getElementById('cfg-wholesale-pct').value)||0;
+  alert('活動設定已儲存 / Đã lưu');
+}
+
+// REPORT TABS
+function buildRepTabs(){
+  var tabs=[
+    {id:'summary',zh:'月度摘要',vi:'Tổng hợp'},
+    {id:'purchase',zh:'進貨記錄',vi:'Nhập hàng'},
+    {id:'invstatus',zh:'庫存狀態',vi:'Tồn kho'},
+  ];
+  if(role==='owner') tabs.push({id:'admin',zh:'後台設定',vi:'Cài đặt'});
+  var h='';
+  tabs.forEach(function(t,i){
+    h+='<button class="tab'+(i===0?' active':'')+'" id="rtab-'+t.id+'" onclick="repTab(\''+t.id+'\')">'+t.zh+'<span class="vi">'+t.vi+'</span></button>';
+  });
+  document.getElementById('rep-tabs').innerHTML=h;
+}
+function repTab(t){
+  var all=['summary','purchase','invstatus','admin'];
+  all.forEach(function(x){
+    var tb=document.getElementById('rtab-'+x);
+    if(tb)tb.classList.toggle('active',x===t);
+    var el=document.getElementById('rep-'+x);
+    if(el)el.style.display=x===t?'block':'none';
+  });
+  if(t==='purchase')renderPur();
+  if(t==='invstatus')renderInvStatus();
+  if(t==='admin')renderAdmin();
+}
+
+// HOME
+function renderHome(){
+  var now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
+  var toOrds=S.orders.filter(function(o){return o.date===todayStr();});
+  var moOrds=S.orders.filter(function(o){var d=new Date(o.date);return d.getFullYear()===yr&&d.getMonth()===mo;});
+  var toRev=toOrds.reduce(function(s,o){return s+o.total;},0);
+  var toP=toOrds.reduce(function(s,o){return s+o.profit;},0);
+  var moRev=moOrds.reduce(function(s,o){return s+o.total;},0);
+  var moP=moOrds.reduce(function(s,o){return s+o.profit;},0);
+  var ml=yr+'年'+(mo+1)+'月';
+  document.getElementById('home-metrics').innerHTML=
+    '<div class="metric"><div class="ml">今日營收<span class="vi">Doanh thu hôm nay</span></div><div class="mv blue">'+vnd(toRev)+'</div></div>'+
+    '<div class="metric"><div class="ml">今日毛利<span class="vi">Lợi nhuận hôm nay</span></div><div class="mv green">'+vnd(toP)+'</div></div>'+
+    '<div class="metric"><div class="ml">'+ml+' 營收<span class="vi">Doanh thu tháng</span></div><div class="mv blue">'+vnd(moRev)+'</div></div>'+
+    '<div class="metric"><div class="ml">'+ml+' 毛利<span class="vi">Lợi nhuận tháng</span></div><div class="mv green">'+vnd(moP)+'</div></div>';
+  var toEl=document.getElementById('today-orders');
+  toEl.innerHTML=toOrds.length===0
+    ?'<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">今日尚無訂單 / Chưa có đơn</div>'
+    :toOrds.map(function(o){return '<div class="pi" onclick="showReceipt('+o.id+')"><div class="pdot" style="background:var(--green)"></div><div class="pinfo"><div class="pname">'+o.customer+'</div><div class="pmeta">'+o.src+' · '+o.seller+'</div></div><div class="pright"><div class="pprice">'+vnd(o.total)+'</div><div class="psub" style="color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';}).join('');
+  var low=S.plants.filter(function(p){return p.qty<=2&&p.status!=='rehab';});
+  document.getElementById('low-stock').innerHTML=low.length===0
+    ?'<div style="padding:13px 18px;color:var(--text3);font-size:12px">目前無低庫存</div>'
+    :low.map(function(p){return '<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+'</div></div><div class="pright"><span class="badge '+(p.qty===0?'br':'ba')+'">'+(p.qty===0?'缺貨':p.qty+' 株')+'</span></div></div>';}).join('');
+}
+
+// POS
+function posTab(t){
+  ['plant','board','cart'].forEach(function(x){
+    document.getElementById('ptab-'+x).classList.toggle('active',x===t);
+    document.getElementById('pos-'+x).style.display=x===t?'block':'none';
+  });
+  if(t==='cart')renderCart(); else renderPos();
+}
+function renderPos(){
+  var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
+  var avail=S.plants.filter(function(p){return p.qty>0&&p.status!=='rehab'&&(role==='owner'||p.loc===myLoc);});
+  document.getElementById('pos-plant').innerHTML=avail.length===0
+    ?'<div style="padding:24px;text-align:center;color:var(--text3)">Không có hàng / 無庫存</div>'
+    :avail.map(function(p){
+      var ac=agedCost(p),mg=parseFloat(mgn(p));
+      var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
+      var days=daysSince(p.date),pct=Math.min(days/90*100,100);
+      var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
+      return '<div class="pi" onclick="addCart(\'plant\','+p.id+')"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+' · '+p.qty+' cây</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div><div class="psub" style="color:'+mc+'">'+mg+'%</div></div></div>';
+    }).join('');
+  document.getElementById('pos-board').innerHTML=S.boards.filter(function(b){return b.qty>0;}).map(function(b){
+    return '<div class="pi" onclick="addCart(\'board\','+b.id+')"><div class="pdot" style="background:var(--blue)"></div><div class="pinfo"><div class="pname">'+b.name+'</div><div class="pmeta">庫存 '+b.qty+'</div></div><div class="pright"><div class="pprice">'+vnd(b.price)+'</div><div class="psub">CP '+vnd(b.costVnd)+'</div></div></div>';
+  }).join('');
+}
+function addCart(type,id){
+  var item=type==='plant'?S.plants.find(function(p){return p.id===id;}):S.boards.find(function(b){return b.id===id;});
+  if(!item||item.qty===0)return;
+  var ex=cart.find(function(c){return c.type===type&&c.id===id;});
+  if(ex){if(ex.qty<item.qty)ex.qty++;}
+  else cart.push({type:type,id:id,name:item.name,qty:1,price:item.price,cost:type==='plant'?agedCost(item):item.costVnd});
+  updateBadge();
+}
+function updateBadge(){var t=cart.reduce(function(s,c){return s+c.qty;},0);document.getElementById('cart-badge').textContent=t>0?'('+t+')':'';}
+function renderCart(){
+  var el=document.getElementById('pos-cart');
+  if(cart.length===0){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3)">Giỏ hàng trống</div>';return;}
+  var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
+  var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
+  var prof=sub-cost,mg=(prof/sub*100).toFixed(1);
+  var h='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:10px">';
+  cart.forEach(function(c,i){
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:14px;font-weight:500">'+c.name+'</div><div style="margin-top:6px"><input style="width:100%;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" type="number" value="'+c.price+'" onchange="updPrice('+i+',this.value)"></div></div>';
+    h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;align-items:center;gap:6px"><button class="qbtn" onclick="chgQty('+i+',-1)">−</button><span style="font-size:14px;min-width:18px;text-align:center">'+c.qty+'</span><button class="qbtn" onclick="chgQty('+i+',1)">+</button></div><div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace">'+vnd(c.price*c.qty)+'</div></div></div>';
+  });
+  h+='<div class="divider"></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--text2)"><span>小計</span><span>'+vnd(sub)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--green)"><span>毛利 Lợi nhuận</span><span>'+vnd(prof)+' ('+mg+'%)</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:6px"><span>合計 Tổng</span><span>'+vnd(sub)+'</span></div>';
+  h+='</div><button class="btn btnp btnf" onclick="openCheckout()">結帳 →</button><div style="height:10px"></div>';
+  el.innerHTML=h;
+}
+function updPrice(i,v){cart[i].price=parseInt(v)||cart[i].price;renderCart();}
+function chgQty(i,d){
+  var c=cart[i];var src=c.type==='plant'?S.plants.find(function(p){return p.id===c.id;}):S.boards.find(function(b){return b.id===c.id;});
+  c.qty+=d;if(c.qty<=0)cart.splice(i,1);if(src&&c.qty>src.qty)c.qty=src.qty;
+  updateBadge();renderCart();
+}
+function clearCart(){cart=[];updateBadge();renderPos();}
+function openCheckout(){
+  var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
+  var prof=sub-cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
+  ['co-name','co-contact','co-addr','co-note'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('co-summary').innerHTML=
+    '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--text2)"><span>品項</span><span>'+cart.reduce(function(s,c){return s+c.qty;},0)+' 件</span></div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:6px"><span>合計</span><span>'+vnd(sub)+'</span></div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--green)"><span>毛利</span><span>'+vnd(prof)+'</span></div>';
+  openM('m-checkout');
+}
+function completeOrder(){
+  var name=document.getElementById('co-name').value.trim();
+  if(!name){alert('請填寫客戶姓名');return;}
+  var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
+  var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
+  var o={id:S.nextId++,date:todayStr(),customer:name,contact:document.getElementById('co-contact').value,addr:document.getElementById('co-addr').value,src:document.getElementById('co-src').value,pay:document.getElementById('co-pay').value,seller:document.getElementById('co-seller').value,note:document.getElementById('co-note').value,items:cart.map(function(c){return{type:c.type,name:c.name,qty:c.qty,price:c.price,cost:c.cost};}),total:sub,profit:sub-cost};
+  S.orders.unshift(o);
+  cart.forEach(function(c){
+    if(c.type==='plant'){var p=S.plants.find(function(x){return x.id===c.id;});if(p)p.qty-=c.qty;}
+    else{var b=S.boards.find(function(x){return x.id===c.id;});if(b)b.qty-=c.qty;}
+  });
+  cart=[];updateBadge();
+  closeM('m-checkout');showReceipt(o.id);
+  renderHome();renderPos();renderInv();renderOrders(orderFilterMonth);renderRep();
+}
+
+// RECEIPT
+function showReceipt(id){
+  var o=S.orders.find(function(x){return x.id===id;});if(!o)return;
+  var h='<div class="receipt" id="printable"><div class="rshop">根莖葉 / Gốc Thân Lá</div><div class="rsub">Đơn #'+String(o.id).padStart(4,'0')+' · '+o.date+'</div>';
+  h+='<div class="rsec"><div class="rlabel">收件人 / Người nhận</div><div style="font-size:14px;font-weight:700">'+o.customer+'</div><div style="font-size:11px;color:#444;margin-top:2px">'+o.contact+'</div>';
+  h+=o.addr?'<div style="font-size:11px;color:#444;margin-top:2px">📦 '+o.addr+'</div>':'<div style="font-size:11px;color:#888;margin-top:2px">自取 / Tự lấy</div>';
+  h+='</div><div class="rsec"><div class="rlabel">商品明細 / Chi tiết</div>';
+  o.items.forEach(function(item){h+='<div class="rrow"><span>'+item.name+' × '+item.qty+'</span><span>'+vnd(item.price*item.qty)+'</span></div>';});
+  h+='<div class="rtotal"><span>合計 / Tổng</span><span>'+vnd(o.total)+'</span></div></div>';
+  h+='<div class="rsec"><div class="rrow"><span style="color:#888">付款</span><span>'+o.pay+'</span></div><div class="rrow"><span style="color:#888">售出者</span><span>'+o.seller+'</span></div><div class="rrow"><span style="color:#888">來源</span><span>'+o.src+'</span></div>';
+  if(o.note)h+='<div class="rrow"><span style="color:#888">備註</span><span>'+o.note+'</span></div>';
+  h+='</div></div>';
+  document.getElementById('receipt-body').innerHTML=h;
+  openM('m-receipt');
+}
+function doPrint(){var h=document.getElementById('printable').outerHTML;document.getElementById('print-area').innerHTML=h;window.print();setTimeout(function(){document.getElementById('print-area').innerHTML='';},1000);}
+
+// ORDERS PAGE
+function renderOrders(filterMonth){
+  var orders=filterMonth?S.orders.filter(function(o){return monthKey(o.date)===filterMonth;}):S.orders;
+  document.getElementById('orders-subtitle').textContent=filterMonth?'篩選中 / Đang lọc':'全部訂單 / Tất cả';
+  document.getElementById('orders-clear-filter').style.display=filterMonth?'flex':'none';
+  document.getElementById('orders-filter-badge').textContent=filterMonth?'● 篩選中':'';
+  if(orders.length===0){document.getElementById('orders-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">無訂單記錄</div>';return;}
+  var monthly={};
+  orders.forEach(function(o){
+    var k=monthKey(o.date);
+    if(!monthly[k])monthly[k]={label:monthLabel(o.date),orders:[],rev:0,profit:0};
+    monthly[k].orders.push(o);monthly[k].rev+=o.total;monthly[k].profit+=o.profit;
+  });
+  var html='';
+  Object.keys(monthly).sort().reverse().forEach(function(k){
+    var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
+    var mgc=parseFloat(mg)>40?'var(--green)':parseFloat(mg)>20?'var(--amber)':'var(--red)';
+    var cid='mc'+k.replace('-','');
+    html+='<div class="month-card" id="'+cid+'"><div class="month-header open" onclick="toggleMonth(\''+cid+'\')"><div><div style="font-size:14px;font-weight:700">'+m.label+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+m.orders.length+' đơn · '+vnd(m.rev)+'</div></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:700;color:'+mgc+'">'+mg+'%</span><span class="month-chevron open" id="chev-'+cid+'">›</span></div></div>';
+    html+='<div class="month-stats" id="stats-'+cid+'"><div class="mstat"><div class="mstat-label">營收</div><div class="mstat-val" style="color:var(--blue)">'+vnd(m.rev)+'</div></div><div class="mstat"><div class="mstat-label">毛利</div><div class="mstat-val" style="color:var(--green)">'+vnd(m.profit)+'</div></div><div class="mstat"><div class="mstat-label">毛利率</div><div class="mstat-val" style="color:'+mgc+'">'+mg+'%</div></div></div>';
+    html+='<div id="body-'+cid+'">';
+    m.orders.forEach(function(o){
+      html+='<div class="order-row" onclick="showReceipt('+o.id+')"><div><div style="font-size:13px;font-weight:500">'+o.customer+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+o.date.slice(5)+' · '+o.seller+' · '+o.pay+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace">'+vnd(o.total)+'</div><div style="font-size:11px;color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';
+    });
+    html+='</div></div>';
+  });
+  document.getElementById('orders-list').innerHTML=html;
+}
+function toggleMonth(cid){
+  var header=document.querySelector('#'+cid+' .month-header');
+  var stats=document.getElementById('stats-'+cid);
+  var body=document.getElementById('body-'+cid);
+  var chev=document.getElementById('chev-'+cid);
+  var isOpen=header.classList.contains('open');
+  if(isOpen){header.classList.remove('open');chev.classList.remove('open');stats.style.display='none';body.style.display='none';}
+  else{header.classList.add('open');chev.classList.add('open');stats.style.display='';body.style.display='';}
+}
+
+// INVENTORY
+function invTab(t){
+  ['plant','board','member','rehab'].forEach(function(x){
+    document.getElementById('itab-'+x).classList.toggle('active',x===t);
+    document.getElementById('inv-'+x).style.display=x===t?'block':'none';
+  });
+  if(t==='rehab')renderRehab();
+}
+function renderInv(){
+  document.getElementById('inv-addbtn').innerHTML=role==='owner'?'<button class="btn btnp btnsm" onclick="openM(\'m-addplant\')">+ 新增</button>':'';
+  var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
+  var plants=(myLoc?S.plants.filter(function(p){return p.loc===myLoc;}):S.plants).filter(function(p){return p.status!=='rehab';});
+  document.getElementById('inv-plant').innerHTML=plants.length===0
+    ?'<div style="padding:24px;text-align:center;color:var(--text3)">無植物庫存</div>'
+    :plants.map(function(p){
+      var ac=agedCost(p),mg=parseFloat(mgn(p));
+      var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
+      var days=daysSince(p.date),pct=Math.min(days/90*100,100);
+      var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
+      var lb=role==='owner'?'<span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span>':'';
+      return '<div class="pi" onclick="openDetail('+p.id+')"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+' '+lb+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>'+(role==='owner'?'<div style="font-size:10px;color:var(--text3);margin-top:3px">CP '+vnd(ac)+' · 毛利 '+mg+'%</div>':'')+'</div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div></div></div>';
+    }).join('');
+  document.getElementById('inv-board').innerHTML=role!=='owner'
+    ?'<div style="padding:24px;text-align:center;color:var(--text3)">無權限</div>'
+    :S.boards.map(function(b){return '<div class="pi"><div class="pdot" style="background:var(--blue)"></div><div class="pinfo"><div class="pname">'+b.name+'</div><div class="pmeta">庫存 '+b.qty+'</div></div><div class="pright"><div class="pprice">'+vnd(b.price)+'</div><div class="psub">CP '+vnd(b.costVnd)+'</div></div></div>';}).join('');
+  if(role==='owner'){
+    var members=[{key:'quang',label:'Quang',av:'Q'},{key:'helper',label:'小幫手',av:'H'}];
+    var h='';
+    members.forEach(function(m){
+      var mp=S.plants.filter(function(p){return p.loc===m.key&&p.status!=='rehab';});
+      h+='<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">';
+      h+='<div style="display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:50%;background:var(--accdim);border:1px solid rgba(163,230,53,.3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)">'+m.av+'</div><div><div style="font-size:14px;font-weight:500">'+m.label+'</div><div style="font-size:11px;color:var(--text2)">'+mp.reduce(function(s,p){return s+p.qty;},0)+' cây · '+mp.length+' loại</div></div><div style="margin-left:auto"><span class="badge bg">Active</span></div></div>';
+      h+=mp.length===0?'<div style="padding:14px;color:var(--text3);font-size:13px">目前無植物</div>'
+        :mp.map(function(p){return '<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+p.qty+'株 · '+daysSince(p.date)+'天</div>'+(p.note?'<div style="font-size:10px;color:var(--text3)">'+p.note+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div style="font-size:12px;font-family:DM Mono,monospace">'+vnd(p.price)+'</div><button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">移動</button></div></div>';}).join('');
+      h+='</div>';
+    });
+    document.getElementById('inv-member').innerHTML=h;
+  } else {
+    document.getElementById('inv-member').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">無權限</div>';
+  }
+}
+function openDetail(id){
+  var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
+  var ac=agedCost(p),mg=mgn(p),days=daysSince(p.date),pct=Math.min(days/90*100,100);
+  var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
+  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="mtitle" style="margin:0">'+p.name+'</div>';
+  if(role==='owner')h+='<button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">📍 移動</button>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
+  h+='<div class="metric"><div class="ml">當前成本<span class="vi">Giá vốn HT</span></div><div class="mv amber" style="font-size:15px">'+vnd(ac)+'</div></div>';
+  h+='<div class="metric"><div class="ml">建議售價<span class="vi">Giá bán ĐN</span></div><div class="mv blue" style="font-size:15px">'+vnd(p.price)+'</div></div>';
+  h+='<div class="metric"><div class="ml">毛利率<span class="vi">Tỷ lệ LN</span></div><div class="mv" style="font-size:15px;color:'+(parseFloat(mg)>30?'var(--green)':'var(--red)')+'">'+mg+'%</div></div>';
+  h+='<div class="metric"><div class="ml">在庫天數<span class="vi">Ngày trong kho</span></div><div class="mv" style="font-size:15px">'+days+' 天</div></div></div>';
+  h+='<div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:12px;font-size:12px">';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">分類</span><span>'+p.cat+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">原始成本</span><span>'+vnd(p.costVnd)+' (NTD '+p.costNtd+')</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">成本遞增</span><span style="color:var(--red)">+'+vnd(ac-p.costVnd)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">庫存</span><span>'+p.qty+' 株</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">位置</span><span>'+locLabels[p.loc]+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">進貨日期</span><span>'+p.date+'</span></div>';
+  if(p.note)h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">備註</span><span>'+p.note+'</span></div>';
+  h+='</div>';
+  h+='<div style="font-size:11px;color:var(--text2);margin-bottom:5px">在庫時間進度</div>';
+  h+='<div class="age-bar" style="height:7px;margin-bottom:14px"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>';
+  h+='<div style="display:flex;gap:10px"><button class="btn btns" style="flex:1" onclick="closeM(\'m-detail\')">關閉</button>';
+  if(role==='owner')h+='<button class="btn btnd" style="flex:1" onclick="openRehabModal('+p.id+')">→ 修整區</button>';
+  h+='</div>';
+  document.getElementById('detail-inner').innerHTML=h;
+  openM('m-detail');
+}
+function openMoveModal(id){
+  movePlantId=id;var p=S.plants.find(function(x){return x.id===id;});
+  closeM('m-detail');
+  document.getElementById('move-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> <span style="color:var(--text2);font-size:12px">目前：'+locLabels[p.loc]+'</span>';
+  document.getElementById('move-loc').value=p.loc;
+  document.getElementById('move-note').value=p.note||'';
+  openM('m-moveplant');
+}
+function doMove(){
+  var p=S.plants.find(function(x){return x.id===movePlantId;});if(!p)return;
+  p.loc=document.getElementById('move-loc').value;p.note=document.getElementById('move-note').value;
+  closeM('m-moveplant');renderInv();
+}
+function addPlant(){
+  var name=document.getElementById('np-name').value.trim();if(!name){alert('請填寫植物名稱');return;}
+  var cntd=parseInt(document.getElementById('np-cntd').value)||0;
+  S.plants.push({id:S.nextId++,name:name,cat:document.getElementById('np-cat').value,costNtd:cntd,costVnd:cntd*CFG.rate,price:parseInt(document.getElementById('np-price').value)||0,qty:parseInt(document.getElementById('np-qty').value)||1,date:document.getElementById('np-date').value||todayStr(),loc:document.getElementById('np-loc').value,note:document.getElementById('np-note').value,status:'ok'});
+  document.getElementById('np-name').value='';closeM('m-addplant');renderInv();
+}
+
+// REHAB
+function openRehabModal(id){
+  closeM('m-detail');var p=S.plants.find(function(x){return x.id===id;});
+  document.getElementById('rehab-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> → 修整區';
+  document.getElementById('rehab-note').value='';
+  document.getElementById('rehab-confirm-btn').onclick=function(){
+    var note=document.getElementById('rehab-note').value;
+    var num=S.rehab.length+1;var rid='R-'+String(num).padStart(3,'0');
+    S.rehab.push({rid:rid,plantId:p.id,name:p.name,date:todayStr(),rehabDate:todayStr(),note:note,loc:p.loc});
+    p.status='rehab';closeM('m-rehab');renderInv();invTab('rehab');
+    alert('已移入修整區\n編號：'+rid);
+  };
+  openM('m-rehab');
+}
+function renderRehab(){
+  var el=document.getElementById('inv-rehab');if(!el)return;
+  if(S.rehab.length===0){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">修整區無植物</div>';return;}
+  var h='<div style="padding:10px 16px 4px;font-size:11px;color:var(--text2)">修整區植物有獨立編號、在庫天數與修整天數記錄</div>';
+  S.rehab.forEach(function(r){
+    var stockDays=daysSince(r.date);
+    var rehabDays=daysSince(r.rehabDate||r.date);
+    h+='<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);padding:13px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">'+r.rid+'</span><span class="badge ba">修整中</span></div>';
+    h+='<div style="font-size:14px;font-weight:600;margin-bottom:8px">'+r.name+'</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">在庫天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">'+stockDays+'</div><div style="font-size:9px;color:var(--text3)">從進貨日起</div></div>';
+    h+='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">修整天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">'+rehabDays+'</div><div style="font-size:9px;color:var(--text3)">從修整日起</div></div>';
+    h+='</div>';
+    if(r.note)h+='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+r.note+'</div>';
+    if(role==='owner'){
+      h+='<div style="display:flex;gap:8px">';
+      h+='<button class="btn btns btnsm" style="flex:1" onclick="openEditRehab(\''+r.rid+'\')">編輯日期</button>';
+      h+='<button class="btn btns btnsm" style="flex:1" onclick="releaseRehab(\''+r.rid+'\')">移回庫存</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  el.innerHTML=h;
+}
+function openEditRehab(rid){
+  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
+  document.getElementById('er-rid').value=rid;
+  document.getElementById('er-date').value=r.rehabDate||r.date;
+  document.getElementById('er-note').value=r.note||'';
+  openM('m-editrehab');
+}
+function saveRehabEdit(){
+  var rid=document.getElementById('er-rid').value;
+  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
+  r.rehabDate=document.getElementById('er-date').value;
+  r.note=document.getElementById('er-note').value;
+  closeM('m-editrehab');renderRehab();
+}
+function releaseRehab(rid){
+  var idx=S.rehab.findIndex(function(r){return r.rid===rid;});if(idx===-1)return;
+  var r=S.rehab[idx];var p=S.plants.find(function(x){return x.id===r.plantId;});
+  if(p)p.status='ok';S.rehab.splice(idx,1);renderRehab();renderInv();
+}
+
+// REPORT
+function renderRep(){
+  var tv=S.orders.reduce(function(s,o){return s+o.total;},0);
+  var tp=S.orders.reduce(function(s,o){return s+o.profit;},0);
+  var am=tv>0?(tp/tv*100).toFixed(1):0;
+  document.getElementById('rep-metrics').innerHTML=
+    '<div class="metric"><div class="ml">Tổng DT<span class="vi">總營收</span></div><div class="mv blue">'+vnd(tv)+'</div></div>'+
+    '<div class="metric"><div class="ml">Tổng LN<span class="vi">總毛利</span></div><div class="mv green">'+vnd(tp)+'</div></div>'+
+    '<div class="metric"><div class="ml">Tỷ lệ LN<span class="vi">平均毛利率</span></div><div class="mv">'+am+'%</div></div>'+
+    '<div class="metric"><div class="ml">Tổng đơn<span class="vi">訂單總數</span></div><div class="mv">'+S.orders.length+'</div></div>';
+  var monthly={};
+  S.orders.forEach(function(o){
+    var k=monthKey(o.date);
+    if(!monthly[k])monthly[k]={label:monthLabel(o.date),rev:0,profit:0,count:0};
+    monthly[k].rev+=o.total;monthly[k].profit+=o.profit;monthly[k].count++;
+  });
+  var h='<div style="padding:0 16px">';
+  Object.keys(monthly).sort().reverse().forEach(function(k){
+    var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
+    var mgc=parseFloat(mg)>40?'var(--green)':parseFloat(mg)>20?'var(--amber)':'var(--red)';
+    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:15px;margin-bottom:12px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><span style="font-size:14px;font-weight:700">'+m.label+'</span>';
+    h+='<button onclick="goOrdersFiltered(\''+k+'\')" style="background:var(--bbg);color:var(--blue);border:1px solid var(--bborder);border-radius:100px;padding:3px 12px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">'+m.count+' đơn →</button></div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">毛利</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--green)">'+vnd(m.profit)+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">毛利率</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:'+mgc+'">'+mg+'%</div></div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  document.getElementById('rep-monthly').innerHTML=h;
+}
+
+// INV STATUS
+function renderInvStatus(){
+  var all=S.plants.slice().sort(function(a,b){return daysSince(b.date)-daysSince(a.date);});
+  var h='';
+  // Active plants
+  var active=all.filter(function(p){return p.status!=='rehab';});
+  active.forEach(function(p){
+    var days=daysSince(p.date);var ac=agedCost(p);var mg=mgn(p);
+    var mc=parseFloat(mg)>30?'var(--green)':'var(--red)';
+    h+='<div class="pi"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+' <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></div><div class="pmeta">在庫 '+days+' 天 · '+p.qty+' 株</div></div><div class="pright"><div class="pprice" style="color:var(--amber)">CP '+vnd(ac)+'</div><div class="psub" style="color:'+mc+'">毛利 '+mg+'%</div></div></div>';
+  });
+  // Rehab plants
+  if(S.rehab.length>0){
+    h+='<div class="sec">修整區 / Khu chỉnh sửa</div>';
+    S.rehab.forEach(function(r){
+      var stockDays=daysSince(r.date);var rehabDays=daysSince(r.rehabDate||r.date);
+      h+='<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname"><span style="font-family:DM Mono,monospace;color:var(--amber)">'+r.rid+'</span> '+r.name+'</div><div class="pmeta">在庫 '+stockDays+' 天 · 修整 '+rehabDays+' 天</div></div><div class="pright"><span class="badge ba">修整中</span></div></div>';
+    });
+  }
+  document.getElementById('inv-status-list').innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--text3)">無資料</div>';
+}
+
+// ADMIN
+function renderAdmin(){
+  loadConfig();
+  // Plant list
+  var h='';
+  S.plants.forEach(function(p){
+    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(p.price)+' · '+p.qty+'株 · '+locLabels[p.loc]+'</div></div><button class="btn btns btnsm" onclick="openEditPlant('+p.id+')">編輯</button></div>';
+  });
+  document.getElementById('admin-plant-list').innerHTML=h||'<div style="padding:14px;color:var(--text3);font-size:13px">無資料</div>';
+  // Board list
+  var bh='';
+  S.boards.forEach(function(b){
+    bh+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+b.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(b.price)+' · 庫存 '+b.qty+'</div></div><button class="btn btns btnsm" onclick="openEditBoard('+b.id+')">編輯</button></div>';
+  });
+  document.getElementById('admin-board-list').innerHTML=bh||'<div style="padding:14px;color:var(--text3);font-size:13px">無資料</div>';
+}
+function openEditPlant(id){
+  var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
+  document.getElementById('ep-id').value=id;
+  document.getElementById('ep-name').value=p.name;
+  document.getElementById('ep-price').value=p.price;
+  document.getElementById('ep-qty').value=p.qty;
+  document.getElementById('ep-date').value=p.date;
+  document.getElementById('ep-note').value=p.note||'';
+  openM('m-editplant');
+}
+function savePlantEdit(){
+  var id=parseInt(document.getElementById('ep-id').value);
+  var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
+  p.name=document.getElementById('ep-name').value;
+  p.price=parseInt(document.getElementById('ep-price').value)||p.price;
+  p.qty=parseInt(document.getElementById('ep-qty').value)||0;
+  p.date=document.getElementById('ep-date').value||p.date;
+  p.note=document.getElementById('ep-note').value;
+  closeM('m-editplant');renderAdmin();renderInv();renderPos();
+}
+function deletePlant(){
+  var id=parseInt(document.getElementById('ep-id').value);
+  if(!confirm('確定刪除？'))return;
+  S.plants=S.plants.filter(function(p){return p.id!==id;});
+  closeM('m-editplant');renderAdmin();renderInv();renderPos();
+}
+function openEditBoard(id){
+  var b=S.boards.find(function(x){return x.id===id;});
+  document.getElementById('eb-id').value=id||'';
+  document.getElementById('eb-name').value=b?b.name:'';
+  document.getElementById('eb-cost').value=b?b.costVnd:'';
+  document.getElementById('eb-price').value=b?b.price:'';
+  document.getElementById('eb-qty').value=b?b.qty:'';
+  openM('m-addboard');
+}
+function saveBoard(){
+  var id=parseInt(document.getElementById('eb-id').value)||0;
+  var name=document.getElementById('eb-name').value.trim();if(!name)return;
+  var cost=parseInt(document.getElementById('eb-cost').value)||0;
+  var price=parseInt(document.getElementById('eb-price').value)||0;
+  var qty=parseInt(document.getElementById('eb-qty').value)||0;
+  if(id){var b=S.boards.find(function(x){return x.id===id;});if(b){b.name=name;b.costVnd=cost;b.price=price;b.qty=qty;}}
+  else S.boards.push({id:S.nextId++,name:name,costVnd:cost,price:price,qty:qty});
+  closeM('m-addboard');renderAdmin();renderPos();
+}
+
+// PURCHASE
+function renderPur(){
+  var tv=S.purchases.reduce(function(s,p){return s+p.totalVnd;},0);
+  var ti=S.purchases.reduce(function(s,p){return s+p.items.reduce(function(a,i){return a+i.qty;},0);},0);
+  document.getElementById('pur-metrics').innerHTML=
+    '<div class="metric"><div class="ml">批次<span class="vi">Lô hàng</span></div><div class="mv blue">'+S.purchases.length+'</div></div>'+
+    '<div class="metric"><div class="ml">總數量<span class="vi">Tổng cây</span></div><div class="mv">'+ti+'</div></div>'+
+    '<div class="metric"><div class="ml">總成本<span class="vi">Tổng CP</span></div><div class="mv amber">'+vnd(tv)+'</div></div>'+
+    '<div class="metric"><div class="ml">廠商數<span class="vi">NCC</span></div><div class="mv">'+[...new Set(S.purchases.map(function(p){return p.vendor;}))].length+'</div></div>';
+  document.getElementById('pur-list').innerHTML=S.purchases.map(function(p){
+    var h='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin:0 16px 10px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-weight:500;font-size:14px">'+p.vendor+'</span><span style="color:var(--text2);font-size:12px;margin-left:8px">'+p.date+'</span></div><span class="badge bb">'+p.items.reduce(function(s,i){return s+i.qty;},0)+' cây</span></div>';
+    if(p.note)h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px">'+p.note+'</div>';
+    p.items.slice(0,3).forEach(function(i){h+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)"><span>'+i.name+' × '+i.qty+'</span><span style="color:var(--text2)">'+vnd(i.totalVnd)+'</span></div>';});
+    if(p.items.length>3)h+='<div style="font-size:11px;color:var(--text3);padding-top:3px">+'+( p.items.length-3)+' 項...</div>';
+    h+='<div style="display:flex;justify-content:flex-end;margin-top:8px"><span style="font-weight:700;font-family:DM Mono,monospace">'+vnd(p.totalVnd)+'</span></div></div>';
+    return h;
+  }).join('');
+}
+function addPurItem(){purItems.push({name:'',qty:1,costNtd:0});renderPurItems();}
+function renderPurItems(){
+  var w=document.getElementById('pur-items-wrap');
+  var h='<div class="sec" style="padding-left:0;padding-top:0">進貨明細</div>';
+  purItems.forEach(function(item,i){
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px"><div class="field" style="margin-bottom:7px"><input class="inp" placeholder="品名" value="'+item.name+'" onchange="purItems['+i+'].name=this.value"></div>';
+    h+='<div class="irow"><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="數量" value="'+(item.qty||'')+'" onchange="purItems['+i+'].qty=parseInt(this.value)||0"></div><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="成本 NTD" value="'+(item.costNtd||'')+'" onchange="purItems['+i+'].costNtd=parseInt(this.value)||0"></div></div></div>';
+  });
+  w.innerHTML=h;
+}
+function savePurchase(){
+  var vendor=document.getElementById('pur-vendor').value.trim();
+  if(!vendor||purItems.length===0){alert('請填寫廠商和品項');return;}
+  var items=purItems.map(function(i){return{name:i.name,qty:i.qty,costNtd:i.costNtd,costVnd:i.costNtd*CFG.rate,totalVnd:i.qty*i.costNtd*CFG.rate};});
+  S.purchases.unshift({id:S.nextId++,vendor:vendor,date:document.getElementById('pur-date').value||todayStr(),note:document.getElementById('pur-note').value,items:items,totalVnd:items.reduce(function(s,i){return s+i.totalVnd;},0)});
+  purItems=[];closeM('m-newpur');renderPur();
+}
+
+// MODAL UTILS
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function bgClose(e,id){if(e.target.id===id)closeM(id);}
+</script>
+</body>
+</html>
