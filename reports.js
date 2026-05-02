@@ -1,5 +1,4 @@
 // ==================== REPORTS MODULE ====================
-
 function buildRepTabs() {
   const tabs = [
     { id: 'summary', label: 'Tháng / 月度' },
@@ -27,10 +26,15 @@ function repTab(t) {
     if (el) el.style.display = x === t ? 'block' : 'none';
   });
   const fn = {
-    summary: renderRepSummary, orders: renderRepOrders, members: renderRepMembers,
-    'plants-sold': renderRepPlantsSold, invstatus: renderInvStatus,
-    'rehab-log': renderRehabLog, writeoff: renderWriteoffRep,
-    purchase: renderPur, admin: renderAdmin
+    summary: renderRepSummary,
+    orders: renderRepOrders,
+    members: renderRepMembers,
+    'plants-sold': renderRepPlantsSold,
+    invstatus: renderInvStatus,
+    'rehab-log': renderRehabLog,
+    writeoff: renderWriteoffRep,
+    purchase: renderPur,
+    admin: renderAdmin
   };
   if (fn[t]) fn[t]();
 }
@@ -54,7 +58,9 @@ function renderRepSummary() {
   completed.forEach(o => {
     const k = monthKey(o.order_date);
     if (!monthly[k]) monthly[k] = { label: monthLabel(o.order_date), rev: 0, profit: 0, count: 0 };
-    monthly[k].rev += o.total; monthly[k].profit += o.profit; monthly[k].count++;
+    monthly[k].rev += o.total;
+    monthly[k].profit += o.profit;
+    monthly[k].count++;
   });
   h += '<div style="padding:0 16px">';
   Object.keys(monthly).sort().reverse().forEach(k => {
@@ -113,7 +119,9 @@ function renderRepMembers() {
   const members = {};
   completed.forEach(o => {
     if (!members[o.seller]) members[o.seller] = { rev: 0, profit: 0, count: 0 };
-    members[o.seller].rev += o.total; members[o.seller].profit += o.profit; members[o.seller].count++;
+    members[o.seller].rev += o.total;
+    members[o.seller].profit += o.profit;
+    members[o.seller].count++;
   });
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Doanh số thành viên / 成員業績</span>
@@ -214,7 +222,11 @@ function renderRehabLog() {
     <span style="font-size:13px;font-weight:500">Lịch sử chỉnh sửa / 修整記錄</span>
     <button class="csv-btn" onclick="exportCSV('rehab-log')">⬇ Xuất CSV</button>
   </div>`;
-  if (DATA.rehab.length === 0) { h += '<div style="padding:24px;text-align:center;color:var(--text3)">Không có / 無修整記錄</div>'; document.getElementById('rep-rehab-log').innerHTML = h; return; }
+  if (DATA.rehab.length === 0) {
+    h += '<div style="padding:24px;text-align:center;color:var(--text3)">Không có / 無修整記錄</div>';
+    document.getElementById('rep-rehab-log').innerHTML = h;
+    return;
+  }
   h += `<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">
   <tr style="background:var(--bg3);color:var(--text2)">
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Mã / 編號</th>
@@ -247,7 +259,11 @@ function renderWriteoffRep() {
     <div class="metric"><div class="ml">Tổng hao hụt / 報廢總數</div><div class="mv red">${totalQty}株</div></div>
     <div class="metric"><div class="ml">Chi phí thiệt hại / 損失成本</div><div class="mv red">${vnd(totalCost)}</div></div>
   </div>`;
-  if (DATA.writeoffs.length === 0) { h += '<div style="padding:24px;text-align:center;color:var(--text3)">Chưa có ghi nhận / 無報廢記錄</div>'; document.getElementById('rep-writeoff').innerHTML = h; return; }
+  if (DATA.writeoffs.length === 0) {
+    h += '<div style="padding:24px;text-align:center;color:var(--text3)">Chưa có ghi nhận / 無報廢記錄</div>';
+    document.getElementById('rep-writeoff').innerHTML = h;
+    return;
+  }
   h += `<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">
   <tr style="background:var(--bg3);color:var(--text2)">
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Ngày / 日期</th>
@@ -363,7 +379,12 @@ async function savePassword() {
 
 // PURCHASE
 let purItems = [];
-function addPurItem() { purItems.push({ name: '', qty: 1, cost_ntd: 0, price: 0 }); renderPurItems(); }
+
+function addPurItem() {
+  purItems.push({ name: '', qty: 1, cost_ntd: 0, price: 0 });
+  renderPurItems();
+}
+
 function renderPurItems() {
   document.getElementById('pur-items-wrap').innerHTML = purItems.map((item, i) => `
     <div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px">
@@ -378,33 +399,32 @@ function renderPurItems() {
 
 async function savePurchase() {
   const vendor = document.getElementById('pur-vendor').value.trim();
-  if (!vendor || purItems.length === 0) { showToast('Vui lòng nhập đầy đủ / 請填寫廠商和品項', 'error'); return; }
+  if (!vendor || purItems.length === 0) {
+    showToast('Vui lòng nhập đầy đủ / 請填寫廠商和品項', 'error');
+    return;
+  }
   const addToStock = document.getElementById('pur-add-stock').checked;
   const stockLoc = document.getElementById('pur-stock-loc').value;
-  // 直接從 DOM 讀取最新值，避免 oninput 在 Safari 上的問題
-  const wrap = document.getElementById('pur-items-wrap');
-  const itemDivs = wrap.querySelectorAll('div[style]');
-  itemDivs.forEach((div, i) => {
-    const inputs = div.querySelectorAll('input');
-    if (inputs[0]) purItems[i].name = inputs[0].value;
-    if (inputs[1]) purItems[i].qty = parseInt(inputs[1].value) || 0;
-    if (inputs[2]) purItems[i].cost_ntd = parseInt(inputs[2].value) || 0;
-    if (inputs[3]) purItems[i].price = parseInt(inputs[3].value) || 0;
-  });
+
   const items = purItems.map(i => ({
-    item_name: i.name, qty: i.qty,
-    cost_ntd: i.cost_ntd, cost_vnd: i.cost_ntd * CFG.rate,
+    item_name: i.name,
+    qty: i.qty,
+    cost_ntd: i.cost_ntd,
+    cost_vnd: i.cost_ntd * CFG.rate,
     total_vnd: i.qty * i.cost_ntd * CFG.rate,
     price: i.price || 0
   }));
+
   const totalVnd = items.reduce((s, i) => s + i.total_vnd, 0);
   const purchaseDate = document.getElementById('pur-date').value || todayStr();
   showLoading(true);
   await DB.addPurchase({
-    vendor, purchase_date: purchaseDate,
-    note: document.getElementById('pur-note').value, total_vnd: totalVnd
+    vendor,
+    purchase_date: purchaseDate,
+    note: document.getElementById('pur-note').value,
+    total_vnd: totalVnd
   }, items);
-  // 同步加入庫存
+
   if (addToStock) {
     for (const i of items) {
       if (!i.item_name) continue;
@@ -413,15 +433,21 @@ async function savePurchase() {
         await DB.updatePlant(existing.id, { qty: existing.qty + i.qty });
       } else {
         await DB.addPlant({
-          name: i.item_name, cat: '植物',
-          cost_ntd: i.cost_ntd, cost_vnd: i.cost_vnd,
-          price: i.price || 0, qty: i.qty,
+          name: i.item_name,
+          cat: '植物',
+          cost_ntd: i.cost_ntd,
+          cost_vnd: i.cost_vnd,
+          price: i.price || 0,
+          qty: i.qty,
           purchase_date: purchaseDate,
-          loc: stockLoc, note: vendor, status: 'ok'
+          loc: stockLoc,
+          note: vendor,
+          status: 'ok'
         });
       }
     }
   }
+
   purItems = [];
   ['pur-vendor','pur-note'].forEach(id => document.getElementById(id).value = '');
   await loadAllData();
@@ -471,45 +497,89 @@ function exportCSV(type) {
     filename = '月度摘要.csv';
     rows.push(['Tháng/月份','Doanh thu/營收(VND)','Lợi nhuận/毛利(VND)','Tỷ lệ/毛利率','Số đơn/訂單數']);
     const monthly = {};
-    completed.forEach(o => { const k = monthKey(o.order_date); if (!monthly[k]) monthly[k] = { label: monthLabel(o.order_date), rev: 0, profit: 0, count: 0 }; monthly[k].rev += o.total; monthly[k].profit += o.profit; monthly[k].count++; });
-    Object.keys(monthly).sort().reverse().forEach(k => { const m = monthly[k]; const mg = m.rev > 0 ? (m.profit / m.rev * 100).toFixed(1) : 0; rows.push([m.label, m.rev, m.profit, mg + '%', m.count]); });
+    completed.forEach(o => {
+      const k = monthKey(o.order_date);
+      if (!monthly[k]) monthly[k] = { label: monthLabel(o.order_date), rev: 0, profit: 0, count: 0 };
+      monthly[k].rev += o.total; monthly[k].profit += o.profit; monthly[k].count++;
+    });
+    Object.keys(monthly).sort().reverse().forEach(k => {
+      const m = monthly[k];
+      const mg = m.rev > 0 ? (m.profit / m.rev * 100).toFixed(1) : 0;
+      rows.push([m.label, m.rev, m.profit, mg + '%', m.count]);
+    });
   } else if (type === 'orders') {
     filename = '訂單明細.csv';
     rows.push(['Ngày/日期','#','Khách/客戶','Liên hệ/聯絡','Địa chỉ/地址','Nguồn/來源','Thanh toán/付款','Người bán/成交人','Sản phẩm/品項','Tổng/金額(VND)','LN/毛利(VND)','Tỷ lệ/毛利率','Ghi chú/備註']);
-    completed.forEach(o => { const mg = o.total > 0 ? (o.profit / o.total * 100).toFixed(1) : 0; const items = (o.order_items || []).map(i => i.item_name + '×' + i.qty).join(' | '); rows.push([o.order_date, '#' + String(o.id).padStart(4,'0'), o.customer, o.contact, o.address, o.source, o.payment, o.seller, items, o.total, o.profit, mg + '%', o.note]); });
+    completed.forEach(o => {
+      const mg = o.total > 0 ? (o.profit / o.total * 100).toFixed(1) : 0;
+      const items = (o.order_items || []).map(i => i.item_name + '×' + i.qty).join(' | ');
+      rows.push([o.order_date, '#' + String(o.id).padStart(4,'0'), o.customer, o.contact, o.address, o.source, o.payment, o.seller, items, o.total, o.profit, mg + '%', o.note]);
+    });
   } else if (type === 'members') {
     filename = '成員業績.csv';
     rows.push(['Thành viên/成員','Số đơn/訂單數','Doanh thu/總營收(VND)','Lợi nhuận/總毛利(VND)','Tỷ lệ/毛利率']);
     const members = {};
-    completed.forEach(o => { if (!members[o.seller]) members[o.seller] = { rev: 0, profit: 0, count: 0 }; members[o.seller].rev += o.total; members[o.seller].profit += o.profit; members[o.seller].count++; });
-    Object.keys(members).forEach(name => { const m = members[name]; const mg = m.rev > 0 ? (m.profit / m.rev * 100).toFixed(1) : 0; rows.push([name, m.count, m.rev, m.profit, mg + '%']); });
+    completed.forEach(o => {
+      if (!members[o.seller]) members[o.seller] = { rev: 0, profit: 0, count: 0 };
+      members[o.seller].rev += o.total; members[o.seller].profit += o.profit; members[o.seller].count++;
+    });
+    Object.keys(members).forEach(name => {
+      const m = members[name];
+      const mg = m.rev > 0 ? (m.profit / m.rev * 100).toFixed(1) : 0;
+      rows.push([name, m.count, m.rev, m.profit, mg + '%']);
+    });
   } else if (type === 'plants-sold') {
     filename = '植物銷售.csv';
     rows.push(['Tên cây/植物名稱','Số lượng/售出數量','Doanh thu/總營收(VND)','Lợi nhuận/總毛利(VND)','Tỷ lệ/毛利率']);
     const ps = {};
-    completed.forEach(o => { (o.order_items || []).forEach(item => { if (!ps[item.item_name]) ps[item.item_name] = { qty: 0, rev: 0, profit: 0 }; ps[item.item_name].qty += item.qty; ps[item.item_name].rev += item.price * item.qty; ps[item.item_name].profit += (item.price - item.cost) * item.qty; }); });
-    Object.keys(ps).sort((a, b) => ps[b].rev - ps[a].rev).forEach(name => { const s = ps[name]; const mg = s.rev > 0 ? (s.profit / s.rev * 100).toFixed(1) : 0; rows.push([name, s.qty, s.rev, s.profit, mg + '%']); });
+    completed.forEach(o => {
+      (o.order_items || []).forEach(item => {
+        if (!ps[item.item_name]) ps[item.item_name] = { qty: 0, rev: 0, profit: 0 };
+        ps[item.item_name].qty += item.qty;
+        ps[item.item_name].rev += item.price * item.qty;
+        ps[item.item_name].profit += (item.price - item.cost) * item.qty;
+      });
+    });
+    Object.keys(ps).sort((a, b) => ps[b].rev - ps[a].rev).forEach(name => {
+      const s = ps[name];
+      const mg = s.rev > 0 ? (s.profit / s.rev * 100).toFixed(1) : 0;
+      rows.push([name, s.qty, s.rev, s.profit, mg + '%']);
+    });
   } else if (type === 'invstatus') {
     filename = '庫存狀態.csv';
     rows.push(['Tên cây/植物名稱','Phân loại/分類','Vị trí/位置','Số lượng/數量','Số ngày kho/在庫天數','Giá vốn gốc/原始成本(VND)','Giá vốn HT/當前成本(VND)','Giá bán/售價(VND)','Tỷ lệ LN/毛利率','Ngày nhập/進貨日期']);
-    DATA.plants.filter(p => p.status === 'ok').forEach(p => { const ac = agedCost(p.cost_vnd, p.purchase_date); const mg = margin(p.price, p.cost_vnd, p.purchase_date); rows.push([p.name, p.cat, LOC_LABELS[p.loc], p.qty, daysSince(p.purchase_date), p.cost_vnd, ac, p.price, mg + '%', p.purchase_date]); });
+    DATA.plants.filter(p => p.status === 'ok').forEach(p => {
+      const ac = agedCost(p.cost_vnd, p.purchase_date);
+      const mg = margin(p.price, p.cost_vnd, p.purchase_date);
+      rows.push([p.name, p.cat, LOC_LABELS[p.loc], p.qty, daysSince(p.purchase_date), p.cost_vnd, ac, p.price, mg + '%', p.purchase_date]);
+    });
   } else if (type === 'rehab-log') {
     filename = '修整記錄.csv';
     rows.push(['Mã/編號','Tên cây/植物','Số lượng/數量','Vị trí/位置','Ngày nhập/進貨日期','Ngày CS/修整開始日','Ngày kho/在庫天數','Ngày CS/修整天數','Lý do/原因']);
-    DATA.rehab.forEach(r => { rows.push([r.rid, r.plant_name, r.qty, LOC_LABELS[r.loc], r.purchase_date, r.rehab_date, daysSince(r.purchase_date), daysSince(r.rehab_date), r.note]); });
+    DATA.rehab.forEach(r => {
+      rows.push([r.rid, r.plant_name, r.qty, LOC_LABELS[r.loc], r.purchase_date, r.rehab_date, daysSince(r.purchase_date), daysSince(r.rehab_date), r.note]);
+    });
   } else if (type === 'writeoff') {
     filename = '死亡報廢.csv';
     rows.push(['Ngày/日期','Tên cây/植物名稱','Số lượng/數量','Vị trí/位置','Lý do/死亡原因','Người TH/操作人員','Thiệt hại/損失成本(VND)']);
-    DATA.writeoffs.forEach(w => { rows.push([w.writeoff_date, w.plant_name, w.qty, LOC_LABELS[w.loc] || '', w.reason, w.operator, w.cost || 0]); });
+    DATA.writeoffs.forEach(w => {
+      rows.push([w.writeoff_date, w.plant_name, w.qty, LOC_LABELS[w.loc] || '', w.reason, w.operator, w.cost || 0]);
+    });
   } else if (type === 'purchase') {
     filename = '進貨記錄.csv';
     rows.push(['Ngày/批次日期','NCC/廠商','Tên cây/品名','Số lượng/數量','Giá NTD/成本NTD','Giá VND/成本VND','Tổng VND/小計VND','Ghi chú/備註']);
-    DATA.purchases.forEach(p => { (p.purchase_items || []).forEach(i => { rows.push([p.purchase_date, p.vendor, i.item_name, i.qty, i.cost_ntd, i.cost_vnd, i.total_vnd, p.note]); }); });
+    DATA.purchases.forEach(p => {
+      (p.purchase_items || []).forEach(i => {
+        rows.push([p.purchase_date, p.vendor, i.item_name, i.qty, i.cost_ntd, i.cost_vnd, i.total_vnd, p.note]);
+      });
+    });
   }
   const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
+  a.href = url;
+  a.download = filename;
+  a.click();
   URL.revokeObjectURL(url);
 }
