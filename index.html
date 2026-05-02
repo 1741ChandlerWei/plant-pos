@@ -114,6 +114,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .admin-section-title{padding:12px 16px;font-size:12px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase}
 .admin-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px}
 .admin-row:last-child{border-bottom:none}
+.csv-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--gborder);background:var(--gbg);color:var(--green);font-family:inherit}
 @media print{body>*:not(#print-area){display:none!important}#print-area{display:block!important}}
 </style>
 </head>
@@ -161,15 +162,17 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <div class="screen" id="screen-pos">
   <div class="topbar">
     <div><div class="ttitle">開立訂單</div><div class="tsub">Tạo đơn hàng</div></div>
-    <button class="btn btns btnsm" onclick="clearCart()">清空 / Xóa</button>
+    <button class="btn btns btnsm" onclick="clearCart()">清空</button>
   </div>
   <div class="tabs" style="margin-top:12px">
     <button class="tab active" id="ptab-plant" onclick="posTab('plant')">植物<span class="vi">Cây</span></button>
     <button class="tab" id="ptab-board" onclick="posTab('board')">板子<span class="vi">Tấm gỗ</span></button>
+    <button class="tab" id="ptab-writeoff" onclick="posTab('writeoff')">死亡報廢<span class="vi">Hao hụt</span></button>
     <button class="tab" id="ptab-cart" onclick="posTab('cart')">購物車 <span id="cart-badge"></span><span class="vi">Giỏ hàng</span></button>
   </div>
   <div id="pos-plant"></div>
   <div id="pos-board" style="display:none"></div>
+  <div id="pos-writeoff" style="display:none;padding:16px"></div>
   <div id="pos-cart" style="display:none;padding:0 16px"></div>
 </div>
 
@@ -197,63 +200,22 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div><div class="ttitle">已完成訂單</div><div class="tsub">Đơn hàng đã hoàn thành</div></div>
     <div style="display:flex;gap:6px;align-items:center"><div id="orders-filter-badge" style="font-size:12px;color:var(--acc)"></div><button class="btn btns btnsm" id="orders-clear-filter" onclick="clearOrderFilter()" style="display:none">全部</button></div>
   </div>
-  <div style="padding:10px 16px 4px"><div style="font-size:12px;color:var(--text2);font-family:'Noto Sans',sans-serif" id="orders-subtitle"></div></div>
   <div id="orders-list"></div>
 </div>
 
 <!-- REPORT -->
 <div class="screen" id="screen-rep">
   <div class="topbar"><div><div class="ttitle">報表</div><div class="tsub">Báo cáo</div></div></div>
-  <div class="tabs" style="margin-top:12px" id="rep-tabs"></div>
-  <div id="rep-summary">
-    <div class="metrics" id="rep-metrics"></div>
-    <div class="sec">月度明細 / Chi tiết hàng tháng</div>
-    <div id="rep-monthly"></div>
-  </div>
-  <div id="rep-purchase" style="display:none">
-    <div class="metrics" style="margin-top:4px" id="pur-metrics"></div>
-    <div style="padding:10px 16px;display:flex;justify-content:flex-end"><button class="btn btnp btnsm" onclick="openM('m-newpur')">+ 新增進貨 / Thêm lô</button></div>
-    <div id="pur-list"></div>
-  </div>
-  <div id="rep-invstatus" style="display:none">
-    <div class="sec">所有植物在庫狀態 / Trạng thái tồn kho</div>
-    <div id="inv-status-list"></div>
-  </div>
-  <div id="rep-admin" style="display:none">
-    <div style="height:12px"></div>
-    <!-- System Settings -->
-    <div class="admin-section">
-      <div class="admin-section-title">系統設定 / Cài đặt hệ thống</div>
-      <div style="padding:14px 16px">
-        <div class="field"><label class="flabel">匯率：1 NTD = ? VND</label><input class="inp" id="cfg-rate" type="number" placeholder="900"></div>
-        <div class="field"><label class="flabel">每月成本增加（VND / 月）<span class="vi">Chi phí tăng mỗi tháng</span></label><input class="inp" id="cfg-monthly-inc" type="number" placeholder="50000"></div>
-        <div class="field"><label class="flabel">最高增加上限（VND）<span class="vi">Giới hạn tăng tối đa</span></label><input class="inp" id="cfg-max-inc" type="number" placeholder="300000"></div>
-        <button class="btn btnp btnf" onclick="saveConfig()">儲存設定 / Lưu</button>
-      </div>
-    </div>
-    <!-- Plant Management -->
-    <div class="admin-section">
-      <div class="admin-section-title">植物管理 / Quản lý cây</div>
-      <div id="admin-plant-list"></div>
-    </div>
-    <!-- Board Management -->
-    <div class="admin-section">
-      <div class="admin-section-title">板子管理 / Quản lý tấm gỗ</div>
-      <div id="admin-board-list"></div>
-      <div style="padding:12px 16px"><button class="btn btns btnf" onclick="openM('m-addboard')">+ 新增板子種類</button></div>
-    </div>
-    <!-- Promo Settings -->
-    <div class="admin-section">
-      <div class="admin-section-title">活動價 / 批發價 / Giá khuyến mãi</div>
-      <div style="padding:14px 16px">
-        <div class="field"><label class="flabel">活動折扣（%）<span class="vi">Giảm giá sự kiện</span></label><input class="inp" id="cfg-promo" type="number" placeholder="10" min="0" max="100"></div>
-        <div class="field"><label class="flabel">活動期間結束日 <span class="vi">Ngày kết thúc</span></label><input class="inp" id="cfg-promo-end" type="date"></div>
-        <div class="field"><label class="flabel">批發客戶名稱 <span class="vi">Tên khách sỉ</span></label><input class="inp" id="cfg-wholesale-name" placeholder="商戶名稱..."></div>
-        <div class="field"><label class="flabel">批發折扣（%）<span class="vi">Giảm giá sỉ</span></label><input class="inp" id="cfg-wholesale-pct" type="number" placeholder="20" min="0" max="100"></div>
-        <button class="btn btnp btnf" onclick="savePromo()">儲存 / Lưu</button>
-      </div>
-    </div>
-  </div>
+  <div class="tabs" style="margin-top:12px;gap:3px" id="rep-tabs"></div>
+  <div id="rep-summary" style="display:none"></div>
+  <div id="rep-orders" style="display:none"></div>
+  <div id="rep-members" style="display:none"></div>
+  <div id="rep-plants-sold" style="display:none"></div>
+  <div id="rep-invstatus" style="display:none"></div>
+  <div id="rep-rehab-log" style="display:none"></div>
+  <div id="rep-writeoff" style="display:none"></div>
+  <div id="rep-purchase" style="display:none"></div>
+  <div id="rep-admin" style="display:none"></div>
 </div>
 
 <!-- NAV -->
@@ -286,7 +248,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   <div class="modal">
     <div class="mhandle"></div>
     <div class="mtitle">新增植物庫存<span class="vi">Thêm cây vào kho</span></div>
-    <div class="field"><label class="flabel">植物名稱 <span class="vi">Tên cây</span></label><input class="inp" id="np-name" placeholder="AR SP、mew..."></div>
+    <div class="field"><label class="flabel">植物名稱</label><input class="inp" id="np-name" placeholder="AR SP、mew..."></div>
     <div class="field"><label class="flabel">分類</label><select class="inp" id="np-cat"><option>植物</option><option>植物（代）</option><option>植物（自）</option><option>植物（批）</option></select></div>
     <div class="irow">
       <div class="field"><label class="flabel">成本 NTD</label><input class="inp" id="np-cntd" type="number" placeholder="500" oninput="document.getElementById('np-cvnd').value=Math.round(this.value*CFG.rate).toLocaleString()"></div>
@@ -317,10 +279,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     </div>
     <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="ep-date" type="date"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="ep-note"></div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btnd" style="flex:1" onclick="deletePlant()">刪除</button>
-      <button class="btn btnp" style="flex:1" onclick="savePlantEdit()">儲存</button>
-    </div>
+    <button class="btn btnp btnf" onclick="savePlantEdit()">儲存</button>
   </div>
 </div>
 
@@ -331,10 +290,10 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <input type="hidden" id="eb-id">
     <div class="field"><label class="flabel">板子名稱</label><input class="inp" id="eb-name" placeholder="香檳木..."></div>
     <div class="irow">
-      <div class="field"><label class="flabel">成本 VND</label><input class="inp" id="eb-cost" type="number" placeholder="83000"></div>
-      <div class="field"><label class="flabel">售價 VND</label><input class="inp" id="eb-price" type="number" placeholder="150000"></div>
+      <div class="field"><label class="flabel">成本 VND</label><input class="inp" id="eb-cost" type="number"></div>
+      <div class="field"><label class="flabel">售價 VND</label><input class="inp" id="eb-price" type="number"></div>
     </div>
-    <div class="field"><label class="flabel">庫存數量</label><input class="inp" id="eb-qty" type="number" placeholder="10" min="0"></div>
+    <div class="field"><label class="flabel">總庫存數量</label><input class="inp" id="eb-qty" type="number" min="0"></div>
     <button class="btn btnp btnf" onclick="saveBoard()">儲存 / Lưu</button>
   </div>
 </div>
@@ -342,13 +301,27 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <div class="modal-overlay" id="m-moveplant" onclick="bgClose(event,'m-moveplant')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">指派植物位置<span class="vi">Chỉ định vị trí</span></div>
+    <div class="mtitle">移動植物<span class="vi">Di chuyển cây</span></div>
     <div id="move-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
     <div class="field"><label class="flabel">移至 / Chuyển đến</label>
-      <select class="inp" id="move-loc"><option value="mine">在我家 / Nhà chủ</option><option value="quang">在 Quang 家</option><option value="helper">在小幫手家</option></select>
+      <select class="inp" id="move-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
     </div>
-    <div class="field"><label class="flabel">養護備註</label><input class="inp" id="move-note" placeholder="每天噴水..."></div>
+    <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="move-qty" type="number" min="1" value="1"></div>
+    <div class="field"><label class="flabel">備註</label><input class="inp" id="move-note" placeholder="每天噴水..."></div>
     <button class="btn btnp btnf" onclick="doMove()">確認移動 / Xác nhận</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-moveboard" onclick="bgClose(event,'m-moveboard')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">移動板子<span class="vi">Di chuyển tấm</span></div>
+    <div id="moveboard-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
+    <div class="field"><label class="flabel">移至</label>
+      <select class="inp" id="moveboard-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
+    </div>
+    <div class="field"><label class="flabel">數量</label><input class="inp" id="moveboard-qty" type="number" min="1" value="1"></div>
+    <button class="btn btnp btnf" onclick="doMoveBoard()">確認移動</button>
   </div>
 </div>
 
@@ -357,8 +330,9 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="mhandle"></div>
     <div class="mtitle">移入修整區<span class="vi">Khu chỉnh sửa</span></div>
     <div id="rehab-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
+    <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="rehab-qty" type="number" min="1" value="1"></div>
     <div class="field"><label class="flabel">修整原因</label><input class="inp" id="rehab-note" placeholder="葉片受損..."></div>
-    <div style="background:var(--abg);border:1px solid var(--aborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--amber)">移入後自動分配編號 R-XXX · Sẽ được cấp mã R-XXX</div>
+    <div style="background:var(--abg);border:1px solid var(--aborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--amber)">移入後自動分配編號 R-XXX</div>
     <button class="btn btnp btnf" id="rehab-confirm-btn">確認移入 / Xác nhận</button>
   </div>
 </div>
@@ -368,9 +342,23 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="mhandle"></div>
     <div class="mtitle">編輯修整記錄</div>
     <input type="hidden" id="er-rid">
-    <div class="field"><label class="flabel">修整開始日期 <span class="vi">Ngày bắt đầu chỉnh sửa</span></label><input class="inp" id="er-date" type="date"></div>
+    <div class="field"><label class="flabel">修整開始日期</label><input class="inp" id="er-date" type="date"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="er-note"></div>
-    <button class="btn btnp btnf" onclick="saveRehabEdit()">儲存 / Lưu</button>
+    <button class="btn btnp btnf" onclick="saveRehabEdit()">儲存</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-releaserhab" onclick="bgClose(event,'m-releaserhab')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">移回庫存</div>
+    <input type="hidden" id="rr-rid">
+    <div id="rr-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
+    <div class="field"><label class="flabel">移回至</label>
+      <select class="inp" id="rr-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
+    </div>
+    <div class="field"><label class="flabel">數量</label><input class="inp" id="rr-qty" type="number" min="1" value="1"></div>
+    <button class="btn btnp btnf" onclick="doReleaseRehab()">確認移回</button>
   </div>
 </div>
 
@@ -381,7 +369,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="field"><label class="flabel">廠商</label><input class="inp" id="pur-vendor" placeholder="Chen Ying..."></div>
     <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="pur-date" type="date"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="pur-note" placeholder="備註..."></div>
-    <div id="pur-items-wrap"><div class="sec" style="padding-left:0;padding-top:0">進貨明細</div></div>
+    <div id="pur-items-wrap"></div>
     <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ 新增品項</button>
     <button class="btn btnp btnf" onclick="savePurchase()">儲存批次 / Lưu</button>
   </div>
@@ -391,19 +379,19 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   <div class="modal">
     <div class="mhandle"></div>
     <div class="mtitle">完成結帳<span class="vi">Hoàn tất thanh toán</span></div>
-    <div class="field"><label class="flabel">客戶姓名 <span class="vi">Tên khách</span></label><input class="inp" id="co-name" placeholder="Tên khách hàng"></div>
-    <div class="field"><label class="flabel">聯絡方式 <span class="vi">Liên hệ</span></label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
-    <div class="field"><label class="flabel">收件地址（自取免填）<span class="vi">Địa chỉ</span></label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
-    <div class="field"><label class="flabel">訂單來源 <span class="vi">Nguồn đơn</span></label>
-      <select class="inp" id="co-src"><option>FB 訊息 / Tin nhắn FB</option><option>來家選購 / Đến nhà chọn</option><option>Zalo / Line</option><option>其他 / Khác</option></select>
+    <div class="field"><label class="flabel">客戶姓名</label><input class="inp" id="co-name" placeholder="Tên khách hàng"></div>
+    <div class="field"><label class="flabel">聯絡方式</label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
+    <div class="field"><label class="flabel">收件地址（自取免填）</label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
+    <div class="field"><label class="flabel">訂單來源</label>
+      <select class="inp" id="co-src"><option>FB 訊息</option><option>來家選購</option><option>Zalo / Line</option><option>其他</option></select>
     </div>
-    <div class="field"><label class="flabel">付款方式 <span class="vi">Thanh toán</span></label>
-      <select class="inp" id="co-pay"><option>現金 / Tiền mặt</option><option>銀行轉帳 / Chuyển khoản</option><option>Momo / LINE Pay</option><option>其他 / Khác</option></select>
+    <div class="field"><label class="flabel">付款方式</label>
+      <select class="inp" id="co-pay"><option>現金</option><option>銀行轉帳</option><option>Momo / LINE Pay</option><option>其他</option></select>
     </div>
-    <div class="field"><label class="flabel">成交人員 <span class="vi">Người bán</span></label>
-      <select class="inp" id="co-seller"><option>Chandler Wei</option><option>Quang</option><option>小幫手 / Trợ lý</option></select>
+    <div class="field"><label class="flabel">成交人員</label>
+      <select class="inp" id="co-seller"><option>Chandler Wei</option><option>Quang</option><option>小幫手</option></select>
     </div>
-    <div class="field"><label class="flabel">備註 <span class="vi">Ghi chú</span></label><input class="inp" id="co-note" placeholder="Ghi chú..."></div>
+    <div class="field"><label class="flabel">備註</label><input class="inp" id="co-note" placeholder="Ghi chú..."></div>
     <div id="co-summary" style="background:var(--bg3);border-radius:var(--r);padding:13px;margin-bottom:14px"></div>
     <button class="btn btnp btnf" onclick="completeOrder()">確認成交 → 出貨單</button>
   </div>
@@ -412,11 +400,11 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <div class="modal-overlay" id="m-receipt">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">出貨單 <span style="font-size:12px;color:var(--text2);font-weight:400;font-family:'Noto Sans',sans-serif">Phiếu xuất hàng</span></div>
+    <div class="mtitle">出貨單 <span style="font-size:12px;color:var(--text2);font-weight:400">Phiếu xuất hàng</span></div>
     <div id="receipt-body"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btns" style="flex:1" onclick="closeM('m-receipt')">關閉 / Đóng</button>
-      <button class="btn btnp" style="flex:1" onclick="doPrint()">🖨 列印 / In</button>
+      <button class="btn btns" style="flex:1" onclick="closeM('m-receipt')">關閉</button>
+      <button class="btn btnp" style="flex:1" onclick="doPrint()">🖨 列印</button>
     </div>
   </div>
 </div>
@@ -431,24 +419,25 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 var CFG={rate:900,monthlyInc:50000,maxInc:300000,promoDiscount:0,promoEnd:'',wholesaleName:'',wholesalePct:0};
 var TODAY=new Date();
 function todayStr(){return TODAY.toISOString().split('T')[0];}
-function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
+function daysSince(d){return Math.max(0,Math.floor((TODAY-new Date(d))/86400000));}
 function monthsSince(d){return daysSince(d)/30.44;}
 function vnd(n){return '\u20ab'+Math.round(n).toLocaleString();}
 function agedCost(p){
-  var months=monthsSince(p.date);
-  var inc=Math.min(Math.round(months)*CFG.monthlyInc,CFG.maxInc);
+  var months=Math.floor(monthsSince(p.date));
+  var inc=Math.min(months*CFG.monthlyInc,CFG.maxInc);
   return p.costVnd+inc;
 }
-function mgn(p){var c=agedCost(p);return((p.price-c)/p.price*100).toFixed(1);}
+function mgn(p){var c=agedCost(p);return p.price>0?((p.price-c)/p.price*100).toFixed(1):'0.0';}
 function monthKey(s){var d=new Date(s);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function monthLabel(s){var d=new Date(s);return 'Tháng '+(d.getMonth()+1)+'/'+d.getFullYear()+' · '+d.getFullYear()+'年'+(d.getMonth()+1)+'月';}
+function monthLabel(s){var d=new Date(s);return d.getFullYear()+'年'+(d.getMonth()+1)+'月';}
 
 var role='owner';
 var movePlantId=null;
+var moveBoardId=null;
 var cart=[];
 var purItems=[];
 var orderFilterMonth=null;
-var locLabels={mine:'我家/Nhà chủ',quang:'Quang家',helper:'小幫手家'};
+var locLabels={mine:'我家',quang:'Quang家',helper:'小幫手家'};
 var locClass={mine:'loc-m',quang:'loc-q',helper:'loc-h'};
 
 var S={
@@ -462,26 +451,28 @@ var S={
     {id:7,name:'酋長 SP',cat:'植物',costNtd:250,costVnd:225000,price:550000,qty:1,date:'2024-12-15',loc:'mine',note:'',status:'ok'},
   ],
   boards:[
-    {id:1,name:'木板（標準）/ Gỗ tiêu chuẩn',costVnd:83000,price:150000,qty:18},
-    {id:2,name:'香檳木 / Gỗ Champagne',costVnd:249000,price:380000,qty:7},
-    {id:3,name:'蛇木板 / Gỗ dương xỉ',costVnd:180000,price:280000,qty:5},
+    {id:1,name:'木板（標準）',costVnd:83000,price:150000,qty:18,locs:{mine:10,quang:5,helper:3}},
+    {id:2,name:'香檳木',costVnd:249000,price:380000,qty:7,locs:{mine:4,quang:2,helper:1}},
+    {id:3,name:'蛇木板',costVnd:180000,price:280000,qty:5,locs:{mine:5,quang:0,helper:0}},
   ],
   orders:[
-    {id:1,date:'2025-01-22',customer:'林小姐',contact:'LINE: lin8k',addr:'',src:'FB 訊息',pay:'銀行轉帳',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'AR SP',qty:1,price:1200000,cost:450000},{type:'board',name:'香檳木',qty:1,price:380000,cost:249000}],total:1580000,profit:881000},
-    {id:2,date:'2025-01-23',customer:'Nguyễn Thị Mai',contact:'Zalo: mai.nguyen',addr:'Q.1 HCM',src:'FB 訊息',pay:'現金',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:2,price:500000,cost:270000}],total:1000000,profit:460000},
-    {id:3,date:'2025-01-28',customer:'Trần Văn Minh',contact:'0901-234-567',addr:'',src:'來家選購',pay:'現金',seller:'小幫手',note:'',items:[{type:'plant',name:'golden 1in',qty:2,price:400000,cost:216000}],total:800000,profit:368000},
-    {id:4,date:'2024-12-15',customer:'王小明',contact:'LINE: wang',addr:'',src:'來家選購',pay:'現金',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'golden 1in',qty:3,price:400000,cost:216000}],total:1200000,profit:552000},
-    {id:5,date:'2024-12-22',customer:'Lê Thị Hoa',contact:'Zalo: hoa.le',addr:'Q.3 HCM',src:'FB 訊息',pay:'Momo',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:1,price:520000,cost:270000},{type:'board',name:'木板',qty:1,price:150000,cost:83000}],total:670000,profit:317000},
-    {id:6,date:'2024-11-20',customer:'李太太',contact:'0900-111',addr:'台北市',src:'FB 訊息',pay:'銀行轉帳',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'mew',qty:1,price:950000,cost:468000},{type:'board',name:'木板',qty:1,price:150000,cost:83000}],total:1100000,profit:549000},
+    {id:1,date:'2025-01-22',customer:'林小姐',contact:'LINE: lin8k',addr:'',src:'FB 訊息',pay:'銀行轉帳',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'AR SP',qty:1,price:1200000,cost:450000,loc:'mine'},{type:'board',name:'香檳木',qty:1,price:380000,cost:249000,loc:'mine'}],total:1580000,profit:881000},
+    {id:2,date:'2025-01-23',customer:'Nguyễn Thị Mai',contact:'Zalo: mai',addr:'Q.1',src:'FB 訊息',pay:'現金',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:2,price:500000,cost:270000,loc:'quang'}],total:1000000,profit:460000},
+    {id:3,date:'2025-01-28',customer:'Trần Văn Minh',contact:'0901-234-567',addr:'',src:'來家選購',pay:'現金',seller:'小幫手',note:'',items:[{type:'plant',name:'golden 1in',qty:2,price:400000,cost:216000,loc:'helper'}],total:800000,profit:368000},
+    {id:4,date:'2024-12-15',customer:'王小明',contact:'LINE: wang',addr:'',src:'來家選購',pay:'現金',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'golden 1in',qty:3,price:400000,cost:216000,loc:'mine'}],total:1200000,profit:552000},
+    {id:5,date:'2024-12-22',customer:'Lê Thị Hoa',contact:'Zalo: hoa',addr:'Q.3',src:'FB 訊息',pay:'Momo',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:1,price:520000,cost:270000,loc:'quang'},{type:'board',name:'木板',qty:1,price:150000,cost:83000,loc:'quang'}],total:670000,profit:317000},
   ],
   purchases:[
-    {id:1,vendor:'林亭秀',date:'2025-01-20',note:'二月採買',items:[{name:'AR SP',qty:80,costNtd:500,costVnd:450000,totalVnd:36000000},{name:'mew',qty:10,costNtd:520,costVnd:468000,totalVnd:4680000}],totalVnd:40680000},
+    {id:1,vendor:'林亭秀',date:'2025-01-20',note:'一月採買',items:[{name:'AR SP',qty:80,costNtd:500,costVnd:450000,totalVnd:36000000},{name:'mew',qty:10,costNtd:520,costVnd:468000,totalVnd:4680000}],totalVnd:40680000},
     {id:2,vendor:'Chen Ying',date:'2024-12-01',note:'十二月補貨',items:[{name:'golden 1in',qty:20,costNtd:240,costVnd:216000,totalVnd:4320000}],totalVnd:4320000},
   ],
   rehab:[
-    {rid:'R-001',plantId:99,name:'AR SP（受損株）',date:'2025-01-10',rehabDate:'2025-01-10',note:'葉片受損修剪中',loc:'mine'},
+    {rid:'R-001',plantId:99,name:'AR SP（受損株）',qty:1,date:'2025-01-10',rehabDate:'2025-01-10',note:'葉片受損',loc:'mine',status:'rehab'},
   ],
-  nextId:30
+  writeoffs:[
+    {id:1,date:'2025-01-15',name:'mew',qty:1,reason:'根部腐爛',loc:'quang',operator:'Chandler Wei'},
+  ],
+  nextId:50
 };
 
 // AUTH
@@ -498,13 +489,14 @@ function login(r){
   document.getElementById('pur-date').value=todayStr();
   buildRepTabs();
   loadConfig();
-  renderHome();renderPos();renderInv();renderOrders(null);renderRep();renderPur();
+  renderAll();
 }
 function logout(){
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   cart=[];orderFilterMonth=null;
 }
+function renderAll(){renderHome();renderPos();renderInv();renderOrders(null);repTab('summary');}
 
 // NAV
 function go(name){
@@ -530,124 +522,143 @@ function saveConfig(){
   CFG.rate=parseInt(document.getElementById('cfg-rate').value)||900;
   CFG.monthlyInc=parseInt(document.getElementById('cfg-monthly-inc').value)||50000;
   CFG.maxInc=parseInt(document.getElementById('cfg-max-inc').value)||300000;
-  alert('設定已儲存 / Đã lưu cài đặt');
-  renderInv();renderPos();renderRep();
+  alert('設定已儲存');renderAll();
 }
 function savePromo(){
   CFG.promoDiscount=parseInt(document.getElementById('cfg-promo').value)||0;
   CFG.promoEnd=document.getElementById('cfg-promo-end').value;
   CFG.wholesaleName=document.getElementById('cfg-wholesale-name').value;
   CFG.wholesalePct=parseInt(document.getElementById('cfg-wholesale-pct').value)||0;
-  alert('活動設定已儲存 / Đã lưu');
+  alert('活動設定已儲存');
 }
 
 // REPORT TABS
 function buildRepTabs(){
   var tabs=[
-    {id:'summary',zh:'月度摘要',vi:'Tổng hợp'},
-    {id:'purchase',zh:'進貨記錄',vi:'Nhập hàng'},
-    {id:'invstatus',zh:'庫存狀態',vi:'Tồn kho'},
+    {id:'summary',zh:'月度摘要'},
+    {id:'orders',zh:'訂單明細'},
+    {id:'members',zh:'成員業績'},
+    {id:'plants-sold',zh:'植物銷售'},
+    {id:'invstatus',zh:'庫存狀態'},
+    {id:'rehab-log',zh:'修整記錄'},
+    {id:'writeoff',zh:'死亡報廢'},
+    {id:'purchase',zh:'進貨記錄'},
   ];
-  if(role==='owner') tabs.push({id:'admin',zh:'後台設定',vi:'Cài đặt'});
+  if(role==='owner') tabs.push({id:'admin',zh:'後台設定'});
   var h='';
   tabs.forEach(function(t,i){
-    h+='<button class="tab'+(i===0?' active':'')+'" id="rtab-'+t.id+'" onclick="repTab(\''+t.id+'\')">'+t.zh+'<span class="vi">'+t.vi+'</span></button>';
+    h+='<button class="tab'+(i===0?' active':'')+'" id="rtab-'+t.id+'" onclick="repTab(\''+t.id+'\')">'+t.zh+'</button>';
   });
   document.getElementById('rep-tabs').innerHTML=h;
+  repTab('summary');
 }
 function repTab(t){
-  var all=['summary','purchase','invstatus','admin'];
+  var all=['summary','orders','members','plants-sold','invstatus','rehab-log','writeoff','purchase','admin'];
   all.forEach(function(x){
     var tb=document.getElementById('rtab-'+x);
     if(tb)tb.classList.toggle('active',x===t);
     var el=document.getElementById('rep-'+x);
     if(el)el.style.display=x===t?'block':'none';
   });
-  if(t==='purchase')renderPur();
-  if(t==='invstatus')renderInvStatus();
-  if(t==='admin')renderAdmin();
+  var fn={summary:renderRepSummary,orders:renderRepOrders,members:renderRepMembers,'plants-sold':renderRepPlantsSold,invstatus:renderInvStatus,'rehab-log':renderRehabLog,writeoff:renderWriteoffRep,purchase:renderPur,admin:renderAdmin};
+  if(fn[t])fn[t]();
 }
 
 // HOME
 function renderHome(){
-  var now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
   var toOrds=S.orders.filter(function(o){return o.date===todayStr();});
+  var yr=TODAY.getFullYear(),mo=TODAY.getMonth();
   var moOrds=S.orders.filter(function(o){var d=new Date(o.date);return d.getFullYear()===yr&&d.getMonth()===mo;});
   var toRev=toOrds.reduce(function(s,o){return s+o.total;},0);
   var toP=toOrds.reduce(function(s,o){return s+o.profit;},0);
   var moRev=moOrds.reduce(function(s,o){return s+o.total;},0);
   var moP=moOrds.reduce(function(s,o){return s+o.profit;},0);
-  var ml=yr+'年'+(mo+1)+'月';
   document.getElementById('home-metrics').innerHTML=
-    '<div class="metric"><div class="ml">今日營收<span class="vi">Doanh thu hôm nay</span></div><div class="mv blue">'+vnd(toRev)+'</div></div>'+
-    '<div class="metric"><div class="ml">今日毛利<span class="vi">Lợi nhuận hôm nay</span></div><div class="mv green">'+vnd(toP)+'</div></div>'+
-    '<div class="metric"><div class="ml">'+ml+' 營收<span class="vi">Doanh thu tháng</span></div><div class="mv blue">'+vnd(moRev)+'</div></div>'+
-    '<div class="metric"><div class="ml">'+ml+' 毛利<span class="vi">Lợi nhuận tháng</span></div><div class="mv green">'+vnd(moP)+'</div></div>';
+    '<div class="metric"><div class="ml">今日營收</div><div class="mv blue">'+vnd(toRev)+'</div></div>'+
+    '<div class="metric"><div class="ml">今日毛利</div><div class="mv green">'+vnd(toP)+'</div></div>'+
+    '<div class="metric"><div class="ml">本月營收</div><div class="mv blue">'+vnd(moRev)+'</div></div>'+
+    '<div class="metric"><div class="ml">本月毛利</div><div class="mv green">'+vnd(moP)+'</div></div>';
   var toEl=document.getElementById('today-orders');
-  toEl.innerHTML=toOrds.length===0
-    ?'<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">今日尚無訂單 / Chưa có đơn</div>'
+  toEl.innerHTML=toOrds.length===0?'<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">今日尚無訂單</div>'
     :toOrds.map(function(o){return '<div class="pi" onclick="showReceipt('+o.id+')"><div class="pdot" style="background:var(--green)"></div><div class="pinfo"><div class="pname">'+o.customer+'</div><div class="pmeta">'+o.src+' · '+o.seller+'</div></div><div class="pright"><div class="pprice">'+vnd(o.total)+'</div><div class="psub" style="color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';}).join('');
   var low=S.plants.filter(function(p){return p.qty<=2&&p.status!=='rehab';});
-  document.getElementById('low-stock').innerHTML=low.length===0
-    ?'<div style="padding:13px 18px;color:var(--text3);font-size:12px">目前無低庫存</div>'
-    :low.map(function(p){return '<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+'</div></div><div class="pright"><span class="badge '+(p.qty===0?'br':'ba')+'">'+(p.qty===0?'缺貨':p.qty+' 株')+'</span></div></div>';}).join('');
+  document.getElementById('low-stock').innerHTML=low.length===0?'<div style="padding:13px 18px;color:var(--text3);font-size:12px">目前無低庫存</div>'
+    :low.map(function(p){return '<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+' · '+locLabels[p.loc]+'</div></div><div class="pright"><span class="badge '+(p.qty===0?'br':'ba')+'">'+(p.qty===0?'缺貨':p.qty+' 株')+'</span></div></div>';}).join('');
 }
 
 // POS
 function posTab(t){
-  ['plant','board','cart'].forEach(function(x){
+  ['plant','board','writeoff','cart'].forEach(function(x){
     document.getElementById('ptab-'+x).classList.toggle('active',x===t);
     document.getElementById('pos-'+x).style.display=x===t?'block':'none';
   });
-  if(t==='cart')renderCart(); else renderPos();
+  if(t==='plant'||t==='board')renderPos();
+  if(t==='cart')renderCart();
+  if(t==='writeoff')renderWriteoffForm();
 }
 function renderPos(){
   var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
   var avail=S.plants.filter(function(p){return p.qty>0&&p.status!=='rehab'&&(role==='owner'||p.loc===myLoc);});
   document.getElementById('pos-plant').innerHTML=avail.length===0
-    ?'<div style="padding:24px;text-align:center;color:var(--text3)">Không có hàng / 無庫存</div>'
+    ?'<div style="padding:24px;text-align:center;color:var(--text3)">無庫存</div>'
     :avail.map(function(p){
       var ac=agedCost(p),mg=parseFloat(mgn(p));
       var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
       var days=daysSince(p.date),pct=Math.min(days/90*100,100);
       var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
-      return '<div class="pi" onclick="addCart(\'plant\','+p.id+')"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+' · '+p.qty+' cây</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div><div class="psub" style="color:'+mc+'">'+mg+'%</div></div></div>';
+      var locBadge='<span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span>';
+      return '<div class="pi" onclick="addCart(\'plant\','+p.id+')"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+' '+locBadge+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div><div class="psub" style="color:'+mc+'">'+mg+'%</div></div></div>';
     }).join('');
-  document.getElementById('pos-board').innerHTML=S.boards.filter(function(b){return b.qty>0;}).map(function(b){
-    return '<div class="pi" onclick="addCart(\'board\','+b.id+')"><div class="pdot" style="background:var(--blue)"></div><div class="pinfo"><div class="pname">'+b.name+'</div><div class="pmeta">庫存 '+b.qty+'</div></div><div class="pright"><div class="pprice">'+vnd(b.price)+'</div><div class="psub">CP '+vnd(b.costVnd)+'</div></div></div>';
-  }).join('');
+  var boardHtml='';
+  S.boards.forEach(function(b){
+    var totalAvail=role==='owner'?b.qty:(b.locs[myLoc]||0);
+    if(totalAvail<=0)return;
+    Object.keys(b.locs).forEach(function(loc){
+      if(b.locs[loc]<=0)return;
+      if(myLoc&&loc!==myLoc)return;
+      var locBadge='<span class="'+locClass[loc]+'">'+locLabels[loc]+'</span>';
+      boardHtml+='<div class="pi" onclick="addCart(\'board\','+b.id+',\''+loc+'\')"><div class="pdot" style="background:var(--blue)"></div><div class="pinfo"><div class="pname">'+b.name+' '+locBadge+'</div><div class="pmeta">庫存 '+b.locs[loc]+'</div></div><div class="pright"><div class="pprice">'+vnd(b.price)+'</div></div></div>';
+    });
+  });
+  document.getElementById('pos-board').innerHTML=boardHtml||'<div style="padding:24px;text-align:center;color:var(--text3)">無庫存</div>';
 }
-function addCart(type,id){
+function addCart(type,id,loc){
   var item=type==='plant'?S.plants.find(function(p){return p.id===id;}):S.boards.find(function(b){return b.id===id;});
-  if(!item||item.qty===0)return;
-  var ex=cart.find(function(c){return c.type===type&&c.id===id;});
-  if(ex){if(ex.qty<item.qty)ex.qty++;}
-  else cart.push({type:type,id:id,name:item.name,qty:1,price:item.price,cost:type==='plant'?agedCost(item):item.costVnd});
+  if(!item)return;
+  var avail=type==='plant'?item.qty:(item.locs[loc]||0);
+  if(avail===0)return;
+  var key=type+'-'+id+(loc?'-'+loc:'');
+  var ex=cart.find(function(c){return c.key===key;});
+  if(ex){if(ex.qty<avail)ex.qty++;}
+  else cart.push({key:key,type:type,id:id,name:item.name,qty:1,price:item.price,cost:type==='plant'?agedCost(item):item.costVnd,loc:loc||item.loc});
   updateBadge();
 }
 function updateBadge(){var t=cart.reduce(function(s,c){return s+c.qty;},0);document.getElementById('cart-badge').textContent=t>0?'('+t+')':'';}
 function renderCart(){
   var el=document.getElementById('pos-cart');
-  if(cart.length===0){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3)">Giỏ hàng trống</div>';return;}
+  if(cart.length===0){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3)">購物車為空</div>';return;}
   var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
   var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
-  var prof=sub-cost,mg=(prof/sub*100).toFixed(1);
+  var prof=sub-cost,mg=sub>0?(prof/sub*100).toFixed(1):0;
   var h='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:10px">';
   cart.forEach(function(c,i){
-    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:14px;font-weight:500">'+c.name+'</div><div style="margin-top:6px"><input style="width:100%;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" type="number" value="'+c.price+'" onchange="updPrice('+i+',this.value)"></div></div>';
-    h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;align-items:center;gap:6px"><button class="qbtn" onclick="chgQty('+i+',-1)">−</button><span style="font-size:14px;min-width:18px;text-align:center">'+c.qty+'</span><button class="qbtn" onclick="chgQty('+i+',1)">+</button></div><div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace">'+vnd(c.price*c.qty)+'</div></div></div>';
+    var locBadge='<span class="'+locClass[c.loc]+'">'+locLabels[c.loc]+'</span>';
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500">'+c.name+' '+locBadge+'</div><div style="margin-top:5px"><input style="width:100%;padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" type="number" value="'+c.price+'" onchange="updPrice('+i+',this.value)"></div></div>';
+    h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div style="display:flex;align-items:center;gap:5px"><button class="qbtn" onclick="chgQty('+i+',-1)">−</button><span style="font-size:14px;min-width:18px;text-align:center">'+c.qty+'</span><button class="qbtn" onclick="chgQty('+i+',1)">+</button></div><div style="font-size:12px;font-family:DM Mono,monospace">'+vnd(c.price*c.qty)+'</div></div></div>';
   });
   h+='<div class="divider"></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--text2)"><span>小計</span><span>'+vnd(sub)+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--green)"><span>毛利 Lợi nhuận</span><span>'+vnd(prof)+' ('+mg+'%)</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:6px"><span>合計 Tổng</span><span>'+vnd(sub)+'</span></div>';
-  h+='</div><button class="btn btnp btnf" onclick="openCheckout()">結帳 →</button><div style="height:10px"></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);padding:3px 0"><span>小計</span><span>'+vnd(sub)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--green);padding:3px 0"><span>毛利</span><span>'+vnd(prof)+' ('+mg+'%)</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:6px"><span>合計</span><span>'+vnd(sub)+'</span></div></div>';
+  h+='<button class="btn btnp btnf" onclick="openCheckout()">結帳 →</button><div style="height:10px"></div>';
   el.innerHTML=h;
 }
 function updPrice(i,v){cart[i].price=parseInt(v)||cart[i].price;renderCart();}
 function chgQty(i,d){
-  var c=cart[i];var src=c.type==='plant'?S.plants.find(function(p){return p.id===c.id;}):S.boards.find(function(b){return b.id===c.id;});
-  c.qty+=d;if(c.qty<=0)cart.splice(i,1);if(src&&c.qty>src.qty)c.qty=src.qty;
+  var c=cart[i];
+  var src=c.type==='plant'?S.plants.find(function(p){return p.id===c.id;}):S.boards.find(function(b){return b.id===c.id;});
+  var max=c.type==='plant'?src.qty:(src.locs[c.loc]||0);
+  c.qty+=d;if(c.qty<=0)cart.splice(i,1);if(c.qty>max)c.qty=max;
   updateBadge();renderCart();
 }
 function clearCart(){cart=[];updateBadge();renderPos();}
@@ -656,9 +667,10 @@ function openCheckout(){
   var prof=sub-cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
   ['co-name','co-contact','co-addr','co-note'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('co-summary').innerHTML=
-    '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--text2)"><span>品項</span><span>'+cart.reduce(function(s,c){return s+c.qty;},0)+' 件</span></div>'+
-    '<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:6px"><span>合計</span><span>'+vnd(sub)+'</span></div>'+
-    '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--green)"><span>毛利</span><span>'+vnd(prof)+'</span></div>';
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">品項：</div>'+
+    cart.map(function(c){return '<div style="font-size:12px;padding:2px 0">'+c.name+' × '+c.qty+' <span class="'+locClass[c.loc]+'">'+locLabels[c.loc]+'</span> = '+vnd(c.price*c.qty)+'</div>';}).join('')+
+    '<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:8px"><span>合計</span><span>'+vnd(sub)+'</span></div>'+
+    '<div style="font-size:12px;color:var(--green)">毛利 '+vnd(prof)+'</div>';
   openM('m-checkout');
 }
 function completeOrder(){
@@ -666,27 +678,57 @@ function completeOrder(){
   if(!name){alert('請填寫客戶姓名');return;}
   var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
   var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
-  var o={id:S.nextId++,date:todayStr(),customer:name,contact:document.getElementById('co-contact').value,addr:document.getElementById('co-addr').value,src:document.getElementById('co-src').value,pay:document.getElementById('co-pay').value,seller:document.getElementById('co-seller').value,note:document.getElementById('co-note').value,items:cart.map(function(c){return{type:c.type,name:c.name,qty:c.qty,price:c.price,cost:c.cost};}),total:sub,profit:sub-cost};
+  var o={id:S.nextId++,date:todayStr(),customer:name,contact:document.getElementById('co-contact').value,addr:document.getElementById('co-addr').value,src:document.getElementById('co-src').value,pay:document.getElementById('co-pay').value,seller:document.getElementById('co-seller').value,note:document.getElementById('co-note').value,items:cart.map(function(c){return{type:c.type,name:c.name,qty:c.qty,price:c.price,cost:c.cost,loc:c.loc};}),total:sub,profit:sub-cost};
   S.orders.unshift(o);
   cart.forEach(function(c){
     if(c.type==='plant'){var p=S.plants.find(function(x){return x.id===c.id;});if(p)p.qty-=c.qty;}
-    else{var b=S.boards.find(function(x){return x.id===c.id;});if(b)b.qty-=c.qty;}
+    else{var b=S.boards.find(function(x){return x.id===c.id;});if(b){b.locs[c.loc]=(b.locs[c.loc]||0)-c.qty;b.qty-=c.qty;}}
   });
   cart=[];updateBadge();
   closeM('m-checkout');showReceipt(o.id);
-  renderHome();renderPos();renderInv();renderOrders(orderFilterMonth);renderRep();
+  renderAll();
+}
+
+// WRITEOFF
+function renderWriteoffForm(){
+  var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
+  var avail=S.plants.filter(function(p){return p.qty>0&&p.status!=='rehab'&&(role==='owner'||p.loc===myLoc);});
+  var h='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:12px;color:var(--red)">死亡報廢將從庫存中扣除，記錄在報表頁「死亡報廢」tab</div>';
+  h+='<div class="field"><label class="flabel">植物</label><select class="inp" id="wo-plant">';
+  avail.forEach(function(p){h+='<option value="'+p.id+'">'+p.name+' ('+locLabels[p.loc]+') · '+p.qty+'株</option>';});
+  h+='</select></div>';
+  h+='<div class="irow"><div class="field"><label class="flabel">報廢數量</label><input class="inp" id="wo-qty" type="number" min="1" value="1"></div></div>';
+  h+='<div class="field"><label class="flabel">死亡原因</label><input class="inp" id="wo-reason" placeholder="根部腐爛、葉片枯萎..."></div>';
+  h+='<div class="field"><label class="flabel">操作人員</label><select class="inp" id="wo-op"><option>Chandler Wei</option><option>Quang</option><option>小幫手</option></select></div>';
+  h+='<button class="btn btnd btnf" onclick="confirmWriteoff()">確認報廢</button>';
+  document.getElementById('pos-writeoff').innerHTML=h;
+}
+function confirmWriteoff(){
+  var pid=parseInt(document.getElementById('wo-plant').value);
+  var qty=parseInt(document.getElementById('wo-qty').value)||1;
+  var reason=document.getElementById('wo-reason').value;
+  var op=document.getElementById('wo-op').value;
+  var p=S.plants.find(function(x){return x.id===pid;});
+  if(!p)return;
+  if(qty>p.qty){alert('數量超過庫存 ('+p.qty+'株)');return;}
+  if(!reason){alert('請填寫死亡原因');return;}
+  if(!confirm('確定報廢 '+p.name+' × '+qty+' 株？此操作無法復原'))return;
+  S.writeoffs.unshift({id:S.nextId++,date:todayStr(),name:p.name,qty:qty,reason:reason,loc:p.loc,operator:op,cost:agedCost(p)*qty});
+  p.qty-=qty;
+  alert('已記錄報廢');renderAll();renderWriteoffForm();
 }
 
 // RECEIPT
 function showReceipt(id){
   var o=S.orders.find(function(x){return x.id===id;});if(!o)return;
   var h='<div class="receipt" id="printable"><div class="rshop">根莖葉 / Gốc Thân Lá</div><div class="rsub">Đơn #'+String(o.id).padStart(4,'0')+' · '+o.date+'</div>';
-  h+='<div class="rsec"><div class="rlabel">收件人 / Người nhận</div><div style="font-size:14px;font-weight:700">'+o.customer+'</div><div style="font-size:11px;color:#444;margin-top:2px">'+o.contact+'</div>';
-  h+=o.addr?'<div style="font-size:11px;color:#444;margin-top:2px">📦 '+o.addr+'</div>':'<div style="font-size:11px;color:#888;margin-top:2px">自取 / Tự lấy</div>';
-  h+='</div><div class="rsec"><div class="rlabel">商品明細 / Chi tiết</div>';
+  h+='<div class="rsec"><div class="rlabel">收件人</div><div style="font-size:14px;font-weight:700">'+o.customer+'</div>';
+  if(o.contact)h+='<div style="font-size:11px;color:#444;margin-top:2px">'+o.contact+'</div>';
+  h+=o.addr?'<div style="font-size:11px;color:#444;margin-top:2px">📦 '+o.addr+'</div>':'<div style="font-size:11px;color:#888;margin-top:2px">自取</div>';
+  h+='</div><div class="rsec"><div class="rlabel">商品明細</div>';
   o.items.forEach(function(item){h+='<div class="rrow"><span>'+item.name+' × '+item.qty+'</span><span>'+vnd(item.price*item.qty)+'</span></div>';});
-  h+='<div class="rtotal"><span>合計 / Tổng</span><span>'+vnd(o.total)+'</span></div></div>';
-  h+='<div class="rsec"><div class="rrow"><span style="color:#888">付款</span><span>'+o.pay+'</span></div><div class="rrow"><span style="color:#888">售出者</span><span>'+o.seller+'</span></div><div class="rrow"><span style="color:#888">來源</span><span>'+o.src+'</span></div>';
+  h+='<div class="rtotal"><span>合計</span><span>'+vnd(o.total)+'</span></div></div>';
+  h+='<div class="rsec"><div class="rrow"><span style="color:#888">付款</span><span>'+o.pay+'</span></div><div class="rrow"><span style="color:#888">售出者</span><span>'+o.seller+'</span></div>';
   if(o.note)h+='<div class="rrow"><span style="color:#888">備註</span><span>'+o.note+'</span></div>';
   h+='</div></div>';
   document.getElementById('receipt-body').innerHTML=h;
@@ -697,16 +739,11 @@ function doPrint(){var h=document.getElementById('printable').outerHTML;document
 // ORDERS PAGE
 function renderOrders(filterMonth){
   var orders=filterMonth?S.orders.filter(function(o){return monthKey(o.date)===filterMonth;}):S.orders;
-  document.getElementById('orders-subtitle').textContent=filterMonth?'篩選中 / Đang lọc':'全部訂單 / Tất cả';
   document.getElementById('orders-clear-filter').style.display=filterMonth?'flex':'none';
   document.getElementById('orders-filter-badge').textContent=filterMonth?'● 篩選中':'';
   if(orders.length===0){document.getElementById('orders-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">無訂單記錄</div>';return;}
   var monthly={};
-  orders.forEach(function(o){
-    var k=monthKey(o.date);
-    if(!monthly[k])monthly[k]={label:monthLabel(o.date),orders:[],rev:0,profit:0};
-    monthly[k].orders.push(o);monthly[k].rev+=o.total;monthly[k].profit+=o.profit;
-  });
+  orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),orders:[],rev:0,profit:0};monthly[k].orders.push(o);monthly[k].rev+=o.total;monthly[k].profit+=o.profit;});
   var html='';
   Object.keys(monthly).sort().reverse().forEach(function(k){
     var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
@@ -715,21 +752,18 @@ function renderOrders(filterMonth){
     html+='<div class="month-card" id="'+cid+'"><div class="month-header open" onclick="toggleMonth(\''+cid+'\')"><div><div style="font-size:14px;font-weight:700">'+m.label+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+m.orders.length+' đơn · '+vnd(m.rev)+'</div></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:700;color:'+mgc+'">'+mg+'%</span><span class="month-chevron open" id="chev-'+cid+'">›</span></div></div>';
     html+='<div class="month-stats" id="stats-'+cid+'"><div class="mstat"><div class="mstat-label">營收</div><div class="mstat-val" style="color:var(--blue)">'+vnd(m.rev)+'</div></div><div class="mstat"><div class="mstat-label">毛利</div><div class="mstat-val" style="color:var(--green)">'+vnd(m.profit)+'</div></div><div class="mstat"><div class="mstat-label">毛利率</div><div class="mstat-val" style="color:'+mgc+'">'+mg+'%</div></div></div>';
     html+='<div id="body-'+cid+'">';
-    m.orders.forEach(function(o){
-      html+='<div class="order-row" onclick="showReceipt('+o.id+')"><div><div style="font-size:13px;font-weight:500">'+o.customer+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+o.date.slice(5)+' · '+o.seller+' · '+o.pay+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace">'+vnd(o.total)+'</div><div style="font-size:11px;color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';
-    });
+    m.orders.forEach(function(o){html+='<div class="order-row" onclick="showReceipt('+o.id+')"><div><div style="font-size:13px;font-weight:500">'+o.customer+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+o.date.slice(5)+' · '+o.seller+' · '+o.pay+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace">'+vnd(o.total)+'</div><div style="font-size:11px;color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';});
     html+='</div></div>';
   });
   document.getElementById('orders-list').innerHTML=html;
 }
 function toggleMonth(cid){
   var header=document.querySelector('#'+cid+' .month-header');
-  var stats=document.getElementById('stats-'+cid);
-  var body=document.getElementById('body-'+cid);
-  var chev=document.getElementById('chev-'+cid);
   var isOpen=header.classList.contains('open');
-  if(isOpen){header.classList.remove('open');chev.classList.remove('open');stats.style.display='none';body.style.display='none';}
-  else{header.classList.add('open');chev.classList.add('open');stats.style.display='';body.style.display='';}
+  header.classList.toggle('open',!isOpen);
+  document.getElementById('chev-'+cid).classList.toggle('open',!isOpen);
+  document.getElementById('stats-'+cid).style.display=isOpen?'none':'';
+  document.getElementById('body-'+cid).style.display=isOpen?'none':'';
 }
 
 // INVENTORY
@@ -739,65 +773,83 @@ function invTab(t){
     document.getElementById('inv-'+x).style.display=x===t?'block':'none';
   });
   if(t==='rehab')renderRehab();
+  if(t==='member')renderMember();
+  if(t==='board')renderBoardInv();
 }
 function renderInv(){
   document.getElementById('inv-addbtn').innerHTML=role==='owner'?'<button class="btn btnp btnsm" onclick="openM(\'m-addplant\')">+ 新增</button>':'';
   var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
   var plants=(myLoc?S.plants.filter(function(p){return p.loc===myLoc;}):S.plants).filter(function(p){return p.status!=='rehab';});
-  document.getElementById('inv-plant').innerHTML=plants.length===0
-    ?'<div style="padding:24px;text-align:center;color:var(--text3)">無植物庫存</div>'
+  document.getElementById('inv-plant').innerHTML=plants.length===0?'<div style="padding:24px;text-align:center;color:var(--text3)">無植物庫存</div>'
     :plants.map(function(p){
       var ac=agedCost(p),mg=parseFloat(mgn(p));
       var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
       var days=daysSince(p.date),pct=Math.min(days/90*100,100);
       var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
       var lb=role==='owner'?'<span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span>':'';
-      return '<div class="pi" onclick="openDetail('+p.id+')"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+' '+lb+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>'+(role==='owner'?'<div style="font-size:10px;color:var(--text3);margin-top:3px">CP '+vnd(ac)+' · 毛利 '+mg+'%</div>':'')+'</div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div></div></div>';
+      var btns=role==='owner'?'<div style="display:flex;gap:4px;margin-top:6px"><button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal('+p.id+')">移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="event.stopPropagation();openRehabModal('+p.id+')">修整</button></div>':'';
+      return '<div class="pi" onclick="openDetail('+p.id+')" style="align-items:flex-start;padding:13px 18px"><div class="pdot" style="background:'+mc+';margin-top:4px"></div><div class="pinfo"><div class="pname">'+p.name+' '+lb+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>'+(role==='owner'?'<div style="font-size:10px;color:var(--text3);margin-top:3px">CP '+vnd(ac)+' · 毛利 '+mg+'%</div>':'')+btns+'</div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div></div></div>';
     }).join('');
-  document.getElementById('inv-board').innerHTML=role!=='owner'
-    ?'<div style="padding:24px;text-align:center;color:var(--text3)">無權限</div>'
-    :S.boards.map(function(b){return '<div class="pi"><div class="pdot" style="background:var(--blue)"></div><div class="pinfo"><div class="pname">'+b.name+'</div><div class="pmeta">庫存 '+b.qty+'</div></div><div class="pright"><div class="pprice">'+vnd(b.price)+'</div><div class="psub">CP '+vnd(b.costVnd)+'</div></div></div>';}).join('');
-  if(role==='owner'){
-    var members=[{key:'quang',label:'Quang',av:'Q'},{key:'helper',label:'小幫手',av:'H'}];
-    var h='';
-    members.forEach(function(m){
-      var mp=S.plants.filter(function(p){return p.loc===m.key&&p.status!=='rehab';});
-      h+='<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">';
-      h+='<div style="display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:50%;background:var(--accdim);border:1px solid rgba(163,230,53,.3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)">'+m.av+'</div><div><div style="font-size:14px;font-weight:500">'+m.label+'</div><div style="font-size:11px;color:var(--text2)">'+mp.reduce(function(s,p){return s+p.qty;},0)+' cây · '+mp.length+' loại</div></div><div style="margin-left:auto"><span class="badge bg">Active</span></div></div>';
-      h+=mp.length===0?'<div style="padding:14px;color:var(--text3);font-size:13px">目前無植物</div>'
-        :mp.map(function(p){return '<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+p.qty+'株 · '+daysSince(p.date)+'天</div>'+(p.note?'<div style="font-size:10px;color:var(--text3)">'+p.note+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div style="font-size:12px;font-family:DM Mono,monospace">'+vnd(p.price)+'</div><button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">移動</button></div></div>';}).join('');
-      h+='</div>';
+}
+function renderBoardInv(){
+  var h='';
+  S.boards.forEach(function(b){
+    h+='<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:13px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:600">'+b.name+'</div><span class="badge bb">總庫存 '+b.qty+'</span></div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px">';
+    Object.keys(b.locs).forEach(function(loc){
+      h+='<div style="background:var(--bg3);border-radius:var(--r);padding:8px;text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">'+locLabels[loc]+'</div><div style="font-size:15px;font-weight:700">'+b.locs[loc]+'</div></div>';
     });
-    document.getElementById('inv-member').innerHTML=h;
-  } else {
-    document.getElementById('inv-member').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">無權限</div>';
-  }
+    h+='</div>';
+    if(role==='owner'){
+      h+='<div style="display:flex;gap:7px"><button class="btn btns btnsm" style="flex:1" onclick="openMoveBoardModal('+b.id+')">移動</button><button class="btn btns btnsm" style="flex:1" onclick="openEditBoard('+b.id+')">編輯</button></div>';
+    }
+    h+='</div>';
+  });
+  document.getElementById('inv-board').innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--text3)">無板子庫存</div>';
+}
+function renderMember(){
+  if(role!=='owner'){document.getElementById('inv-member').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">無權限</div>';return;}
+  var members=[{key:'quang',label:'Quang',av:'Q'},{key:'helper',label:'小幫手',av:'H'}];
+  var h='';
+  members.forEach(function(m){
+    var mp=S.plants.filter(function(p){return p.loc===m.key&&p.status!=='rehab';});
+    var mb=[];S.boards.forEach(function(b){if(b.locs[m.key]>0)mb.push({name:b.name,qty:b.locs[m.key],id:b.id});});
+    h+='<div style="margin:0 16px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">';
+    h+='<div style="display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:50%;background:var(--accdim);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)">'+m.av+'</div><div><div style="font-size:14px;font-weight:500">'+m.label+'</div><div style="font-size:11px;color:var(--text2)">植物 '+mp.reduce(function(s,p){return s+p.qty;},0)+'株 · 板子 '+mb.reduce(function(s,b){return s+b.qty;},0)+'片</div></div></div>';
+    if(mp.length===0&&mb.length===0){h+='<div style="padding:14px;color:var(--text3);font-size:13px">目前無庫存</div>';}
+    mp.forEach(function(p){
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+p.qty+'株 · '+daysSince(p.date)+'天</div></div><div style="display:flex;gap:5px"><button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="openRehabModal('+p.id+')">修整</button></div></div>';
+    });
+    mb.forEach(function(b){
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--blue)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+b.name+'（板子）</div><div style="font-size:11px;color:var(--text2)">'+b.qty+' 片</div></div><button class="btn btns btnsm" onclick="openMoveBoardModal('+b.id+')">移動</button></div>';
+    });
+    h+='</div>';
+  });
+  document.getElementById('inv-member').innerHTML=h;
 }
 function openDetail(id){
   var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
   var ac=agedCost(p),mg=mgn(p),days=daysSince(p.date),pct=Math.min(days/90*100,100);
   var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
-  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="mtitle" style="margin:0">'+p.name+'</div>';
-  if(role==='owner')h+='<button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">📍 移動</button>';
-  h+='</div>';
+  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="mtitle" style="margin:0">'+p.name+'</div></div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
-  h+='<div class="metric"><div class="ml">當前成本<span class="vi">Giá vốn HT</span></div><div class="mv amber" style="font-size:15px">'+vnd(ac)+'</div></div>';
-  h+='<div class="metric"><div class="ml">建議售價<span class="vi">Giá bán ĐN</span></div><div class="mv blue" style="font-size:15px">'+vnd(p.price)+'</div></div>';
-  h+='<div class="metric"><div class="ml">毛利率<span class="vi">Tỷ lệ LN</span></div><div class="mv" style="font-size:15px;color:'+(parseFloat(mg)>30?'var(--green)':'var(--red)')+'">'+mg+'%</div></div>';
-  h+='<div class="metric"><div class="ml">在庫天數<span class="vi">Ngày trong kho</span></div><div class="mv" style="font-size:15px">'+days+' 天</div></div></div>';
+  h+='<div class="metric"><div class="ml">當前成本</div><div class="mv amber" style="font-size:15px">'+vnd(ac)+'</div></div>';
+  h+='<div class="metric"><div class="ml">建議售價</div><div class="mv blue" style="font-size:15px">'+vnd(p.price)+'</div></div>';
+  h+='<div class="metric"><div class="ml">毛利率</div><div class="mv" style="font-size:15px;color:'+(parseFloat(mg)>30?'var(--green)':'var(--red)')+'">'+mg+'%</div></div>';
+  h+='<div class="metric"><div class="ml">在庫天數</div><div class="mv" style="font-size:15px">'+days+' 天</div></div></div>';
   h+='<div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:12px;font-size:12px">';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">分類</span><span>'+p.cat+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">原始成本</span><span>'+vnd(p.costVnd)+' (NTD '+p.costNtd+')</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">原始成本</span><span>'+vnd(p.costVnd)+'</span></div>';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">成本遞增</span><span style="color:var(--red)">+'+vnd(ac-p.costVnd)+'</span></div>';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">庫存</span><span>'+p.qty+' 株</span></div>';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">位置</span><span>'+locLabels[p.loc]+'</span></div>';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">進貨日期</span><span>'+p.date+'</span></div>';
   if(p.note)h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">備註</span><span>'+p.note+'</span></div>';
   h+='</div>';
-  h+='<div style="font-size:11px;color:var(--text2);margin-bottom:5px">在庫時間進度</div>';
   h+='<div class="age-bar" style="height:7px;margin-bottom:14px"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>';
   h+='<div style="display:flex;gap:10px"><button class="btn btns" style="flex:1" onclick="closeM(\'m-detail\')">關閉</button>';
-  if(role==='owner')h+='<button class="btn btnd" style="flex:1" onclick="openRehabModal('+p.id+')">→ 修整區</button>';
+  if(role==='owner'){h+='<button class="btn btnd" style="flex:1" onclick="closeM(\'m-detail\');openRehabModal('+p.id+')">→ 修整區</button>';}
   h+='</div>';
   document.getElementById('detail-inner').innerHTML=h;
   openM('m-detail');
@@ -805,33 +857,67 @@ function openDetail(id){
 function openMoveModal(id){
   movePlantId=id;var p=S.plants.find(function(x){return x.id===id;});
   closeM('m-detail');
-  document.getElementById('move-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> <span style="color:var(--text2);font-size:12px">目前：'+locLabels[p.loc]+'</span>';
+  document.getElementById('move-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span> · '+p.qty+'株';
   document.getElementById('move-loc').value=p.loc;
-  document.getElementById('move-note').value=p.note||'';
+  document.getElementById('move-qty').value=1;
+  document.getElementById('move-qty').max=p.qty;
+  document.getElementById('move-note').value='';
   openM('m-moveplant');
 }
 function doMove(){
   var p=S.plants.find(function(x){return x.id===movePlantId;});if(!p)return;
-  p.loc=document.getElementById('move-loc').value;p.note=document.getElementById('move-note').value;
-  closeM('m-moveplant');renderInv();
+  var qty=parseInt(document.getElementById('move-qty').value)||1;
+  var toLoc=document.getElementById('move-loc').value;
+  if(qty>p.qty){alert('數量超過庫存');return;}
+  if(toLoc===p.loc&&qty===p.qty){p.loc=toLoc;p.note=document.getElementById('move-note').value;}
+  else if(toLoc===p.loc){alert('目標位置相同');return;}
+  else{
+    // Split plant entry if partial
+    if(qty<p.qty){
+      p.qty-=qty;
+      var exists=S.plants.find(function(x){return x.name===p.name&&x.loc===toLoc&&x.status==='ok';});
+      if(exists){exists.qty+=qty;}
+      else{S.plants.push(Object.assign({},p,{id:S.nextId++,qty:qty,loc:toLoc}));}
+    } else {p.loc=toLoc;}
+  }
+  closeM('m-moveplant');renderInv();renderMember();renderPos();
+}
+function openMoveBoardModal(id){
+  moveBoardId=id;var b=S.boards.find(function(x){return x.id===id;});
+  document.getElementById('moveboard-info').innerHTML='<span style="font-weight:500">'+b.name+'</span> · 各地庫存：我家 '+b.locs.mine+' · Quang '+b.locs.quang+' · 小幫手 '+b.locs.helper;
+  document.getElementById('moveboard-qty').value=1;
+  openM('m-moveboard');
+}
+function doMoveBoard(){
+  var b=S.boards.find(function(x){return x.id===moveBoardId;});if(!b)return;
+  var qty=parseInt(document.getElementById('moveboard-qty').value)||1;
+  var toLoc=document.getElementById('moveboard-loc').value;
+  // Simple: add to destination, doesn't track source deduction in this demo
+  b.locs[toLoc]=(b.locs[toLoc]||0)+qty;
+  closeM('m-moveboard');renderBoardInv();renderMember();
 }
 function addPlant(){
   var name=document.getElementById('np-name').value.trim();if(!name){alert('請填寫植物名稱');return;}
   var cntd=parseInt(document.getElementById('np-cntd').value)||0;
   S.plants.push({id:S.nextId++,name:name,cat:document.getElementById('np-cat').value,costNtd:cntd,costVnd:cntd*CFG.rate,price:parseInt(document.getElementById('np-price').value)||0,qty:parseInt(document.getElementById('np-qty').value)||1,date:document.getElementById('np-date').value||todayStr(),loc:document.getElementById('np-loc').value,note:document.getElementById('np-note').value,status:'ok'});
-  document.getElementById('np-name').value='';closeM('m-addplant');renderInv();
+  document.getElementById('np-name').value='';closeM('m-addplant');renderInv();renderPos();
 }
 
 // REHAB
 function openRehabModal(id){
   closeM('m-detail');var p=S.plants.find(function(x){return x.id===id;});
-  document.getElementById('rehab-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> → 修整區';
+  document.getElementById('rehab-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span> · 共 '+p.qty+' 株';
+  document.getElementById('rehab-qty').value=1;
+  document.getElementById('rehab-qty').max=p.qty;
   document.getElementById('rehab-note').value='';
   document.getElementById('rehab-confirm-btn').onclick=function(){
+    var qty=parseInt(document.getElementById('rehab-qty').value)||1;
     var note=document.getElementById('rehab-note').value;
+    if(qty>p.qty){alert('數量超過庫存');return;}
     var num=S.rehab.length+1;var rid='R-'+String(num).padStart(3,'0');
-    S.rehab.push({rid:rid,plantId:p.id,name:p.name,date:todayStr(),rehabDate:todayStr(),note:note,loc:p.loc});
-    p.status='rehab';closeM('m-rehab');renderInv();invTab('rehab');
+    S.rehab.push({rid:rid,plantId:p.id,name:p.name,qty:qty,date:p.date,rehabDate:todayStr(),note:note,loc:p.loc,status:'rehab'});
+    p.qty-=qty;if(p.qty===0)p.status='rehab';
+    closeM('m-rehab');renderInv();renderMember();renderRehab();
     alert('已移入修整區\n編號：'+rid);
   };
   openM('m-rehab');
@@ -839,22 +925,22 @@ function openRehabModal(id){
 function renderRehab(){
   var el=document.getElementById('inv-rehab');if(!el)return;
   if(S.rehab.length===0){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">修整區無植物</div>';return;}
-  var h='<div style="padding:10px 16px 4px;font-size:11px;color:var(--text2)">修整區植物有獨立編號、在庫天數與修整天數記錄</div>';
+  var h='';
   S.rehab.forEach(function(r){
-    var stockDays=daysSince(r.date);
-    var rehabDays=daysSince(r.rehabDate||r.date);
+    var stockDays=daysSince(r.date);var rehabDays=daysSince(r.rehabDate||r.date);
     h+='<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);padding:13px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">'+r.rid+'</span><span class="badge ba">修整中</span></div>';
-    h+='<div style="font-size:14px;font-weight:600;margin-bottom:8px">'+r.name+'</div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">'+r.rid+'</span><span class="badge ba">'+r.qty+'株 修整中</span></div>';
+    h+='<div style="font-size:14px;font-weight:600;margin-bottom:4px">'+r.name+'</div>';
+    h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px"><span class="'+locClass[r.loc]+'">'+locLabels[r.loc]+'</span></div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">在庫天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">'+stockDays+'</div><div style="font-size:9px;color:var(--text3)">從進貨日起</div></div>';
-    h+='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">修整天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">'+rehabDays+'</div><div style="font-size:9px;color:var(--text3)">從修整日起</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">在庫天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">'+stockDays+'</div></div>';
+    h+='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">修整天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">'+rehabDays+'</div></div>';
     h+='</div>';
     if(r.note)h+='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+r.note+'</div>';
     if(role==='owner'){
       h+='<div style="display:flex;gap:8px">';
       h+='<button class="btn btns btnsm" style="flex:1" onclick="openEditRehab(\''+r.rid+'\')">編輯日期</button>';
-      h+='<button class="btn btns btnsm" style="flex:1" onclick="releaseRehab(\''+r.rid+'\')">移回庫存</button>';
+      h+='<button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab(\''+r.rid+'\')">移回庫存</button>';
       h+='</div>';
     }
     h+='</div>';
@@ -875,82 +961,218 @@ function saveRehabEdit(){
   r.note=document.getElementById('er-note').value;
   closeM('m-editrehab');renderRehab();
 }
-function releaseRehab(rid){
-  var idx=S.rehab.findIndex(function(r){return r.rid===rid;});if(idx===-1)return;
-  var r=S.rehab[idx];var p=S.plants.find(function(x){return x.id===r.plantId;});
-  if(p)p.status='ok';S.rehab.splice(idx,1);renderRehab();renderInv();
+function openReleaseRehab(rid){
+  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
+  document.getElementById('rr-rid').value=rid;
+  document.getElementById('rr-info').innerHTML='<span style="font-weight:500">'+r.rid+' '+r.name+'</span> · '+r.qty+'株';
+  document.getElementById('rr-qty').value=r.qty;
+  document.getElementById('rr-qty').max=r.qty;
+  document.getElementById('rr-loc').value=r.loc;
+  openM('m-releaserhab');
+}
+function doReleaseRehab(){
+  var rid=document.getElementById('rr-rid').value;
+  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
+  var qty=parseInt(document.getElementById('rr-qty').value)||1;
+  var toLoc=document.getElementById('rr-loc').value;
+  if(qty>r.qty){alert('數量超過修整區庫存');return;}
+  var existing=S.plants.find(function(p){return p.name===r.name&&p.loc===toLoc&&p.status==='ok';});
+  if(existing){existing.qty+=qty;}
+  else{S.plants.push({id:S.nextId++,name:r.name,cat:'植物',costNtd:0,costVnd:0,price:0,qty:qty,date:r.date,loc:toLoc,note:'從修整區移回',status:'ok'});}
+  r.qty-=qty;
+  if(r.qty<=0)S.rehab=S.rehab.filter(function(x){return x.rid!==rid;});
+  closeM('m-releaserhab');renderRehab();renderInv();renderMember();
 }
 
-// REPORT
-function renderRep(){
+// REPORT - SUMMARY
+function renderRepSummary(){
   var tv=S.orders.reduce(function(s,o){return s+o.total;},0);
   var tp=S.orders.reduce(function(s,o){return s+o.profit;},0);
   var am=tv>0?(tp/tv*100).toFixed(1):0;
-  document.getElementById('rep-metrics').innerHTML=
-    '<div class="metric"><div class="ml">Tổng DT<span class="vi">總營收</span></div><div class="mv blue">'+vnd(tv)+'</div></div>'+
-    '<div class="metric"><div class="ml">Tổng LN<span class="vi">總毛利</span></div><div class="mv green">'+vnd(tp)+'</div></div>'+
-    '<div class="metric"><div class="ml">Tỷ lệ LN<span class="vi">平均毛利率</span></div><div class="mv">'+am+'%</div></div>'+
-    '<div class="metric"><div class="ml">Tổng đơn<span class="vi">訂單總數</span></div><div class="mv">'+S.orders.length+'</div></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">月度摘要</span><button class="csv-btn" onclick="exportCSV(\'summary\')">⬇ 導出 CSV</button></div>';
+  h+='<div class="metrics">';
+  h+='<div class="metric"><div class="ml">總營收</div><div class="mv blue">'+vnd(tv)+'</div></div>';
+  h+='<div class="metric"><div class="ml">總毛利</div><div class="mv green">'+vnd(tp)+'</div></div>';
+  h+='<div class="metric"><div class="ml">平均毛利率</div><div class="mv">'+am+'%</div></div>';
+  h+='<div class="metric"><div class="ml">訂單總數</div><div class="mv">'+S.orders.length+'</div></div></div>';
   var monthly={};
-  S.orders.forEach(function(o){
-    var k=monthKey(o.date);
-    if(!monthly[k])monthly[k]={label:monthLabel(o.date),rev:0,profit:0,count:0};
-    monthly[k].rev+=o.total;monthly[k].profit+=o.profit;monthly[k].count++;
-  });
-  var h='<div style="padding:0 16px">';
+  S.orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),rev:0,profit:0,count:0};monthly[k].rev+=o.total;monthly[k].profit+=o.profit;monthly[k].count++;});
+  h+='<div style="padding:0 16px">';
   Object.keys(monthly).sort().reverse().forEach(function(k){
     var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
     var mgc=parseFloat(mg)>40?'var(--green)':parseFloat(mg)>20?'var(--amber)':'var(--red)';
     h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:15px;margin-bottom:12px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><span style="font-size:14px;font-weight:700">'+m.label+'</span>';
-    h+='<button onclick="goOrdersFiltered(\''+k+'\')" style="background:var(--bbg);color:var(--blue);border:1px solid var(--bborder);border-radius:100px;padding:3px 12px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">'+m.count+' đơn →</button></div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><span style="font-size:14px;font-weight:700">'+m.label+'</span><button onclick="goOrdersFiltered(\''+k+'\')" style="background:var(--bbg);color:var(--blue);border:1px solid var(--bborder);border-radius:100px;padding:3px 12px;font-size:12px;cursor:pointer;font-family:inherit">'+m.count+' 筆 →</button></div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">毛利</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--green)">'+vnd(m.profit)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">毛利率</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:'+mgc+'">'+mg+'%</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--green)">'+vnd(m.profit)+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利率</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:'+mgc+'">'+mg+'%</div></div>';
     h+='</div></div>';
   });
   h+='</div>';
-  document.getElementById('rep-monthly').innerHTML=h;
+  document.getElementById('rep-summary').innerHTML=h;
 }
 
-// INV STATUS
-function renderInvStatus(){
-  var all=S.plants.slice().sort(function(a,b){return daysSince(b.date)-daysSince(a.date);});
-  var h='';
-  // Active plants
-  var active=all.filter(function(p){return p.status!=='rehab';});
-  active.forEach(function(p){
-    var days=daysSince(p.date);var ac=agedCost(p);var mg=mgn(p);
-    var mc=parseFloat(mg)>30?'var(--green)':'var(--red)';
-    h+='<div class="pi"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+' <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></div><div class="pmeta">在庫 '+days+' 天 · '+p.qty+' 株</div></div><div class="pright"><div class="pprice" style="color:var(--amber)">CP '+vnd(ac)+'</div><div class="psub" style="color:'+mc+'">毛利 '+mg+'%</div></div></div>';
+// REPORT - ORDERS
+function renderRepOrders(){
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">全部訂單明細</span><button class="csv-btn" onclick="exportCSV(\'orders\')">⬇ 導出 CSV</button></div>';
+  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">日期</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">客戶</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">金額</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">成交人</th></tr>';
+  S.orders.forEach(function(o){
+    var mg=o.total>0?(o.profit/o.total*100).toFixed(0):0;
+    h+='<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="showReceipt('+o.id+')"><td style="padding:8px 6px;color:var(--text2)">'+o.date.slice(5)+'</td><td style="padding:8px 6px;font-weight:500">'+o.customer+'</td><td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">'+vnd(o.total)+'</td><td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">'+mg+'%</td><td style="padding:8px 6px;color:var(--text2)">'+o.seller+'</td></tr>';
   });
-  // Rehab plants
-  if(S.rehab.length>0){
-    h+='<div class="sec">修整區 / Khu chỉnh sửa</div>';
-    S.rehab.forEach(function(r){
-      var stockDays=daysSince(r.date);var rehabDays=daysSince(r.rehabDate||r.date);
-      h+='<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname"><span style="font-family:DM Mono,monospace;color:var(--amber)">'+r.rid+'</span> '+r.name+'</div><div class="pmeta">在庫 '+stockDays+' 天 · 修整 '+rehabDays+' 天</div></div><div class="pright"><span class="badge ba">修整中</span></div></div>';
+  h+='</table></div>';
+  document.getElementById('rep-orders').innerHTML=h;
+}
+
+// REPORT - MEMBERS
+function renderRepMembers(){
+  var members={};
+  S.orders.forEach(function(o){
+    if(!members[o.seller])members[o.seller]={rev:0,profit:0,count:0};
+    members[o.seller].rev+=o.total;members[o.seller].profit+=o.profit;members[o.seller].count++;
+  });
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">成員業績</span><button class="csv-btn" onclick="exportCSV(\'members\')">⬇ 導出 CSV</button></div>';
+  h+='<div style="padding:0 16px">';
+  Object.keys(members).forEach(function(name){
+    var m=members[name];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
+    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:12px">';
+    h+='<div style="font-size:15px;font-weight:600;margin-bottom:10px">'+name+'</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">筆數</div><div style="font-size:16px;font-weight:700">'+m.count+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利率</div><div style="font-size:11px;font-weight:700;color:var(--green)">'+mg+'%</div></div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  document.getElementById('rep-members').innerHTML=h;
+}
+
+// REPORT - PLANTS SOLD
+function renderRepPlantsSold(){
+  var plantSales={};
+  S.orders.forEach(function(o){
+    o.items.forEach(function(item){
+      if(!plantSales[item.name])plantSales[item.name]={qty:0,rev:0,profit:0};
+      plantSales[item.name].qty+=item.qty;
+      plantSales[item.name].rev+=item.price*item.qty;
+      plantSales[item.name].profit+=(item.price-item.cost)*item.qty;
+    });
+  });
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">植物銷售統計</span><button class="csv-btn" onclick="exportCSV(\'plants-sold\')">⬇ 導出 CSV</button></div>';
+  var sorted=Object.keys(plantSales).sort(function(a,b){return plantSales[b].rev-plantSales[a].rev;});
+  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">品名</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">數量</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">營收</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利率</th></tr>';
+  sorted.forEach(function(name){
+    var s=plantSales[name];var mg=s.rev>0?(s.profit/s.rev*100).toFixed(0):0;
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;font-weight:500">'+name+'</td><td style="padding:8px 6px;text-align:right">'+s.qty+'</td><td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">'+vnd(s.rev)+'</td><td style="padding:8px 6px;text-align:right;color:var(--green)">'+mg+'%</td></tr>';
+  });
+  // Unsold plants
+  var soldNames=Object.keys(plantSales);
+  var unsold=S.plants.filter(function(p){return p.status!=='rehab'&&soldNames.indexOf(p.name)===-1;});
+  if(unsold.length>0){
+    h+='<tr style="background:var(--bg3)"><td colspan="4" style="padding:8px 6px;font-size:10px;color:var(--text3)">未售出植物</td></tr>';
+    unsold.forEach(function(p){
+      h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--text3)">'+p.name+'</td><td style="padding:8px 6px;text-align:right;color:var(--text3)">'+p.qty+'株在庫</td><td style="padding:8px 6px;text-align:right;color:var(--text3)">-</td><td style="padding:8px 6px;text-align:right;color:var(--amber)">'+daysSince(p.date)+'天</td></tr>';
     });
   }
-  document.getElementById('inv-status-list').innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--text3)">無資料</div>';
+  h+='</table></div>';
+  document.getElementById('rep-plants-sold').innerHTML=h;
+}
+
+// REPORT - INV STATUS
+function renderInvStatus(){
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">當前庫存狀態</span><button class="csv-btn" onclick="exportCSV(\'invstatus\')">⬇ 導出 CSV</button></div>';
+  var active=S.plants.filter(function(p){return p.status!=='rehab';}).sort(function(a,b){return daysSince(b.date)-daysSince(a.date);});
+  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">位置</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">天數</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">當前成本</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利率</th></tr>';
+  active.forEach(function(p){
+    var days=daysSince(p.date);var ac=agedCost(p);var mg=mgn(p);
+    var mgc=parseFloat(mg)>30?'var(--green)':'var(--red)';
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;font-weight:500">'+p.name+' ×'+p.qty+'</td><td style="padding:8px 6px"><span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></td><td style="padding:8px 6px;text-align:right">'+days+'</td><td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">'+vnd(ac)+'</td><td style="padding:8px 6px;text-align:right;color:'+mgc+'">'+mg+'%</td></tr>';
+  });
+  h+='</table></div>';
+  document.getElementById('rep-invstatus').innerHTML=h;
+}
+
+// REPORT - REHAB LOG
+function renderRehabLog(){
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">修整記錄</span><button class="csv-btn" onclick="exportCSV(\'rehab-log\')">⬇ 導出 CSV</button></div>';
+  if(S.rehab.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">無修整記錄</div>';document.getElementById('rep-rehab-log').innerHTML=h;return;}
+  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">編號</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">在庫天</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">修整天</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">原因</th></tr>';
+  S.rehab.forEach(function(r){
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--amber);font-family:DM Mono,monospace">'+r.rid+'</td><td style="padding:8px 6px">'+r.name+' ×'+r.qty+'</td><td style="padding:8px 6px;text-align:right">'+daysSince(r.date)+'</td><td style="padding:8px 6px;text-align:right;color:var(--red)">'+daysSince(r.rehabDate||r.date)+'</td><td style="padding:8px 6px;color:var(--text2)">'+r.note+'</td></tr>';
+  });
+  h+='</table></div>';
+  document.getElementById('rep-rehab-log').innerHTML=h;
+}
+
+// REPORT - WRITEOFF
+function renderWriteoffRep(){
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">死亡報廢記錄</span><button class="csv-btn" onclick="exportCSV(\'writeoff\')">⬇ 導出 CSV</button></div>';
+  var totalQty=S.writeoffs.reduce(function(s,w){return s+w.qty;},0);
+  var totalCost=S.writeoffs.reduce(function(s,w){return s+(w.cost||0);},0);
+  h+='<div class="metrics" style="margin-bottom:8px">';
+  h+='<div class="metric"><div class="ml">報廢總數</div><div class="mv red" style="color:var(--red)">'+totalQty+' 株</div></div>';
+  h+='<div class="metric"><div class="ml">損失成本</div><div class="mv red" style="color:var(--red)">'+vnd(totalCost)+'</div></div></div>';
+  if(S.writeoffs.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">無報廢記錄</div>';document.getElementById('rep-writeoff').innerHTML=h;return;}
+  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">日期</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">數量</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">原因</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">操作人</th></tr>';
+  S.writeoffs.forEach(function(w){
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--text2)">'+w.date+'</td><td style="padding:8px 6px;font-weight:500">'+w.name+'</td><td style="padding:8px 6px;text-align:right;color:var(--red)">'+w.qty+'株</td><td style="padding:8px 6px;color:var(--text2)">'+w.reason+'</td><td style="padding:8px 6px;color:var(--text2)">'+w.operator+'</td></tr>';
+  });
+  h+='</table></div>';
+  document.getElementById('rep-writeoff').innerHTML=h;
+}
+
+// REPORT - PURCHASE
+function renderPur(){
+  var tv=S.purchases.reduce(function(s,p){return s+p.totalVnd;},0);
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">進貨記錄</span><button class="csv-btn" onclick="exportCSV(\'purchase\')">⬇ 導出 CSV</button></div>';
+  h+='<div class="metrics" style="margin-bottom:8px">';
+  h+='<div class="metric"><div class="ml">批次數</div><div class="mv">'+S.purchases.length+'</div></div>';
+  h+='<div class="metric"><div class="ml">總進貨成本</div><div class="mv amber">'+vnd(tv)+'</div></div></div>';
+  h+='<div style="padding:0 16px 10px;display:flex;justify-content:flex-end"><button class="btn btnp btnsm" onclick="openM(\'m-newpur\')">+ 新增進貨</button></div>';
+  S.purchases.forEach(function(p){
+    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin:0 16px 10px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-weight:500;font-size:14px">'+p.vendor+'</span><span style="color:var(--text2);font-size:12px;margin-left:8px">'+p.date+'</span></div><span class="badge bb">'+p.items.reduce(function(s,i){return s+i.qty;},0)+' 株</span></div>';
+    if(p.note)h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px">'+p.note+'</div>';
+    p.items.forEach(function(i){h+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)"><span>'+i.name+' × '+i.qty+'</span><span style="color:var(--text2)">'+vnd(i.totalVnd)+'</span></div>';});
+    h+='<div style="display:flex;justify-content:flex-end;margin-top:8px"><span style="font-weight:700;font-family:DM Mono,monospace">'+vnd(p.totalVnd)+'</span></div></div>';
+  });
+  document.getElementById('rep-purchase').innerHTML=h;
 }
 
 // ADMIN
 function renderAdmin(){
   loadConfig();
-  // Plant list
-  var h='';
-  S.plants.forEach(function(p){
-    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(p.price)+' · '+p.qty+'株 · '+locLabels[p.loc]+'</div></div><button class="btn btns btnsm" onclick="openEditPlant('+p.id+')">編輯</button></div>';
+  var h='<div style="height:12px"></div>';
+  h+='<div class="admin-section"><div class="admin-section-title">系統設定</div><div style="padding:14px 16px">';
+  h+='<div class="field"><label class="flabel">匯率：1 NTD = ? VND</label><input class="inp" id="cfg-rate" type="number"></div>';
+  h+='<div class="field"><label class="flabel">每月成本增加（VND）</label><input class="inp" id="cfg-monthly-inc" type="number"></div>';
+  h+='<div class="field"><label class="flabel">最高增加上限（VND）</label><input class="inp" id="cfg-max-inc" type="number"></div>';
+  h+='<button class="btn btnp btnf" onclick="saveConfig()">儲存設定</button></div></div>';
+  h+='<div class="admin-section"><div class="admin-section-title">植物管理</div>';
+  S.plants.filter(function(p){return p.status!=='rehab';}).forEach(function(p){
+    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(p.price)+' · '+p.qty+'株 · <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></div></div><button class="btn btns btnsm" onclick="openEditPlant('+p.id+')">編輯</button></div>';
   });
-  document.getElementById('admin-plant-list').innerHTML=h||'<div style="padding:14px;color:var(--text3);font-size:13px">無資料</div>';
-  // Board list
-  var bh='';
+  h+='</div>';
+  h+='<div class="admin-section"><div class="admin-section-title">板子管理</div>';
   S.boards.forEach(function(b){
-    bh+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+b.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(b.price)+' · 庫存 '+b.qty+'</div></div><button class="btn btns btnsm" onclick="openEditBoard('+b.id+')">編輯</button></div>';
+    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+b.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(b.price)+' · 總庫存 '+b.qty+'</div></div><button class="btn btns btnsm" onclick="openEditBoard('+b.id+')">編輯</button></div>';
   });
-  document.getElementById('admin-board-list').innerHTML=bh||'<div style="padding:14px;color:var(--text3);font-size:13px">無資料</div>';
+  h+='<div style="padding:12px 16px"><button class="btn btns btnf" onclick="openEditBoard(0)">+ 新增板子種類</button></div></div>';
+  h+='<div class="admin-section"><div class="admin-section-title">活動價 / 批發價</div><div style="padding:14px 16px">';
+  h+='<div class="field"><label class="flabel">活動折扣（%）</label><input class="inp" id="cfg-promo" type="number"></div>';
+  h+='<div class="field"><label class="flabel">活動結束日</label><input class="inp" id="cfg-promo-end" type="date"></div>';
+  h+='<div class="field"><label class="flabel">批發客戶名稱</label><input class="inp" id="cfg-wholesale-name"></div>';
+  h+='<div class="field"><label class="flabel">批發折扣（%）</label><input class="inp" id="cfg-wholesale-pct" type="number"></div>';
+  h+='<button class="btn btnp btnf" onclick="savePromo()">儲存</button></div></div>';
+  h+='<div style="height:20px"></div>';
+  document.getElementById('rep-admin').innerHTML=h;
+  loadConfig();
 }
 function openEditPlant(id){
   var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
@@ -972,14 +1194,8 @@ function savePlantEdit(){
   p.note=document.getElementById('ep-note').value;
   closeM('m-editplant');renderAdmin();renderInv();renderPos();
 }
-function deletePlant(){
-  var id=parseInt(document.getElementById('ep-id').value);
-  if(!confirm('確定刪除？'))return;
-  S.plants=S.plants.filter(function(p){return p.id!==id;});
-  closeM('m-editplant');renderAdmin();renderInv();renderPos();
-}
 function openEditBoard(id){
-  var b=S.boards.find(function(x){return x.id===id;});
+  var b=id?S.boards.find(function(x){return x.id===id;}):null;
   document.getElementById('eb-id').value=id||'';
   document.getElementById('eb-name').value=b?b.name:'';
   document.getElementById('eb-cost').value=b?b.costVnd:'';
@@ -994,51 +1210,82 @@ function saveBoard(){
   var price=parseInt(document.getElementById('eb-price').value)||0;
   var qty=parseInt(document.getElementById('eb-qty').value)||0;
   if(id){var b=S.boards.find(function(x){return x.id===id;});if(b){b.name=name;b.costVnd=cost;b.price=price;b.qty=qty;}}
-  else S.boards.push({id:S.nextId++,name:name,costVnd:cost,price:price,qty:qty});
-  closeM('m-addboard');renderAdmin();renderPos();
+  else S.boards.push({id:S.nextId++,name:name,costVnd:cost,price:price,qty:qty,locs:{mine:qty,quang:0,helper:0}});
+  closeM('m-addboard');renderAdmin();renderBoardInv();renderPos();
 }
 
 // PURCHASE
-function renderPur(){
-  var tv=S.purchases.reduce(function(s,p){return s+p.totalVnd;},0);
-  var ti=S.purchases.reduce(function(s,p){return s+p.items.reduce(function(a,i){return a+i.qty;},0);},0);
-  document.getElementById('pur-metrics').innerHTML=
-    '<div class="metric"><div class="ml">批次<span class="vi">Lô hàng</span></div><div class="mv blue">'+S.purchases.length+'</div></div>'+
-    '<div class="metric"><div class="ml">總數量<span class="vi">Tổng cây</span></div><div class="mv">'+ti+'</div></div>'+
-    '<div class="metric"><div class="ml">總成本<span class="vi">Tổng CP</span></div><div class="mv amber">'+vnd(tv)+'</div></div>'+
-    '<div class="metric"><div class="ml">廠商數<span class="vi">NCC</span></div><div class="mv">'+[...new Set(S.purchases.map(function(p){return p.vendor;}))].length+'</div></div>';
-  document.getElementById('pur-list').innerHTML=S.purchases.map(function(p){
-    var h='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin:0 16px 10px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-weight:500;font-size:14px">'+p.vendor+'</span><span style="color:var(--text2);font-size:12px;margin-left:8px">'+p.date+'</span></div><span class="badge bb">'+p.items.reduce(function(s,i){return s+i.qty;},0)+' cây</span></div>';
-    if(p.note)h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px">'+p.note+'</div>';
-    p.items.slice(0,3).forEach(function(i){h+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)"><span>'+i.name+' × '+i.qty+'</span><span style="color:var(--text2)">'+vnd(i.totalVnd)+'</span></div>';});
-    if(p.items.length>3)h+='<div style="font-size:11px;color:var(--text3);padding-top:3px">+'+( p.items.length-3)+' 項...</div>';
-    h+='<div style="display:flex;justify-content:flex-end;margin-top:8px"><span style="font-weight:700;font-family:DM Mono,monospace">'+vnd(p.totalVnd)+'</span></div></div>';
-    return h;
-  }).join('');
-}
 function addPurItem(){purItems.push({name:'',qty:1,costNtd:0});renderPurItems();}
 function renderPurItems(){
-  var w=document.getElementById('pur-items-wrap');
-  var h='<div class="sec" style="padding-left:0;padding-top:0">進貨明細</div>';
+  var h='<div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:500">進貨明細</div>';
   purItems.forEach(function(item,i){
     h+='<div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px"><div class="field" style="margin-bottom:7px"><input class="inp" placeholder="品名" value="'+item.name+'" onchange="purItems['+i+'].name=this.value"></div>';
     h+='<div class="irow"><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="數量" value="'+(item.qty||'')+'" onchange="purItems['+i+'].qty=parseInt(this.value)||0"></div><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="成本 NTD" value="'+(item.costNtd||'')+'" onchange="purItems['+i+'].costNtd=parseInt(this.value)||0"></div></div></div>';
   });
-  w.innerHTML=h;
+  document.getElementById('pur-items-wrap').innerHTML=h;
 }
 function savePurchase(){
   var vendor=document.getElementById('pur-vendor').value.trim();
   if(!vendor||purItems.length===0){alert('請填寫廠商和品項');return;}
   var items=purItems.map(function(i){return{name:i.name,qty:i.qty,costNtd:i.costNtd,costVnd:i.costNtd*CFG.rate,totalVnd:i.qty*i.costNtd*CFG.rate};});
   S.purchases.unshift({id:S.nextId++,vendor:vendor,date:document.getElementById('pur-date').value||todayStr(),note:document.getElementById('pur-note').value,items:items,totalVnd:items.reduce(function(s,i){return s+i.totalVnd;},0)});
-  purItems=[];closeM('m-newpur');renderPur();
+  purItems=[];['pur-vendor','pur-note'].forEach(function(id){document.getElementById(id).value='';});
+  closeM('m-newpur');renderPur();
+}
+
+// CSV EXPORT
+function exportCSV(type){
+  var rows=[],filename='';
+  if(type==='summary'){
+    filename='月度摘要.csv';
+    rows.push(['月份','營收(VND)','毛利(VND)','毛利率','訂單數']);
+    var monthly={};
+    S.orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),rev:0,profit:0,count:0};monthly[k].rev+=o.total;monthly[k].profit+=o.profit;monthly[k].count++;});
+    Object.keys(monthly).sort().reverse().forEach(function(k){var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;rows.push([m.label,m.rev,m.profit,mg+'%',m.count]);});
+  } else if(type==='orders'){
+    filename='訂單明細.csv';
+    rows.push(['日期','訂單編號','客戶','聯絡','地址','來源','付款','成交人','品項','金額(VND)','毛利(VND)','毛利率','備註']);
+    S.orders.forEach(function(o){var mg=o.total>0?(o.profit/o.total*100).toFixed(1):0;var items=o.items.map(function(i){return i.name+'×'+i.qty;}).join(' | ');rows.push([o.date,'#'+String(o.id).padStart(4,'0'),o.customer,o.contact,o.addr,o.src,o.pay,o.seller,items,o.total,o.profit,mg+'%',o.note]);});
+  } else if(type==='members'){
+    filename='成員業績.csv';
+    rows.push(['成員','訂單數','總營收(VND)','總毛利(VND)','毛利率']);
+    var members={};
+    S.orders.forEach(function(o){if(!members[o.seller])members[o.seller]={rev:0,profit:0,count:0};members[o.seller].rev+=o.total;members[o.seller].profit+=o.profit;members[o.seller].count++;});
+    Object.keys(members).forEach(function(name){var m=members[name];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;rows.push([name,m.count,m.rev,m.profit,mg+'%']);});
+  } else if(type==='plants-sold'){
+    filename='植物銷售.csv';
+    rows.push(['植物名稱','售出數量','總營收(VND)','總毛利(VND)','毛利率']);
+    var ps={};S.orders.forEach(function(o){o.items.forEach(function(item){if(!ps[item.name])ps[item.name]={qty:0,rev:0,profit:0};ps[item.name].qty+=item.qty;ps[item.name].rev+=item.price*item.qty;ps[item.name].profit+=(item.price-item.cost)*item.qty;});});
+    Object.keys(ps).sort(function(a,b){return ps[b].rev-ps[a].rev;}).forEach(function(name){var s=ps[name];var mg=s.rev>0?(s.profit/s.rev*100).toFixed(1):0;rows.push([name,s.qty,s.rev,s.profit,mg+'%']);});
+  } else if(type==='invstatus'){
+    filename='庫存狀態.csv';
+    rows.push(['植物名稱','分類','位置','數量','在庫天數','原始成本(VND)','當前成本(VND)','售價(VND)','毛利率','進貨日期']);
+    S.plants.filter(function(p){return p.status!=='rehab';}).forEach(function(p){var ac=agedCost(p);var mg=mgn(p);rows.push([p.name,p.cat,locLabels[p.loc],p.qty,daysSince(p.date),p.costVnd,ac,p.price,mg+'%',p.date]);});
+  } else if(type==='rehab-log'){
+    filename='修整記錄.csv';
+    rows.push(['編號','植物','數量','位置','進貨日期','修整開始日','在庫天數','修整天數','原因']);
+    S.rehab.forEach(function(r){rows.push([r.rid,r.name,r.qty,locLabels[r.loc],r.date,r.rehabDate||r.date,daysSince(r.date),daysSince(r.rehabDate||r.date),r.note]);});
+  } else if(type==='writeoff'){
+    filename='死亡報廢.csv';
+    rows.push(['日期','植物名稱','數量','位置','死亡原因','操作人員','損失成本(VND)']);
+    S.writeoffs.forEach(function(w){rows.push([w.date,w.name,w.qty,locLabels[w.loc]||'',w.reason,w.operator,w.cost||0]);});
+  } else if(type==='purchase'){
+    filename='進貨記錄.csv';
+    rows.push(['批次日期','廠商','品名','數量','單位成本NTD','單位成本VND','小計VND','備註']);
+    S.purchases.forEach(function(p){p.items.forEach(function(i){rows.push([p.date,p.vendor,i.name,i.qty,i.costNtd,i.costVnd,i.totalVnd,p.note]);});});
+  }
+  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var bom='\uFEFF';
+  var blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
 }
 
 // MODAL UTILS
 function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
 function bgClose(e,id){if(e.target.id===id)closeM(id);}
+function doPrint(){var h=document.getElementById('printable').outerHTML;document.getElementById('print-area').innerHTML=h;window.print();setTimeout(function(){document.getElementById('print-area').innerHTML='';},1000);}
 </script>
 </body>
 </html>
