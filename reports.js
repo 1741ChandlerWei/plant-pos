@@ -89,6 +89,7 @@ function renderRepOrders() {
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Ngày / 日期</th>
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Khách / 客戶</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Tổng / 金額</th>
+    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN / 毛利</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">LN% / 毛利率</th>
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Người bán / 成交人</th>
   </tr>`;
@@ -98,6 +99,7 @@ function renderRepOrders() {
       <td style="padding:8px 6px;color:var(--text2)">${o.order_date.slice(5)}</td>
       <td style="padding:8px 6px;font-weight:500">${o.customer}</td>
       <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(o.total)}</td>
+      <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(o.profit)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--green)">${mg}%</td>
       <td style="padding:8px 6px;color:var(--text2)">${o.seller}</td>
     </tr>`;
