@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>根莖葉 / Gốc Thân Lá</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <style>
 :root{
   --bg:#0f0f0d;--bg2:#1a1a16;--bg3:#242420;--bg4:#2e2e29;
@@ -24,21 +26,20 @@ body{font-family:'Noto Sans TC','Noto Sans',sans-serif;background:var(--bg);colo
 @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:50}
 .ttitle{font-size:16px;font-weight:500}
-.tsub{font-size:11px;color:var(--text2);margin-top:1px;font-family:'Noto Sans',sans-serif}
+.tsub{font-size:11px;color:var(--text2);margin-top:1px}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 3px 7px;font-size:9px;color:var(--text3);cursor:pointer;border:none;background:none;transition:color .15s;line-height:1.2}
 .ni.active{color:var(--acc)}
 .ni svg{width:20px;height:20px}
 .ni .lz{display:block;font-size:9px}
-.ni .lv{display:block;font-size:8px;opacity:.65;font-family:'Noto Sans',sans-serif}
+.ni .lv{display:block;font-size:8px;opacity:.65}
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 4px}
 .metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px}
-.ml{font-size:10px;color:var(--text2);margin-bottom:3px;line-height:1.4}
-.ml .vi{font-size:9px;display:block;color:var(--text3);font-family:'Noto Sans',sans-serif}
+.ml{font-size:10px;color:var(--text2);margin-bottom:3px;line-height:1.5}
 .mv{font-size:19px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px}
-.mv.blue{color:var(--blue)}.mv.green{color:var(--green)}.mv.amber{color:var(--amber)}
+.mv.blue{color:var(--blue)}.mv.green{color:var(--green)}.mv.amber{color:var(--amber)}.mv.red{color:var(--red)}
 .pi{display:flex;align-items:center;gap:11px;padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
-.pi:hover{background:var(--bg2)}
+.pi:hover,.pi:active{background:var(--bg2)}
 .pdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .pinfo{flex:1;min-width:0}
 .pname{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -51,17 +52,14 @@ body{font-family:'Noto Sans TC','Noto Sans',sans-serif;background:var(--bg);colo
 .ba{background:var(--abg);color:var(--amber);border:1px solid var(--aborder)}
 .br{background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
 .bb{background:var(--bbg);color:var(--blue);border:1px solid var(--bborder)}
-.bgr{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
-.btnp{background:var(--acc);color:#0f0f0d}.btnp:hover{background:#bef264}
-.btns{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}.btns:hover{background:var(--bg4)}
+.btnp{background:var(--acc);color:#0f0f0d}.btns{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
 .btnd{background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
-.btnf{width:100%;justify-content:center}
-.btnsm{padding:6px 11px;font-size:12px}
+.btnw{background:var(--abg);color:var(--amber);border:1px solid var(--aborder)}
+.btnf{width:100%;justify-content:center}.btnsm{padding:6px 11px;font-size:12px}
 .btn:active{transform:scale(.97)}
 .field{margin-bottom:12px}
-.flabel{font-size:11px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500}
-.flabel .vi{font-size:10px;color:var(--text3);font-family:'Noto Sans',sans-serif}
+.flabel{font-size:11px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500;line-height:1.5}
 .inp{width:100%;padding:10px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;transition:border-color .15s}
 .inp:focus{outline:none;border-color:var(--acc)}
 .inp::placeholder{color:var(--text3)}
@@ -73,32 +71,31 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto;animation:su .2s ease;border-top:1px solid var(--border2)}
 @keyframes su{from{transform:translateY(36px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mhandle{width:36px;height:4px;background:var(--bg4);border-radius:2px;margin:0 auto 16px}
-.mtitle{font-size:16px;font-weight:700;margin-bottom:16px}
-.mtitle .vi{font-size:12px;color:var(--text2);font-weight:400;font-family:'Noto Sans',sans-serif;display:block;margin-top:2px}
+.mtitle{font-size:16px;font-weight:700;margin-bottom:16px;line-height:1.4}
 .tabs{display:flex;gap:4px;padding:0 16px 12px;flex-wrap:wrap}
-.tab{flex:1;min-width:55px;padding:7px 5px;text-align:center;font-size:12px;font-weight:500;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;font-family:inherit;line-height:1.3}
-.tab .vi{font-size:9px;color:inherit;opacity:.65;font-family:'Noto Sans',sans-serif;display:block;margin-top:1px}
+.tab{flex:1;min-width:55px;padding:7px 5px;text-align:center;font-size:11px;font-weight:500;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;font-family:inherit;line-height:1.4}
 .tab.active{background:var(--accdim);color:var(--acc);border-color:rgba(163,230,53,.3)}
 .age-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px}
 .age-fill{height:100%;border-radius:2px}
-.divider{height:1px;background:var(--border);margin:10px 0}
 .sec{padding:14px 18px 7px;font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.8px;text-transform:uppercase}
 .loc-m{display:inline-flex;padding:1px 6px;border-radius:5px;font-size:10px;background:var(--bbg);color:var(--blue);border:1px solid var(--bborder)}
 .loc-q{display:inline-flex;padding:1px 6px;border-radius:5px;font-size:10px;background:var(--accdim);color:var(--acc);border:1px solid rgba(163,230,53,.25)}
 .loc-h{display:inline-flex;padding:1px 6px;border-radius:5px;font-size:10px;background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
-.qbtn{width:27px;height:27px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.qbtn{width:27px;height:27px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.divider{height:1px;background:var(--border);margin:10px 0}
+.csv-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--gborder);background:var(--gbg);color:var(--green);font-family:inherit}
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.role-btn{width:100%;padding:15px 18px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);cursor:pointer;display:flex;align-items:center;gap:13px;margin-bottom:10px;transition:all .15s;text-align:left;font-family:inherit}
+.role-btn:hover,.role-btn:active{border-color:var(--acc);background:var(--accdim)}
+.admin-section{margin:0 16px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.admin-title{padding:12px 16px;font-size:12px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase}
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.admin-row:last-child{border-bottom:none}
 .month-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin:0 16px 12px;overflow:hidden}
-.month-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background .12s}
-.month-header:hover{background:var(--bg3)}
-.month-header.open{border-bottom:1px solid var(--border)}
-.month-chevron{font-size:14px;color:var(--text3);transition:transform .2s}
-.month-chevron.open{transform:rotate(90deg)}
-.month-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg3)}
-.mstat{text-align:center}
-.mstat-label{font-size:9px;color:var(--text2);margin-bottom:2px;font-family:'Noto Sans',sans-serif}
-.mstat-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
+.month-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background .12s}
+.month-hdr:active{background:var(--bg3)}
 .order-row{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
-.order-row:hover{background:var(--bg3)}
+.order-row:active{background:var(--bg3)}
 .order-row:last-child{border-bottom:none}
 .receipt{background:#fff;color:#111;padding:22px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:12px}
 .rshop{font-size:16px;font-weight:700;letter-spacing:1px;text-align:center;color:#1a1a1a;margin-bottom:2px}
@@ -107,68 +104,82 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .rtotal{display:flex;justify-content:space-between;padding:8px 0 0;font-size:14px;font-weight:700;border-top:1px dashed #ccc;margin-top:5px}
 .rsec{margin-top:11px;padding-top:10px;border-top:1px dashed #ccc}
 .rlabel{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
-.role-btn{width:100%;padding:15px 18px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);cursor:pointer;display:flex;align-items:center;gap:13px;margin-bottom:10px;transition:all .15s;text-align:left;font-family:inherit}
-.role-btn:hover{border-color:var(--acc);background:var(--accdim)}
-.admin-section{margin:0 16px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
-.admin-section-title{padding:12px 16px;font-size:12px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase}
-.admin-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px}
-.admin-row:last-child{border-bottom:none}
-.csv-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--gborder);background:var(--gbg);color:var(--green);font-family:inherit}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(15,15,13,.8);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:600;animation:toastin .2s ease;white-space:nowrap}
+.toast-success{background:var(--gbg);color:var(--green);border:1px solid var(--gborder)}
+.toast-error{background:var(--rbg);color:var(--red);border:1px solid var(--rborder)}
+@keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.cancelled-badge{display:inline-flex;padding:1px 8px;border-radius:100px;font-size:10px;background:var(--rbg);color:var(--red);border:1px solid var(--rborder);margin-left:6px}
 @media print{body>*:not(#print-area){display:none!important}#print-area{display:block!important}}
 </style>
 </head>
 <body>
 
-<div id="login-screen" class="login-wrap">
-  <div style="font-size:46px;margin-bottom:8px">🌿</div>
-  <div style="font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:2px">根莖葉</div>
-  <div style="font-size:13px;font-family:'Noto Sans',sans-serif;color:var(--acc);margin-bottom:4px">Gốc Thân Lá</div>
-  <div style="font-size:13px;color:var(--text2);margin-bottom:36px">植物工作室 / Studio Cây Cảnh</div>
-  <div style="width:100%;margin-bottom:20px">
-    <button class="role-btn" onclick="login('owner')">
-      <span style="font-size:26px">👑</span>
-      <div><div style="font-size:14px;font-weight:600;color:var(--text)">Chandler Wei</div><div style="font-size:11px;color:var(--text2);font-family:'Noto Sans',sans-serif">完整後台權限 · Toàn quyền quản lý</div></div>
-    </button>
-    <button class="role-btn" onclick="login('quang')">
-      <span style="font-size:26px">🌱</span>
-      <div><div style="font-size:14px;font-weight:600;color:var(--text)">Quang（成員 / Thành viên）</div><div style="font-size:11px;color:var(--text2);font-family:'Noto Sans',sans-serif">查看植物、開立訂單 · Xem cây, tạo đơn</div></div>
-    </button>
-    <button class="role-btn" onclick="login('helper')">
-      <span style="font-size:26px">🪴</span>
-      <div><div style="font-size:14px;font-weight:600;color:var(--text)">小幫手 / Trợ lý</div><div style="font-size:11px;color:var(--text2);font-family:'Noto Sans',sans-serif">查看植物、開立訂單 · Xem cây, tạo đơn</div></div>
-    </button>
-  </div>
-  <div style="font-size:11px;color:var(--text3);text-align:center;font-family:'Noto Sans',sans-serif">Demo · Chế độ thử nghiệm</div>
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--text2)">Đang tải / 載入中...</div>
 </div>
 
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap" style="display:none">
+  <div style="font-size:46px;margin-bottom:8px">🌿</div>
+  <div style="font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:2px">根莖葉</div>
+  <div style="font-size:13px;color:var(--acc);margin-bottom:4px">Gốc Thân Lá</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:32px">植物工作室 / Studio Cây Cảnh</div>
+  <div style="width:100%;margin-bottom:20px" id="role-list"></div>
+  <div style="font-size:11px;color:var(--text3);text-align:center">v2.0 · Supabase</div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="modal-overlay" id="m-login">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="login-title">Đăng nhập / 登入</div>
+    <div class="field">
+      <label class="flabel">Mật khẩu / 密碼</label>
+      <input class="inp" id="login-pw" type="password" placeholder="Nhập mật khẩu...">
+    </div>
+    <button class="btn btnp btnf" onclick="doLogin()">Đăng nhập / 登入</button>
+  </div>
+</div>
+
+<!-- APP -->
 <div id="app" style="display:none">
 
 <!-- HOME -->
 <div class="screen active" id="screen-home">
   <div class="topbar">
-    <div><div class="ttitle">今日總覽 / Tổng quan hôm nay <span style="font-size:12px;font-family:'Noto Sans',sans-serif;color:var(--text2)">Tổng quan</span></div><div class="tsub" id="home-date"></div></div>
-    <div style="display:flex;gap:7px;align-items:center"><span id="role-badge" class="badge"></span><button class="btn btns btnsm" onclick="logout()">登出</button></div>
+    <div>
+      <div class="ttitle">Tổng quan / 今日總覽</div>
+      <div class="tsub" id="home-date"></div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      <span id="role-badge" class="badge"></span>
+      <button class="btn btns btnsm" onclick="logout()">Đăng xuất / 登出</button>
+    </div>
   </div>
   <div style="height:14px"></div>
   <div class="metrics" id="home-metrics"></div>
-  <div class="sec">今日訂單 / Đơn hàng hôm nay</div>
+  <div class="sec">Đơn hàng hôm nay / 今日訂單</div>
   <div id="today-orders"></div>
-  <div class="sec">低庫存警示 / Cảnh báo tồn kho</div>
+  <div class="sec">Cảnh báo tồn kho / 低庫存警示</div>
   <div id="low-stock"></div>
 </div>
 
 <!-- POS -->
 <div class="screen" id="screen-pos">
   <div class="topbar">
-    <div><div class="ttitle">開立訂單</div><div class="tsub">Tạo đơn hàng</div></div>
+    <div><div class="ttitle">Tạo đơn / 開立訂單</div></div>
     <button class="btn btns btnsm" onclick="clearCart()">Xóa / 清空</button>
   </div>
   <div class="tabs" style="margin-top:12px">
-    <button class="tab active" id="ptab-plant" onclick="posTab('plant')">植物<span class="vi">Cây</span></button>
-    <button class="tab" id="ptab-board" onclick="posTab('board')">板子<span class="vi">Tấm gỗ</span></button>
-    <button class="tab" id="ptab-writeoff" onclick="posTab('writeoff')">Hao hụt<span class="vi">Hao hụt</span></button>
-    <button class="tab" id="ptab-cart" onclick="posTab('cart')">購物車 <span id="cart-badge"></span><span class="vi">Giỏ hàng</span></button>
+    <button class="tab active" id="ptab-plant" onclick="posTab('plant')">Cây<br>植物</button>
+    <button class="tab" id="ptab-board" onclick="posTab('board')">Tấm gỗ<br>板子</button>
+    <button class="tab" id="ptab-writeoff" onclick="posTab('writeoff')">Hao hụt<br>報廢</button>
+    <button class="tab" id="ptab-cart" onclick="posTab('cart')">Giỏ <span id="cart-badge"></span><br>購物車</button>
   </div>
   <div id="pos-plant"></div>
   <div id="pos-board" style="display:none"></div>
@@ -179,14 +190,14 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <!-- INVENTORY -->
 <div class="screen" id="screen-inv">
   <div class="topbar">
-    <div><div class="ttitle">庫存管理</div><div class="tsub">Quản lý kho</div></div>
+    <div><div class="ttitle">Kho hàng / 庫存管理</div></div>
     <div id="inv-addbtn"></div>
   </div>
   <div class="tabs" style="margin-top:12px">
-    <button class="tab active" id="itab-plant" onclick="invTab('plant')">植物<span class="vi">Cây</span></button>
-    <button class="tab" id="itab-board" onclick="invTab('board')">板子<span class="vi">Tấm gỗ</span></button>
-    <button class="tab" id="itab-member" onclick="invTab('member')">成員庫存<span class="vi">Kho TV</span></button>
-    <button class="tab" id="itab-rehab" onclick="invTab('rehab')">修整區<span class="vi">Chỉnh sửa</span></button>
+    <button class="tab active" id="itab-plant" onclick="invTab('plant')">Cây<br>植物</button>
+    <button class="tab" id="itab-board" onclick="invTab('board')">Tấm gỗ<br>板子</button>
+    <button class="tab" id="itab-member" onclick="invTab('member')">Kho TV<br>成員庫存</button>
+    <button class="tab" id="itab-rehab" onclick="invTab('rehab')">Chỉnh sửa<br>修整區</button>
   </div>
   <div id="inv-plant"></div>
   <div id="inv-board" style="display:none"></div>
@@ -197,15 +208,15 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <!-- ORDERS -->
 <div class="screen" id="screen-orders">
   <div class="topbar">
-    <div><div class="ttitle">已完成訂單</div><div class="tsub">Đơn hàng đã hoàn thành</div></div>
-    <div style="display:flex;gap:6px;align-items:center"><div id="orders-filter-badge" style="font-size:12px;color:var(--acc)"></div><button class="btn btns btnsm" id="orders-clear-filter" onclick="clearOrderFilter()" style="display:none">全部</button></div>
+    <div><div class="ttitle">Đơn hàng / 訂單記錄</div></div>
+    <button class="btn btns btnsm" id="orders-clear-filter" onclick="clearOrderFilter()" style="display:none">Tất cả / 全部</button>
   </div>
   <div id="orders-list"></div>
 </div>
 
 <!-- REPORT -->
 <div class="screen" id="screen-rep">
-  <div class="topbar"><div><div class="ttitle">報表</div><div class="tsub">Báo cáo</div></div></div>
+  <div class="topbar"><div><div class="ttitle">Báo cáo / 報表</div></div></div>
   <div class="tabs" style="margin-top:12px;gap:3px" id="rep-tabs"></div>
   <div id="rep-summary" style="display:none"></div>
   <div id="rep-orders" style="display:none"></div>
@@ -243,1049 +254,17 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 </nav>
 </div>
 
-<!-- MODALS -->
-<div class="modal-overlay" id="m-addplant" onclick="bgClose(event,'m-addplant')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Thêm cây vào kho / 新增植物<span class="vi">Thêm cây vào kho</span></div>
-    <div class="field"><label class="flabel">Tên cây / 植物名稱</label><input class="inp" id="np-name" placeholder="AR SP、mew..."></div>
-    <div class="field"><label class="flabel">分類</label><select class="inp" id="np-cat"><option>植物</option><option>植物（代）</option><option>植物（自）</option><option>植物（批）</option></select></div>
-    <div class="irow">
-      <div class="field"><label class="flabel">成本 NTD</label><input class="inp" id="np-cntd" type="number" placeholder="500" oninput="document.getElementById('np-cvnd').value=Math.round(this.value*CFG.rate).toLocaleString()"></div>
-      <div class="field"><label class="flabel">≈ VND</label><input class="inp" id="np-cvnd" readonly></div>
-    </div>
-    <div class="irow">
-      <div class="field"><label class="flabel">建議售價 VND</label><input class="inp" id="np-price" type="number" placeholder="950000"></div>
-      <div class="field"><label class="flabel">數量</label><input class="inp" id="np-qty" type="number" value="1" min="1"></div>
-    </div>
-    <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="np-date" type="date"></div>
-    <div class="field"><label class="flabel">位置</label>
-      <select class="inp" id="np-loc"><option value="mine">在我家 / Nhà chủ</option><option value="quang">在 Quang 家</option><option value="helper">在小幫手家</option></select>
-    </div>
-    <div class="field"><label class="flabel">Nhà cung cấp / Ghi chú</label><input class="inp" id="np-note" placeholder="廠商名稱..."></div>
-    <button class="btn btnp btnf" onclick="addPlant()">儲存 / Lưu</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-editplant" onclick="bgClose(event,'m-editplant')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">編輯植物 / Sửa cây</div>
-    <input type="hidden" id="ep-id">
-    <div class="field"><label class="flabel">Tên cây / 植物名稱</label><input class="inp" id="ep-name"></div>
-    <div class="irow">
-      <div class="field"><label class="flabel">建議售價 VND</label><input class="inp" id="ep-price" type="number"></div>
-      <div class="field"><label class="flabel">Số lượng / 庫存數量</label><input class="inp" id="ep-qty" type="number" min="0"></div>
-    </div>
-    <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="ep-date" type="date"></div>
-    <div class="field"><label class="flabel">備註</label><input class="inp" id="ep-note"></div>
-    <button class="btn btnp btnf" onclick="savePlantEdit()">Lưu / 儲存</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-addboard" onclick="bgClose(event,'m-addboard')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">新增 / 編輯板子</div>
-    <input type="hidden" id="eb-id">
-    <div class="field"><label class="flabel">板子名稱</label><input class="inp" id="eb-name" placeholder="香檳木..."></div>
-    <div class="irow">
-      <div class="field"><label class="flabel">成本 VND</label><input class="inp" id="eb-cost" type="number"></div>
-      <div class="field"><label class="flabel">售價 VND</label><input class="inp" id="eb-price" type="number"></div>
-    </div>
-    <div class="field"><label class="flabel">總Số lượng / 庫存數量</label><input class="inp" id="eb-qty" type="number" min="0"></div>
-    <button class="btn btnp btnf" onclick="saveBoard()">儲存 / Lưu</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-moveplant" onclick="bgClose(event,'m-moveplant')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Di chuyển cây / 移動植物<span class="vi">Di chuyển cây</span></div>
-    <div id="move-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-    <div class="field"><label class="flabel">Di chuyển đến / 移至</label>
-      <select class="inp" id="move-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
-    </div>
-    <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="move-qty" type="number" min="1" value="1"></div>
-    <div class="field"><label class="flabel">備註</label><input class="inp" id="move-note" placeholder="每天噴水..."></div>
-    <button class="btn btnp btnf" onclick="doMove()">Xác nhận di chuyển</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-moveboard" onclick="bgClose(event,'m-moveboard')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Di chuyển tấm gỗ / 移動板子<span class="vi">Di chuyển tấm</span></div>
-    <div id="moveboard-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-    <div class="field"><label class="flabel">移至</label>
-      <select class="inp" id="moveboard-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
-    </div>
-    <div class="field"><label class="flabel">數量</label><input class="inp" id="moveboard-qty" type="number" min="1" value="1"></div>
-    <button class="btn btnp btnf" onclick="doMoveBoard()">Xác nhận / 確認</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-rehab" onclick="bgClose(event,'m-rehab')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Khu chỉnh sửa / 移入修整區<span class="vi">Khu chỉnh sửa</span></div>
-    <div id="rehab-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-    <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="rehab-qty" type="number" min="1" value="1"></div>
-    <div class="field"><label class="flabel">Lý do chỉnh sửa / 修整原因</label><input class="inp" id="rehab-note" placeholder="葉片受損..."></div>
-    <div style="background:var(--abg);border:1px solid var(--aborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--amber)">移入後自動分配編號 R-XXX</div>
-    <button class="btn btnp btnf" id="rehab-confirm-btn">Xác nhận chuyển vào</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-editrehab" onclick="bgClose(event,'m-editrehab')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Chỉnh sửa ghi chú / 編輯修整記錄</div>
-    <input type="hidden" id="er-rid">
-    <div class="field"><label class="flabel">Ngày bắt đầu chỉnh sửa / 修整開始日期</label><input class="inp" id="er-date" type="date"></div>
-    <div class="field"><label class="flabel">備註</label><input class="inp" id="er-note"></div>
-    <button class="btn btnp btnf" onclick="saveRehabEdit()">Lưu / 儲存</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-releaserhab" onclick="bgClose(event,'m-releaserhab')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Chuyển lại kho</div>
-    <input type="hidden" id="rr-rid">
-    <div id="rr-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-    <div class="field"><label class="flabel">Chuyển về / 移回至</label>
-      <select class="inp" id="rr-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
-    </div>
-    <div class="field"><label class="flabel">數量</label><input class="inp" id="rr-qty" type="number" min="1" value="1"></div>
-    <button class="btn btnp btnf" onclick="doReleaseRehab()">Xác nhận / 確認移回</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-newpur" onclick="bgClose(event,'m-newpur')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Thêm lô nhập hàng / 新增進貨<span class="vi">Thêm lô nhập hàng</span></div>
-    <div class="field"><label class="flabel">廠商</label><input class="inp" id="pur-vendor" placeholder="Chen Ying..."></div>
-    <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="pur-date" type="date"></div>
-    <div class="field"><label class="flabel">備註</label><input class="inp" id="pur-note" placeholder="備註..."></div>
-    <div id="pur-items-wrap"></div>
-    <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ Thêm mặt hàng</button>
-    <button class="btn btnp btnf" onclick="savePurchase()">Lưu lô hàng</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-checkout" onclick="bgClose(event,'m-checkout')">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">完成結帳<span class="vi">Hoàn tất thanh toán</span></div>
-    <div class="field"><label class="flabel">Tên khách / 客戶姓名</label><input class="inp" id="co-name" placeholder="Tên khách hàng"></div>
-    <div class="field"><label class="flabel">Liên hệ / 聯絡方式</label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
-    <div class="field"><label class="flabel">Địa chỉ giao hàng (tự lấy bỏ trống)</label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
-    <div class="field"><label class="flabel">Nguồn đơn / 訂單來源</label>
-      <select class="inp" id="co-src"><option>FB 訊息</option><option>來家選購</option><option>Zalo / Line</option><option>其他</option></select>
-    </div>
-    <div class="field"><label class="flabel">Thanh toán / 付款方式</label>
-      <select class="inp" id="co-pay"><option>現金</option><option>銀行轉帳</option><option>Momo / LINE Pay</option><option>其他</option></select>
-    </div>
-    <div class="field"><label class="flabel">Người bán / 成交人員</label>
-      <select class="inp" id="co-seller"><option>Chandler Wei</option><option>Quang</option><option>小幫手</option></select>
-    </div>
-    <div class="field"><label class="flabel">備註</label><input class="inp" id="co-note" placeholder="Ghi chú..."></div>
-    <div id="co-summary" style="background:var(--bg3);border-radius:var(--r);padding:13px;margin-bottom:14px"></div>
-    <button class="btn btnp btnf" onclick="completeOrder()">Xác nhận & xuất phiếu</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-receipt">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">Phiếu xuất hàng / 出貨單 <span style="font-size:12px;color:var(--text2);font-weight:400">Phiếu xuất hàng</span></div>
-    <div id="receipt-body"></div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btns" style="flex:1" onclick="closeM('m-receipt')">關閉</button>
-      <button class="btn btnp" style="flex:1" onclick="doPrint()">🖨 列印</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="m-detail" onclick="bgClose(event,'m-detail')">
-  <div class="modal"><div id="detail-inner"></div></div>
-</div>
-
+<!-- MODALS - defined in modals.js -->
+<div id="modals-container"></div>
 <div id="print-area" style="display:none"></div>
 
-<script>
-var CFG={rate:900,monthlyInc:50000,maxInc:300000,promoDiscount:0,promoEnd:'',wholesaleName:'',wholesalePct:0};
-var TODAY=new Date();
-function todayStr(){return TODAY.toISOString().split('T')[0];}
-function daysSince(d){return Math.max(0,Math.floor((TODAY-new Date(d))/86400000));}
-function monthsSince(d){return daysSince(d)/30.44;}
-function vnd(n){return '\u20ab'+Math.round(n).toLocaleString();}
-function agedCost(p){
-  var months=Math.floor(monthsSince(p.date));
-  var inc=Math.min(months*CFG.monthlyInc,CFG.maxInc);
-  return p.costVnd+inc;
-}
-function mgn(p){var c=agedCost(p);return p.price>0?((p.price-c)/p.price*100).toFixed(1):'0.0';}
-function monthKey(s){var d=new Date(s);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function monthLabel(s){var d=new Date(s);return d.getFullYear()+'年'+(d.getMonth()+1)+'月';}
-
-var role='owner';
-var movePlantId=null;
-var moveBoardId=null;
-var cart=[];
-var purItems=[];
-var orderFilterMonth=null;
-var locLabels={mine:'Nhà chủ',quang:'Nhà Quang',helper:'Nhà trợ lý'};
-var locClass={mine:'loc-m',quang:'loc-q',helper:'loc-h'};
-
-var S={
-  plants:[
-    {id:1,name:'AR SP',cat:'植物',costNtd:500,costVnd:450000,price:1200000,qty:8,date:'2025-01-20',loc:'mine',note:'蕨跡進',status:'ok'},
-    {id:2,name:'mew',cat:'植物（代）',costNtd:520,costVnd:468000,price:950000,qty:6,date:'2025-01-20',loc:'quang',note:'林亭秀帶',status:'ok'},
-    {id:3,name:'ELSA',cat:'植物',costNtd:300,costVnd:270000,price:520000,qty:5,date:'2025-01-20',loc:'mine',note:'',status:'ok'},
-    {id:4,name:'golden 1in',cat:'植物',costNtd:240,costVnd:216000,price:400000,qty:4,date:'2025-01-20',loc:'helper',note:'',status:'ok'},
-    {id:5,name:'jenny tc 2in',cat:'植物',costNtd:350,costVnd:315000,price:650000,qty:3,date:'2025-01-15',loc:'mine',note:'Edwin wu',status:'ok'},
-    {id:6,name:'OMG 3in',cat:'植物',costNtd:300,costVnd:270000,price:600000,qty:2,date:'2025-01-10',loc:'mine',note:'',status:'ok'},
-    {id:7,name:'酋長 SP',cat:'植物',costNtd:250,costVnd:225000,price:550000,qty:1,date:'2024-12-15',loc:'mine',note:'',status:'ok'},
-  ],
-  boards:[
-    {id:1,name:'木板（標準）',costVnd:83000,price:150000,qty:18,locs:{mine:10,quang:5,helper:3}},
-    {id:2,name:'香檳木',costVnd:249000,price:380000,qty:7,locs:{mine:4,quang:2,helper:1}},
-    {id:3,name:'蛇木板',costVnd:180000,price:280000,qty:5,locs:{mine:5,quang:0,helper:0}},
-  ],
-  orders:[
-    {id:1,date:'2025-01-22',customer:'林小姐',contact:'LINE: lin8k',addr:'',src:'FB 訊息',pay:'銀行轉帳',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'AR SP',qty:1,price:1200000,cost:450000,loc:'mine'},{type:'board',name:'香檳木',qty:1,price:380000,cost:249000,loc:'mine'}],total:1580000,profit:881000},
-    {id:2,date:'2025-01-23',customer:'Nguyễn Thị Mai',contact:'Zalo: mai',addr:'Q.1',src:'FB 訊息',pay:'現金',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:2,price:500000,cost:270000,loc:'quang'}],total:1000000,profit:460000},
-    {id:3,date:'2025-01-28',customer:'Trần Văn Minh',contact:'0901-234-567',addr:'',src:'來家選購',pay:'現金',seller:'小幫手',note:'',items:[{type:'plant',name:'golden 1in',qty:2,price:400000,cost:216000,loc:'helper'}],total:800000,profit:368000},
-    {id:4,date:'2024-12-15',customer:'王小明',contact:'LINE: wang',addr:'',src:'來家選購',pay:'現金',seller:'Chandler Wei',note:'',items:[{type:'plant',name:'golden 1in',qty:3,price:400000,cost:216000,loc:'mine'}],total:1200000,profit:552000},
-    {id:5,date:'2024-12-22',customer:'Lê Thị Hoa',contact:'Zalo: hoa',addr:'Q.3',src:'FB 訊息',pay:'Momo',seller:'Quang',note:'',items:[{type:'plant',name:'ELSA',qty:1,price:520000,cost:270000,loc:'quang'},{type:'board',name:'木板',qty:1,price:150000,cost:83000,loc:'quang'}],total:670000,profit:317000},
-  ],
-  purchases:[
-    {id:1,vendor:'林亭秀',date:'2025-01-20',note:'一月採買',items:[{name:'AR SP',qty:80,costNtd:500,costVnd:450000,totalVnd:36000000},{name:'mew',qty:10,costNtd:520,costVnd:468000,totalVnd:4680000}],totalVnd:40680000},
-    {id:2,vendor:'Chen Ying',date:'2024-12-01',note:'十二月補貨',items:[{name:'golden 1in',qty:20,costNtd:240,costVnd:216000,totalVnd:4320000}],totalVnd:4320000},
-  ],
-  rehab:[
-    {rid:'R-001',plantId:99,name:'AR SP（受損株）',qty:1,date:'2025-01-10',rehabDate:'2025-01-10',note:'葉片受損',loc:'mine',status:'rehab'},
-  ],
-  writeoffs:[
-    {id:1,date:'2025-01-15',name:'mew',qty:1,reason:'根部腐爛',loc:'quang',operator:'Chandler Wei'},
-  ],
-  nextId:50
-};
-
-// AUTH
-function login(r){
-  role=r;
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='block';
-  var badges={owner:'Chandler Wei',quang:'Quang',helper:'小幫手'};
-  var bclass={owner:'badge ba',quang:'badge bg',helper:'badge br'};
-  document.getElementById('role-badge').textContent=badges[r];
-  document.getElementById('role-badge').className=bclass[r];
-  document.getElementById('home-date').textContent=TODAY.toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('np-date').value=todayStr();
-  document.getElementById('pur-date').value=todayStr();
-  buildRepTabs();
-  loadConfig();
-  renderAll();
-}
-function logout(){
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-screen').style.display='flex';
-  cart=[];orderFilterMonth=null;
-}
-function renderAll(){renderHome();renderPos();renderInv();renderOrders(null);repTab('summary');}
-
-// NAV
-function go(name){
-  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
-  document.querySelectorAll('.ni').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('screen-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
-}
-function goOrdersFiltered(k){orderFilterMonth=k;renderOrders(k);go('orders');}
-function clearOrderFilter(){orderFilterMonth=null;renderOrders(null);}
-
-// CONFIG
-function loadConfig(){
-  document.getElementById('cfg-rate').value=CFG.rate;
-  document.getElementById('cfg-monthly-inc').value=CFG.monthlyInc;
-  document.getElementById('cfg-max-inc').value=CFG.maxInc;
-  document.getElementById('cfg-promo').value=CFG.promoDiscount||'';
-  document.getElementById('cfg-promo-end').value=CFG.promoEnd||'';
-  document.getElementById('cfg-wholesale-name').value=CFG.wholesaleName||'';
-  document.getElementById('cfg-wholesale-pct').value=CFG.wholesalePct||'';
-}
-function saveConfig(){
-  CFG.rate=parseInt(document.getElementById('cfg-rate').value)||900;
-  CFG.monthlyInc=parseInt(document.getElementById('cfg-monthly-inc').value)||50000;
-  CFG.maxInc=parseInt(document.getElementById('cfg-max-inc').value)||300000;
-  alert('設定已儲存');renderAll();
-}
-function savePromo(){
-  CFG.promoDiscount=parseInt(document.getElementById('cfg-promo').value)||0;
-  CFG.promoEnd=document.getElementById('cfg-promo-end').value;
-  CFG.wholesaleName=document.getElementById('cfg-wholesale-name').value;
-  CFG.wholesalePct=parseInt(document.getElementById('cfg-wholesale-pct').value)||0;
-  alert('活動設定已儲存');
-}
-
-// REPORT TABS
-function buildRepTabs(){
-  var tabs=[
-    {id:'summary',zh:'月度摘要'},
-    {id:'orders',zh:'訂單明細'},
-    {id:'members',zh:'成員業績'},
-    {id:'plants-sold',zh:'植物銷售'},
-    {id:'invstatus',zh:'庫存狀態'},
-    {id:'rehab-log',zh:'修整記錄'},
-    {id:'writeoff',zh:'死亡報廢'},
-    {id:'purchase',zh:'進貨記錄'},
-  ];
-  if(role==='owner') tabs.push({id:'admin',zh:'後台設定'});
-  var h='';
-  tabs.forEach(function(t,i){
-    h+='<button class="tab'+(i===0?' active':'')+'" id="rtab-'+t.id+'" onclick="repTab(\''+t.id+'\')">'+t.zh+'</button>';
-  });
-  document.getElementById('rep-tabs').innerHTML=h;
-  repTab('summary');
-}
-function repTab(t){
-  var all=['summary','orders','members','plants-sold','invstatus','rehab-log','writeoff','purchase','admin'];
-  all.forEach(function(x){
-    var tb=document.getElementById('rtab-'+x);
-    if(tb)tb.classList.toggle('active',x===t);
-    var el=document.getElementById('rep-'+x);
-    if(el)el.style.display=x===t?'block':'none';
-  });
-  var fn={summary:renderRepSummary,orders:renderRepOrders,members:renderRepMembers,'plants-sold':renderRepPlantsSold,invstatus:renderInvStatus,'rehab-log':renderRehabLog,writeoff:renderWriteoffRep,purchase:renderPur,admin:renderAdmin};
-  if(fn[t])fn[t]();
-}
-
-// HOME
-function renderHome(){
-  var toOrds=S.orders.filter(function(o){return o.date===todayStr();});
-  var yr=TODAY.getFullYear(),mo=TODAY.getMonth();
-  var moOrds=S.orders.filter(function(o){var d=new Date(o.date);return d.getFullYear()===yr&&d.getMonth()===mo;});
-  var toRev=toOrds.reduce(function(s,o){return s+o.total;},0);
-  var toP=toOrds.reduce(function(s,o){return s+o.profit;},0);
-  var moRev=moOrds.reduce(function(s,o){return s+o.total;},0);
-  var moP=moOrds.reduce(function(s,o){return s+o.profit;},0);
-  document.getElementById('home-metrics').innerHTML=
-    '<div class="metric"><div class="ml">今日營收 / Doanh thu hôm nay</div><div class="mv blue">'+vnd(toRev)+'</div></div>'+
-    '<div class="metric"><div class="ml">今日毛利 / Lợi nhuận hôm nay</div><div class="mv green">'+vnd(toP)+'</div></div>'+
-    '<div class="metric"><div class="ml">本月營收 / Doanh thu tháng</div><div class="mv blue">'+vnd(moRev)+'</div></div>'+
-    '<div class="metric"><div class="ml">本月毛利 / Lợi nhuận tháng</div><div class="mv green">'+vnd(moP)+'</div></div>';
-  var toEl=document.getElementById('today-orders');
-  toEl.innerHTML=toOrds.length===0?'<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">Chưa có đơn hôm nay / 今日尚無訂單</div>'
-    :toOrds.map(function(o){return '<div class="pi" onclick="showReceipt('+o.id+')"><div class="pdot" style="background:var(--green)"></div><div class="pinfo"><div class="pname">'+o.customer+'</div><div class="pmeta">'+o.src+' · '+o.seller+'</div></div><div class="pright"><div class="pprice">'+vnd(o.total)+'</div><div class="psub" style="color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';}).join('');
-  var low=S.plants.filter(function(p){return p.qty<=2&&p.status!=='rehab';});
-  document.getElementById('low-stock').innerHTML=low.length===0?'<div style="padding:13px 18px;color:var(--text3);font-size:12px">Không có SL thấp / 目前無低庫存</div>'
-    :low.map(function(p){return '<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+' · '+locLabels[p.loc]+'</div></div><div class="pright"><span class="badge '+(p.qty===0?'br':'ba')+'">'+(p.qty===0?'Hết hàng / 缺貨':p.qty+' 株')+'</span></div></div>';}).join('');
-}
-
-// POS
-function posTab(t){
-  ['plant','board','writeoff','cart'].forEach(function(x){
-    document.getElementById('ptab-'+x).classList.toggle('active',x===t);
-    document.getElementById('pos-'+x).style.display=x===t?'block':'none';
-  });
-  if(t==='plant'||t==='board')renderPos();
-  if(t==='cart')renderCart();
-  if(t==='writeoff')renderWriteoffForm();
-}
-function renderPos(){
-  var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
-  var avail=S.plants.filter(function(p){return p.qty>0&&p.status!=='rehab'&&(role==='owner'||p.loc===myLoc);});
-  document.getElementById('pos-plant').innerHTML=avail.length===0
-    ?'<div style="padding:24px;text-align:center;color:var(--text3)">無庫存</div>'
-    :avail.map(function(p){
-      var ac=agedCost(p),mg=parseFloat(mgn(p));
-      var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
-      var days=daysSince(p.date),pct=Math.min(days/90*100,100);
-      var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
-      var locBadge='<span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span>';
-      return '<div class="pi" onclick="addCart(\'plant\','+p.id+')"><div class="pdot" style="background:'+mc+'"></div><div class="pinfo"><div class="pname">'+p.name+' '+locBadge+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div></div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div><div class="psub" style="color:'+mc+'">'+mg+'%</div></div></div>';
-    }).join('');
-  var boardHtml='';
-  S.boards.forEach(function(b){
-    var totalAvail=role==='owner'?b.qty:(b.locs[myLoc]||0);
-    if(totalAvail<=0)return;
-    Object.keys(b.locs).forEach(function(loc){
-      if(b.locs[loc]<=0)return;
-      if(myLoc&&loc!==myLoc)return;
-      var locBadge='<span class="'+locClass[loc]+'">'+locLabels[loc]+'</span>';
-      boardHtml+='<div class="pi" onclick="addCart(\'board\','+b.id+',\''+loc+'\')"><div class="pdot" style="background:var(--blue)"></div><div class="pinfo"><div class="pname">'+b.name+' '+locBadge+'</div><div class="pmeta">庫存 '+b.locs[loc]+'</div></div><div class="pright"><div class="pprice">'+vnd(b.price)+'</div></div></div>';
-    });
-  });
-  document.getElementById('pos-board').innerHTML=boardHtml||'<div style="padding:24px;text-align:center;color:var(--text3)">無庫存</div>';
-}
-function addCart(type,id,loc){
-  var item=type==='plant'?S.plants.find(function(p){return p.id===id;}):S.boards.find(function(b){return b.id===id;});
-  if(!item)return;
-  var avail=type==='plant'?item.qty:(item.locs[loc]||0);
-  if(avail===0)return;
-  var key=type+'-'+id+(loc?'-'+loc:'');
-  var ex=cart.find(function(c){return c.key===key;});
-  if(ex){if(ex.qty<avail)ex.qty++;}
-  else cart.push({key:key,type:type,id:id,name:item.name,qty:1,price:item.price,cost:type==='plant'?agedCost(item):item.costVnd,loc:loc||item.loc});
-  updateBadge();
-}
-function updateBadge(){var t=cart.reduce(function(s,c){return s+c.qty;},0);document.getElementById('cart-badge').textContent=t>0?'('+t+')':'';}
-function renderCart(){
-  var el=document.getElementById('pos-cart');
-  if(cart.length===0){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3)">購物車為空</div>';return;}
-  var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
-  var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
-  var prof=sub-cost,mg=sub>0?(prof/sub*100).toFixed(1):0;
-  var h='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:10px">';
-  cart.forEach(function(c,i){
-    var locBadge='<span class="'+locClass[c.loc]+'">'+locLabels[c.loc]+'</span>';
-    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13px;font-weight:500">'+c.name+' '+locBadge+'</div><div style="margin-top:5px"><input style="width:100%;padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" type="number" value="'+c.price+'" onchange="updPrice('+i+',this.value)"></div></div>';
-    h+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div style="display:flex;align-items:center;gap:5px"><button class="qbtn" onclick="chgQty('+i+',-1)">−</button><span style="font-size:14px;min-width:18px;text-align:center">'+c.qty+'</span><button class="qbtn" onclick="chgQty('+i+',1)">+</button></div><div style="font-size:12px;font-family:DM Mono,monospace">'+vnd(c.price*c.qty)+'</div></div></div>';
-  });
-  h+='<div class="divider"></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);padding:3px 0"><span>小計</span><span>'+vnd(sub)+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--green);padding:3px 0"><span>毛利</span><span>'+vnd(prof)+' ('+mg+'%)</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:6px"><span>合計</span><span>'+vnd(sub)+'</span></div></div>';
-  h+='<button class="btn btnp btnf" onclick="openCheckout()">結帳 →</button><div style="height:10px"></div>';
-  el.innerHTML=h;
-}
-function updPrice(i,v){cart[i].price=parseInt(v)||cart[i].price;renderCart();}
-function chgQty(i,d){
-  var c=cart[i];
-  var src=c.type==='plant'?S.plants.find(function(p){return p.id===c.id;}):S.boards.find(function(b){return b.id===c.id;});
-  var max=c.type==='plant'?src.qty:(src.locs[c.loc]||0);
-  c.qty+=d;if(c.qty<=0)cart.splice(i,1);if(c.qty>max)c.qty=max;
-  updateBadge();renderCart();
-}
-function clearCart(){cart=[];updateBadge();renderPos();}
-function openCheckout(){
-  var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
-  var prof=sub-cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
-  ['co-name','co-contact','co-addr','co-note'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('co-summary').innerHTML=
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">品項：</div>'+
-    cart.map(function(c){return '<div style="font-size:12px;padding:2px 0">'+c.name+' × '+c.qty+' <span class="'+locClass[c.loc]+'">'+locLabels[c.loc]+'</span> = '+vnd(c.price*c.qty)+'</div>';}).join('')+
-    '<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:8px"><span>合計</span><span>'+vnd(sub)+'</span></div>'+
-    '<div style="font-size:12px;color:var(--green)">毛利 '+vnd(prof)+'</div>';
-  openM('m-checkout');
-}
-function completeOrder(){
-  var name=document.getElementById('co-name').value.trim();
-  if(!name){alert('Vui lòng nhập tên khách / 請填寫客戶姓名');return;}
-  var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
-  var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
-  var o={id:S.nextId++,date:todayStr(),customer:name,contact:document.getElementById('co-contact').value,addr:document.getElementById('co-addr').value,src:document.getElementById('co-src').value,pay:document.getElementById('co-pay').value,seller:document.getElementById('co-seller').value,note:document.getElementById('co-note').value,items:cart.map(function(c){return{type:c.type,name:c.name,qty:c.qty,price:c.price,cost:c.cost,loc:c.loc};}),total:sub,profit:sub-cost};
-  S.orders.unshift(o);
-  cart.forEach(function(c){
-    if(c.type==='plant'){var p=S.plants.find(function(x){return x.id===c.id;});if(p)p.qty-=c.qty;}
-    else{var b=S.boards.find(function(x){return x.id===c.id;});if(b){b.locs[c.loc]=(b.locs[c.loc]||0)-c.qty;b.qty-=c.qty;}}
-  });
-  cart=[];updateBadge();
-  closeM('m-checkout');showReceipt(o.id);
-  renderAll();
-}
-
-// WRITEOFF
-function renderWriteoffForm(){
-  var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
-  var avail=S.plants.filter(function(p){return p.qty>0&&p.status!=='rehab'&&(role==='owner'||p.loc===myLoc);});
-  var h='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:12px;color:var(--red)">Cây chết/hỏng sẽ trừ khỏi kho và lưu vào báo cáo hao hụt / 死亡報廢</div>';
-  h+='<div class="field"><label class="flabel">植物</label><select class="inp" id="wo-plant">';
-  avail.forEach(function(p){h+='<option value="'+p.id+'">'+p.name+' ('+locLabels[p.loc]+') · '+p.qty+'株</option>';});
-  h+='</select></div>';
-  h+='<div class="irow"><div class="field"><label class="flabel">報廢數量</label><input class="inp" id="wo-qty" type="number" min="1" value="1"></div></div>';
-  h+='<div class="field"><label class="flabel">死亡原因</label><input class="inp" id="wo-reason" placeholder="根部腐爛、葉片枯萎..."></div>';
-  h+='<div class="field"><label class="flabel">操作人員</label><select class="inp" id="wo-op"><option>Chandler Wei</option><option>Quang</option><option>小幫手</option></select></div>';
-  h+='<button class="btn btnd btnf" onclick="confirmWriteoff()">Xác nhận hao hụt / 確認報廢</button>';
-  document.getElementById('pos-writeoff').innerHTML=h;
-}
-function confirmWriteoff(){
-  var pid=parseInt(document.getElementById('wo-plant').value);
-  var qty=parseInt(document.getElementById('wo-qty').value)||1;
-  var reason=document.getElementById('wo-reason').value;
-  var op=document.getElementById('wo-op').value;
-  var p=S.plants.find(function(x){return x.id===pid;});
-  if(!p)return;
-  if(qty>p.qty){alert('Vượt SL tồn kho / 數量超過庫存');return;}
-  if(!reason){alert('Vui lòng nhập lý do / 請填寫死亡原因');return;}
-  if(!confirm('Xác nhận? '+p.name+' × '+qty))return;
-  S.writeoffs.unshift({id:S.nextId++,date:todayStr(),name:p.name,qty:qty,reason:reason,loc:p.loc,operator:op,cost:agedCost(p)*qty});
-  p.qty-=qty;
-  alert('Đã ghi nhận / 已記錄報廢');renderAll();renderWriteoffForm();
-}
-
-// RECEIPT
-function showReceipt(id){
-  var o=S.orders.find(function(x){return x.id===id;});if(!o)return;
-  var h='<div class="receipt" id="printable"><div class="rshop">根莖葉 / Gốc Thân Lá</div><div class="rsub">Đơn #'+String(o.id).padStart(4,'0')+' · '+o.date+'</div>';
-  h+='<div class="rsec"><div class="rlabel">收件人</div><div style="font-size:14px;font-weight:700">'+o.customer+'</div>';
-  if(o.contact)h+='<div style="font-size:11px;color:#444;margin-top:2px">'+o.contact+'</div>';
-  h+=o.addr?'<div style="font-size:11px;color:#444;margin-top:2px">📦 '+o.addr+'</div>':'<div style="font-size:11px;color:#888;margin-top:2px">自取</div>';
-  h+='</div><div class="rsec"><div class="rlabel">商品明細</div>';
-  o.items.forEach(function(item){h+='<div class="rrow"><span>'+item.name+' × '+item.qty+'</span><span>'+vnd(item.price*item.qty)+'</span></div>';});
-  h+='<div class="rtotal"><span>合計</span><span>'+vnd(o.total)+'</span></div></div>';
-  h+='<div class="rsec"><div class="rrow"><span style="color:#888">付款</span><span>'+o.pay+'</span></div><div class="rrow"><span style="color:#888">售出者</span><span>'+o.seller+'</span></div>';
-  if(o.note)h+='<div class="rrow"><span style="color:#888">備註</span><span>'+o.note+'</span></div>';
-  h+='</div></div>';
-  document.getElementById('receipt-body').innerHTML=h;
-  openM('m-receipt');
-}
-function doPrint(){var h=document.getElementById('printable').outerHTML;document.getElementById('print-area').innerHTML=h;window.print();setTimeout(function(){document.getElementById('print-area').innerHTML='';},1000);}
-
-// ORDERS PAGE
-function renderOrders(filterMonth){
-  var orders=filterMonth?S.orders.filter(function(o){return monthKey(o.date)===filterMonth;}):S.orders;
-  document.getElementById('orders-clear-filter').style.display=filterMonth?'flex':'none';
-  document.getElementById('orders-filter-badge').textContent=filterMonth?'● 篩選中':'';
-  if(orders.length===0){document.getElementById('orders-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">Chưa có đơn hàng / 無訂單記錄</div>';return;}
-  var monthly={};
-  orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),orders:[],rev:0,profit:0};monthly[k].orders.push(o);monthly[k].rev+=o.total;monthly[k].profit+=o.profit;});
-  var html='';
-  Object.keys(monthly).sort().reverse().forEach(function(k){
-    var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
-    var mgc=parseFloat(mg)>40?'var(--green)':parseFloat(mg)>20?'var(--amber)':'var(--red)';
-    var cid='mc'+k.replace('-','');
-    html+='<div class="month-card" id="'+cid+'"><div class="month-header open" onclick="toggleMonth(\''+cid+'\')"><div><div style="font-size:14px;font-weight:700">'+m.label+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+m.orders.length+' đơn · '+vnd(m.rev)+'</div></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:700;color:'+mgc+'">'+mg+'%</span><span class="month-chevron open" id="chev-'+cid+'">›</span></div></div>';
-    html+='<div class="month-stats" id="stats-'+cid+'"><div class="mstat"><div class="mstat-label">營收</div><div class="mstat-val" style="color:var(--blue)">'+vnd(m.rev)+'</div></div><div class="mstat"><div class="mstat-label">毛利</div><div class="mstat-val" style="color:var(--green)">'+vnd(m.profit)+'</div></div><div class="mstat"><div class="mstat-label">毛利率</div><div class="mstat-val" style="color:'+mgc+'">'+mg+'%</div></div></div>';
-    html+='<div id="body-'+cid+'">';
-    m.orders.forEach(function(o){html+='<div class="order-row" onclick="showReceipt('+o.id+')"><div><div style="font-size:13px;font-weight:500">'+o.customer+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px">'+o.date.slice(5)+' · '+o.seller+' · '+o.pay+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace">'+vnd(o.total)+'</div><div style="font-size:11px;color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';});
-    html+='</div></div>';
-  });
-  document.getElementById('orders-list').innerHTML=html;
-}
-function toggleMonth(cid){
-  var header=document.querySelector('#'+cid+' .month-header');
-  var isOpen=header.classList.contains('open');
-  header.classList.toggle('open',!isOpen);
-  document.getElementById('chev-'+cid).classList.toggle('open',!isOpen);
-  document.getElementById('stats-'+cid).style.display=isOpen?'none':'';
-  document.getElementById('body-'+cid).style.display=isOpen?'none':'';
-}
-
-// INVENTORY
-function invTab(t){
-  ['plant','board','member','rehab'].forEach(function(x){
-    document.getElementById('itab-'+x).classList.toggle('active',x===t);
-    document.getElementById('inv-'+x).style.display=x===t?'block':'none';
-  });
-  if(t==='rehab')renderRehab();
-  if(t==='member')renderMember();
-  if(t==='board')renderBoardInv();
-}
-function renderInv(){
-  document.getElementById('inv-addbtn').innerHTML=role==='owner'?'<button class="btn btnp btnsm" onclick="openM(\'m-addplant\')">+ 新增</button>':'';
-  var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
-  var plants=(myLoc?S.plants.filter(function(p){return p.loc===myLoc;}):S.plants).filter(function(p){return p.status!=='rehab';});
-  document.getElementById('inv-plant').innerHTML=plants.length===0?'<div style="padding:24px;text-align:center;color:var(--text3)">Không có cây / 無植物庫存</div>'
-    :plants.map(function(p){
-      var ac=agedCost(p),mg=parseFloat(mgn(p));
-      var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
-      var days=daysSince(p.date),pct=Math.min(days/90*100,100);
-      var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
-      var lb=role==='owner'?'<span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span>':'';
-      var btns=role==='owner'?'<div style="display:flex;gap:4px;margin-top:6px"><button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal('+p.id+')">Di chuyển / 移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="event.stopPropagation();openRehabModal('+p.id+')">修整</button></div>':'';
-      return '<div class="pi" onclick="openDetail('+p.id+')" style="align-items:flex-start;padding:13px 18px"><div class="pdot" style="background:'+mc+';margin-top:4px"></div><div class="pinfo"><div class="pname">'+p.name+' '+lb+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>'+(role==='owner'?'<div style="font-size:10px;color:var(--text3);margin-top:3px">CP '+vnd(ac)+' · 毛利 '+mg+'%</div>':'')+btns+'</div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div></div></div>';
-    }).join('');
-}
-function renderBoardInv(){
-  var h='';
-  S.boards.forEach(function(b){
-    h+='<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:13px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:600">'+b.name+'</div><span class="badge bb">Tổng / '+b.qty+'</span></div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px">';
-    Object.keys(b.locs).forEach(function(loc){
-      h+='<div style="background:var(--bg3);border-radius:var(--r);padding:8px;text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">'+locLabels[loc]+'</div><div style="font-size:15px;font-weight:700">'+b.locs[loc]+'</div></div>';
-    });
-    h+='</div>';
-    if(role==='owner'){
-      h+='<div style="display:flex;gap:7px"><button class="btn btns btnsm" style="flex:1" onclick="openMoveBoardModal('+b.id+')">Di chuyển / 移動</button><button class="btn btns btnsm" style="flex:1" onclick="openEditBoard('+b.id+')">Sửa / 編輯</button></div>';
-    }
-    h+='</div>';
-  });
-  document.getElementById('inv-board').innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--text3)">無板子庫存</div>';
-}
-function renderMember(){
-  if(role!=='owner'){document.getElementById('inv-member').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">Không có quyền / 無權限</div>';return;}
-  var members=[{key:'quang',label:'Quang',av:'Q'},{key:'helper',label:'小幫手',av:'H'}];
-  var h='';
-  members.forEach(function(m){
-    var mp=S.plants.filter(function(p){return p.loc===m.key&&p.status!=='rehab';});
-    var mb=[];S.boards.forEach(function(b){if(b.locs[m.key]>0)mb.push({name:b.name,qty:b.locs[m.key],id:b.id});});
-    h+='<div style="margin:0 16px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">';
-    h+='<div style="display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:50%;background:var(--accdim);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)">'+m.av+'</div><div><div style="font-size:14px;font-weight:500">'+m.label+'</div><div style="font-size:11px;color:var(--text2)">植物 '+mp.reduce(function(s,p){return s+p.qty;},0)+'株 · 板子 '+mb.reduce(function(s,b){return s+b.qty;},0)+'片</div></div></div>';
-    if(mp.length===0&&mb.length===0){h+='<div style="padding:14px;color:var(--text3);font-size:13px">Chưa có hàng tại đây</div>';}
-    mp.forEach(function(p){
-      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+p.qty+'株 · '+daysSince(p.date)+'天</div></div><div style="display:flex;gap:5px"><button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">Di chuyển / 移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="openRehabModal('+p.id+')">修整</button></div></div>';
-    });
-    mb.forEach(function(b){
-      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--blue)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+b.name+'（板子）</div><div style="font-size:11px;color:var(--text2)">'+b.qty+' 片</div></div><button class="btn btns btnsm" onclick="openMoveBoardModal('+b.id+')">Di chuyển / 移動</button></div>';
-    });
-    h+='</div>';
-  });
-  document.getElementById('inv-member').innerHTML=h;
-}
-function openDetail(id){
-  var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
-  var ac=agedCost(p),mg=mgn(p),days=daysSince(p.date),pct=Math.min(days/90*100,100);
-  var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
-  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="mtitle" style="margin:0">'+p.name+'</div></div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
-  h+='<div class="metric"><div class="ml">Giá vốn HT / 當前成本</div><div class="mv amber" style="font-size:15px">'+vnd(ac)+'</div></div>';
-  h+='<div class="metric"><div class="ml">Giá bán ĐX / 建議售價</div><div class="mv blue" style="font-size:15px">'+vnd(p.price)+'</div></div>';
-  h+='<div class="metric"><div class="ml">毛利率</div><div class="mv" style="font-size:15px;color:'+(parseFloat(mg)>30?'var(--green)':'var(--red)')+'">'+mg+'%</div></div>';
-  h+='<div class="metric"><div class="ml">Ngày trong kho / Ngày kho / 在庫天數</div><div class="mv" style="font-size:15px">'+days+' 天</div></div></div>';
-  h+='<div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:12px;font-size:12px">';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">分類</span><span>'+p.cat+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">原始成本</span><span>'+vnd(p.costVnd)+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">成本遞增</span><span style="color:var(--red)">+'+vnd(ac-p.costVnd)+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">庫存</span><span>'+p.qty+' 株</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">位置</span><span>'+locLabels[p.loc]+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">進貨日期</span><span>'+p.date+'</span></div>';
-  if(p.note)h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">備註</span><span>'+p.note+'</span></div>';
-  h+='</div>';
-  h+='<div class="age-bar" style="height:7px;margin-bottom:14px"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>';
-  h+='<div style="display:flex;gap:10px"><button class="btn btns" style="flex:1" onclick="closeM(\'m-detail\')">關閉</button>';
-  if(role==='owner'){h+='<button class="btn btnd" style="flex:1" onclick="closeM(\'m-detail\');openRehabModal('+p.id+')">→ Khu chỉnh sửa</button>';}
-  h+='</div>';
-  document.getElementById('detail-inner').innerHTML=h;
-  openM('m-detail');
-}
-function openMoveModal(id){
-  movePlantId=id;var p=S.plants.find(function(x){return x.id===id;});
-  closeM('m-detail');
-  document.getElementById('move-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span> · '+p.qty+'株';
-  document.getElementById('move-loc').value=p.loc;
-  document.getElementById('move-qty').value=1;
-  document.getElementById('move-qty').max=p.qty;
-  document.getElementById('move-note').value='';
-  openM('m-moveplant');
-}
-function doMove(){
-  var p=S.plants.find(function(x){return x.id===movePlantId;});if(!p)return;
-  var qty=parseInt(document.getElementById('move-qty').value)||1;
-  var toLoc=document.getElementById('move-loc').value;
-  if(qty>p.qty){alert('數量超過庫存');return;}
-  if(toLoc===p.loc&&qty===p.qty){p.loc=toLoc;p.note=document.getElementById('move-note').value;}
-  else if(toLoc===p.loc){alert('目標位置相同');return;}
-  else{
-    // Split plant entry if partial
-    if(qty<p.qty){
-      p.qty-=qty;
-      var exists=S.plants.find(function(x){return x.name===p.name&&x.loc===toLoc&&x.status==='ok';});
-      if(exists){exists.qty+=qty;}
-      else{S.plants.push(Object.assign({},p,{id:S.nextId++,qty:qty,loc:toLoc}));}
-    } else {p.loc=toLoc;}
-  }
-  closeM('m-moveplant');renderInv();renderMember();renderPos();
-}
-function openMoveBoardModal(id){
-  moveBoardId=id;var b=S.boards.find(function(x){return x.id===id;});
-  document.getElementById('moveboard-info').innerHTML='<span style="font-weight:500">'+b.name+'</span> · 各地庫存：我家 '+b.locs.mine+' · Quang '+b.locs.quang+' · 小幫手 '+b.locs.helper;
-  document.getElementById('moveboard-qty').value=1;
-  openM('m-moveboard');
-}
-function doMoveBoard(){
-  var b=S.boards.find(function(x){return x.id===moveBoardId;});if(!b)return;
-  var qty=parseInt(document.getElementById('moveboard-qty').value)||1;
-  var toLoc=document.getElementById('moveboard-loc').value;
-  // Simple: add to destination, doesn't track source deduction in this demo
-  b.locs[toLoc]=(b.locs[toLoc]||0)+qty;
-  closeM('m-moveboard');renderBoardInv();renderMember();
-}
-function addPlant(){
-  var name=document.getElementById('np-name').value.trim();if(!name){alert('Vui lòng nhập tên cây / 請填寫植物名稱');return;}
-  var cntd=parseInt(document.getElementById('np-cntd').value)||0;
-  S.plants.push({id:S.nextId++,name:name,cat:document.getElementById('np-cat').value,costNtd:cntd,costVnd:cntd*CFG.rate,price:parseInt(document.getElementById('np-price').value)||0,qty:parseInt(document.getElementById('np-qty').value)||1,date:document.getElementById('np-date').value||todayStr(),loc:document.getElementById('np-loc').value,note:document.getElementById('np-note').value,status:'ok'});
-  document.getElementById('np-name').value='';closeM('m-addplant');renderInv();renderPos();
-}
-
-// REHAB
-function openRehabModal(id){
-  closeM('m-detail');var p=S.plants.find(function(x){return x.id===id;});
-  document.getElementById('rehab-info').innerHTML='<span style="font-weight:500">'+p.name+'</span> <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span> · 共 '+p.qty+' 株';
-  document.getElementById('rehab-qty').value=1;
-  document.getElementById('rehab-qty').max=p.qty;
-  document.getElementById('rehab-note').value='';
-  document.getElementById('rehab-confirm-btn').onclick=function(){
-    var qty=parseInt(document.getElementById('rehab-qty').value)||1;
-    var note=document.getElementById('rehab-note').value;
-    if(qty>p.qty){alert('數量超過庫存');return;}
-    var num=S.rehab.length+1;var rid='R-'+String(num).padStart(3,'0');
-    S.rehab.push({rid:rid,plantId:p.id,name:p.name,qty:qty,date:p.date,rehabDate:todayStr(),note:note,loc:p.loc,status:'rehab'});
-    p.qty-=qty;if(p.qty===0)p.status='rehab';
-    closeM('m-rehab');renderInv();renderMember();renderRehab();
-    alert('Đã chuyển vào khu chỉnh sửa\n編號：'+rid);
-  };
-  openM('m-rehab');
-}
-function renderRehab(){
-  var el=document.getElementById('inv-rehab');if(!el)return;
-  if(S.rehab.length===0){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây trong khu chỉnh sửa / 修整區無植物</div>';return;}
-  var h='';
-  S.rehab.forEach(function(r){
-    var stockDays=daysSince(r.date);var rehabDays=daysSince(r.rehabDate||r.date);
-    h+='<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);padding:13px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">'+r.rid+'</span><span class="badge ba">'+r.qty+'株 Đang CS / 修整中</span></div>';
-    h+='<div style="font-size:14px;font-weight:600;margin-bottom:4px">'+r.name+'</div>';
-    h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px"><span class="'+locClass[r.loc]+'">'+locLabels[r.loc]+'</span></div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">Ngày trong kho / Ngày kho / 在庫天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">'+stockDays+'</div></div>';
-    h+='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">Ngày chỉnh sửa / 修整天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">'+rehabDays+'</div></div>';
-    h+='</div>';
-    if(r.note)h+='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+r.note+'</div>';
-    if(role==='owner'){
-      h+='<div style="display:flex;gap:8px">';
-      h+='<button class="btn btns btnsm" style="flex:1" onclick="openEditRehab(\''+r.rid+'\')">Sửa ngày</button>';
-      h+='<button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab(\''+r.rid+'\')">Chuyển lại kho</button>';
-      h+='</div>';
-    }
-    h+='</div>';
-  });
-  el.innerHTML=h;
-}
-function openEditRehab(rid){
-  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
-  document.getElementById('er-rid').value=rid;
-  document.getElementById('er-date').value=r.rehabDate||r.date;
-  document.getElementById('er-note').value=r.note||'';
-  openM('m-editrehab');
-}
-function saveRehabEdit(){
-  var rid=document.getElementById('er-rid').value;
-  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
-  r.rehabDate=document.getElementById('er-date').value;
-  r.note=document.getElementById('er-note').value;
-  closeM('m-editrehab');renderRehab();
-}
-function openReleaseRehab(rid){
-  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
-  document.getElementById('rr-rid').value=rid;
-  document.getElementById('rr-info').innerHTML='<span style="font-weight:500">'+r.rid+' '+r.name+'</span> · '+r.qty+'株';
-  document.getElementById('rr-qty').value=r.qty;
-  document.getElementById('rr-qty').max=r.qty;
-  document.getElementById('rr-loc').value=r.loc;
-  openM('m-releaserhab');
-}
-function doReleaseRehab(){
-  var rid=document.getElementById('rr-rid').value;
-  var r=S.rehab.find(function(x){return x.rid===rid;});if(!r)return;
-  var qty=parseInt(document.getElementById('rr-qty').value)||1;
-  var toLoc=document.getElementById('rr-loc').value;
-  if(qty>r.qty){alert('數量超過修整區庫存');return;}
-  var existing=S.plants.find(function(p){return p.name===r.name&&p.loc===toLoc&&p.status==='ok';});
-  if(existing){existing.qty+=qty;}
-  else{S.plants.push({id:S.nextId++,name:r.name,cat:'植物',costNtd:0,costVnd:0,price:0,qty:qty,date:r.date,loc:toLoc,note:'Chuyển từ khu CS về kho',status:'ok'});}
-  r.qty-=qty;
-  if(r.qty<=0)S.rehab=S.rehab.filter(function(x){return x.rid!==rid;});
-  closeM('m-releaserhab');renderRehab();renderInv();renderMember();
-}
-
-// REPORT - SUMMARY
-function renderRepSummary(){
-  var tv=S.orders.reduce(function(s,o){return s+o.total;},0);
-  var tp=S.orders.reduce(function(s,o){return s+o.profit;},0);
-  var am=tv>0?(tp/tv*100).toFixed(1):0;
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Tổng hợp tháng</span><button class="csv-btn" onclick="exportCSV(\'summary\')">⬇ Xuất CSV</button></div>';
-  h+='<div class="metrics">';
-  h+='<div class="metric"><div class="ml">總營收</div><div class="mv blue">'+vnd(tv)+'</div></div>';
-  h+='<div class="metric"><div class="ml">總毛利</div><div class="mv green">'+vnd(tp)+'</div></div>';
-  h+='<div class="metric"><div class="ml">平均毛利率</div><div class="mv">'+am+'%</div></div>';
-  h+='<div class="metric"><div class="ml">訂單總數</div><div class="mv">'+S.orders.length+'</div></div></div>';
-  var monthly={};
-  S.orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),rev:0,profit:0,count:0};monthly[k].rev+=o.total;monthly[k].profit+=o.profit;monthly[k].count++;});
-  h+='<div style="padding:0 16px">';
-  Object.keys(monthly).sort().reverse().forEach(function(k){
-    var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
-    var mgc=parseFloat(mg)>40?'var(--green)':parseFloat(mg)>20?'var(--amber)':'var(--red)';
-    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:15px;margin-bottom:12px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><span style="font-size:14px;font-weight:700">'+m.label+'</span><button onclick="goOrdersFiltered(\''+k+'\')" style="background:var(--bbg);color:var(--blue);border:1px solid var(--bborder);border-radius:100px;padding:3px 12px;font-size:12px;cursor:pointer;font-family:inherit">'+m.count+' 筆 →</button></div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--green)">'+vnd(m.profit)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利率</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:'+mgc+'">'+mg+'%</div></div>';
-    h+='</div></div>';
-  });
-  h+='</div>';
-  document.getElementById('rep-summary').innerHTML=h;
-}
-
-// REPORT - ORDERS
-function renderRepOrders(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Chi tiết tất cả đơn / 全部訂單明細</span><button class="csv-btn" onclick="exportCSV(\'orders\')">⬇ Xuất CSV</button></div>';
-  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">日期</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">客戶</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">金額</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">成交人</th></tr>';
-  S.orders.forEach(function(o){
-    var mg=o.total>0?(o.profit/o.total*100).toFixed(0):0;
-    h+='<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="showReceipt('+o.id+')"><td style="padding:8px 6px;color:var(--text2)">'+o.date.slice(5)+'</td><td style="padding:8px 6px;font-weight:500">'+o.customer+'</td><td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">'+vnd(o.total)+'</td><td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">'+mg+'%</td><td style="padding:8px 6px;color:var(--text2)">'+o.seller+'</td></tr>';
-  });
-  h+='</table></div>';
-  document.getElementById('rep-orders').innerHTML=h;
-}
-
-// REPORT - MEMBERS
-function renderRepMembers(){
-  var members={};
-  S.orders.forEach(function(o){
-    if(!members[o.seller])members[o.seller]={rev:0,profit:0,count:0};
-    members[o.seller].rev+=o.total;members[o.seller].profit+=o.profit;members[o.seller].count++;
-  });
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Doanh số TV</span><button class="csv-btn" onclick="exportCSV(\'members\')">⬇ Xuất CSV</button></div>';
-  h+='<div style="padding:0 16px">';
-  Object.keys(members).forEach(function(name){
-    var m=members[name];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
-    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:12px">';
-    h+='<div style="font-size:15px;font-weight:600;margin-bottom:10px">'+name+'</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">Số đơn / 筆數</div><div style="font-size:16px;font-weight:700">'+m.count+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利率</div><div style="font-size:11px;font-weight:700;color:var(--green)">'+mg+'%</div></div>';
-    h+='</div></div>';
-  });
-  h+='</div>';
-  document.getElementById('rep-members').innerHTML=h;
-}
-
-// REPORT - PLANTS SOLD
-function renderRepPlantsSold(){
-  var plantSales={};
-  S.orders.forEach(function(o){
-    o.items.forEach(function(item){
-      if(!plantSales[item.name])plantSales[item.name]={qty:0,rev:0,profit:0};
-      plantSales[item.name].qty+=item.qty;
-      plantSales[item.name].rev+=item.price*item.qty;
-      plantSales[item.name].profit+=(item.price-item.cost)*item.qty;
-    });
-  });
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Thống kê doanh số cây / 植物銷售統計</span><button class="csv-btn" onclick="exportCSV(\'plants-sold\')">⬇ Xuất CSV</button></div>';
-  var sorted=Object.keys(plantSales).sort(function(a,b){return plantSales[b].rev-plantSales[a].rev;});
-  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">品名</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">數量</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">營收</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利率</th></tr>';
-  sorted.forEach(function(name){
-    var s=plantSales[name];var mg=s.rev>0?(s.profit/s.rev*100).toFixed(0):0;
-    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;font-weight:500">'+name+'</td><td style="padding:8px 6px;text-align:right">'+s.qty+'</td><td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">'+vnd(s.rev)+'</td><td style="padding:8px 6px;text-align:right;color:var(--green)">'+mg+'%</td></tr>';
-  });
-  // Unsold plants
-  var soldNames=Object.keys(plantSales);
-  var unsold=S.plants.filter(function(p){return p.status!=='rehab'&&soldNames.indexOf(p.name)===-1;});
-  if(unsold.length>0){
-    h+='<tr style="background:var(--bg3)"><td colspan="4" style="padding:8px 6px;font-size:10px;color:var(--text3)">Cây chưa bán / 未售出植物</td></tr>';
-    unsold.forEach(function(p){
-      h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--text3)">'+p.name+'</td><td style="padding:8px 6px;text-align:right;color:var(--text3)">'+p.qty+'株在庫</td><td style="padding:8px 6px;text-align:right;color:var(--text3)">-</td><td style="padding:8px 6px;text-align:right;color:var(--amber)">'+daysSince(p.date)+'天</td></tr>';
-    });
-  }
-  h+='</table></div>';
-  document.getElementById('rep-plants-sold').innerHTML=h;
-}
-
-// REPORT - INV STATUS
-function renderInvStatus(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Trạng thái kho hiện tại / 當前庫存狀態</span><button class="csv-btn" onclick="exportCSV(\'invstatus\')">⬇ Xuất CSV</button></div>';
-  var active=S.plants.filter(function(p){return p.status!=='rehab';}).sort(function(a,b){return daysSince(b.date)-daysSince(a.date);});
-  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">位置</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">天數</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">當前成本</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利率</th></tr>';
-  active.forEach(function(p){
-    var days=daysSince(p.date);var ac=agedCost(p);var mg=mgn(p);
-    var mgc=parseFloat(mg)>30?'var(--green)':'var(--red)';
-    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;font-weight:500">'+p.name+' ×'+p.qty+'</td><td style="padding:8px 6px"><span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></td><td style="padding:8px 6px;text-align:right">'+days+'</td><td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">'+vnd(ac)+'</td><td style="padding:8px 6px;text-align:right;color:'+mgc+'">'+mg+'%</td></tr>';
-  });
-  h+='</table></div>';
-  document.getElementById('rep-invstatus').innerHTML=h;
-}
-
-// REPORT - REHAB LOG
-function renderRehabLog(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Lịch sử CS</span><button class="csv-btn" onclick="exportCSV(\'rehab-log\')">⬇ Xuất CSV</button></div>';
-  if(S.rehab.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">無修整記錄</div>';document.getElementById('rep-rehab-log').innerHTML=h;return;}
-  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">編號</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">在庫天</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">修整天</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">原因</th></tr>';
-  S.rehab.forEach(function(r){
-    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--amber);font-family:DM Mono,monospace">'+r.rid+'</td><td style="padding:8px 6px">'+r.name+' ×'+r.qty+'</td><td style="padding:8px 6px;text-align:right">'+daysSince(r.date)+'</td><td style="padding:8px 6px;text-align:right;color:var(--red)">'+daysSince(r.rehabDate||r.date)+'</td><td style="padding:8px 6px;color:var(--text2)">'+r.note+'</td></tr>';
-  });
-  h+='</table></div>';
-  document.getElementById('rep-rehab-log').innerHTML=h;
-}
-
-// REPORT - WRITEOFF
-function renderWriteoffRep(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Danh sách hao hụt / 死亡報廢記錄</span><button class="csv-btn" onclick="exportCSV(\'writeoff\')">⬇ Xuất CSV</button></div>';
-  var totalQty=S.writeoffs.reduce(function(s,w){return s+w.qty;},0);
-  var totalCost=S.writeoffs.reduce(function(s,w){return s+(w.cost||0);},0);
-  h+='<div class="metrics" style="margin-bottom:8px">';
-  h+='<div class="metric"><div class="ml">Tổng hao hụt / 報廢總數</div><div class="mv red" style="color:var(--red)">'+totalQty+' 株</div></div>';
-  h+='<div class="metric"><div class="ml">Chi phí thiệt hại / 損失成本</div><div class="mv red" style="color:var(--red)">'+vnd(totalCost)+'</div></div></div>';
-  if(S.writeoffs.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">Chưa có ghi nhận hao hụt</div>';document.getElementById('rep-writeoff').innerHTML=h;return;}
-  h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">日期</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">數量</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">原因</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">操作人</th></tr>';
-  S.writeoffs.forEach(function(w){
-    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--text2)">'+w.date+'</td><td style="padding:8px 6px;font-weight:500">'+w.name+'</td><td style="padding:8px 6px;text-align:right;color:var(--red)">'+w.qty+'株</td><td style="padding:8px 6px;color:var(--text2)">'+w.reason+'</td><td style="padding:8px 6px;color:var(--text2)">'+w.operator+'</td></tr>';
-  });
-  h+='</table></div>';
-  document.getElementById('rep-writeoff').innerHTML=h;
-}
-
-// REPORT - PURCHASE
-function renderPur(){
-  var tv=S.purchases.reduce(function(s,p){return s+p.totalVnd;},0);
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Nhập hàng</span><button class="csv-btn" onclick="exportCSV(\'purchase\')">⬇ Xuất CSV</button></div>';
-  h+='<div class="metrics" style="margin-bottom:8px">';
-  h+='<div class="metric"><div class="ml">Số lô hàng / 批次數</div><div class="mv">'+S.purchases.length+'</div></div>';
-  h+='<div class="metric"><div class="ml">Tổng chi phí nhập / 總進貨成本</div><div class="mv amber">'+vnd(tv)+'</div></div></div>';
-  h+='<div style="padding:0 16px 10px;display:flex;justify-content:flex-end"><button class="btn btnp btnsm" onclick="openM(\'m-newpur\')">+ Thêm lô hàng</button></div>';
-  S.purchases.forEach(function(p){
-    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin:0 16px 10px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-weight:500;font-size:14px">'+p.vendor+'</span><span style="color:var(--text2);font-size:12px;margin-left:8px">'+p.date+'</span></div><span class="badge bb">'+p.items.reduce(function(s,i){return s+i.qty;},0)+' 株</span></div>';
-    if(p.note)h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px">'+p.note+'</div>';
-    p.items.forEach(function(i){h+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)"><span>'+i.name+' × '+i.qty+'</span><span style="color:var(--text2)">'+vnd(i.totalVnd)+'</span></div>';});
-    h+='<div style="display:flex;justify-content:flex-end;margin-top:8px"><span style="font-weight:700;font-family:DM Mono,monospace">'+vnd(p.totalVnd)+'</span></div></div>';
-  });
-  document.getElementById('rep-purchase').innerHTML=h;
-}
-
-// ADMIN
-function renderAdmin(){
-  loadConfig();
-  var h='<div style="height:12px"></div>';
-  h+='<div class="admin-section"><div class="admin-section-title">Cài đặt hệ thống / 系統設定</div><div style="padding:14px 16px">';
-  h+='<div class="field"><label class="flabel">Tỷ giá: 1 NTD = ? VND</label><input class="inp" id="cfg-rate" type="number"></div>';
-  h+='<div class="field"><label class="flabel">Chi phí tăng/tháng (VND)</label><input class="inp" id="cfg-monthly-inc" type="number"></div>';
-  h+='<div class="field"><label class="flabel">Giới hạn tăng tối đa (VND)</label><input class="inp" id="cfg-max-inc" type="number"></div>';
-  h+='<button class="btn btnp btnf" onclick="saveConfig()">Lưu cài đặt</button></div></div>';
-  h+='<div class="admin-section"><div class="admin-section-title">Quản lý cây / 植物管理</div>';
-  S.plants.filter(function(p){return p.status!=='rehab';}).forEach(function(p){
-    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(p.price)+' · '+p.qty+'株 · <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></div></div><button class="btn btns btnsm" onclick="openEditPlant('+p.id+')">Sửa / 編輯</button></div>';
-  });
-  h+='</div>';
-  h+='<div class="admin-section"><div class="admin-section-title">Quản lý tấm gỗ / 板子管理</div>';
-  S.boards.forEach(function(b){
-    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+b.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(b.price)+' · Tổng / '+b.qty+'</div></div><button class="btn btns btnsm" onclick="openEditBoard('+b.id+')">Sửa / 編輯</button></div>';
-  });
-  h+='<div style="padding:12px 16px"><button class="btn btns btnf" onclick="openEditBoard(0)">+ Thêm loại tấm gỗ</button></div></div>';
-  h+='<div class="admin-section"><div class="admin-section-title">Giá KM / 活動批發價</div><div style="padding:14px 16px">';
-  h+='<div class="field"><label class="flabel">Giảm giá sự kiện (%)</label><input class="inp" id="cfg-promo" type="number"></div>';
-  h+='<div class="field"><label class="flabel">Ngày kết thúc KM</label><input class="inp" id="cfg-promo-end" type="date"></div>';
-  h+='<div class="field"><label class="flabel">Tên khách sỉ</label><input class="inp" id="cfg-wholesale-name"></div>';
-  h+='<div class="field"><label class="flabel">Giảm giá sỉ (%)</label><input class="inp" id="cfg-wholesale-pct" type="number"></div>';
-  h+='<button class="btn btnp btnf" onclick="savePromo()">Lưu / 儲存</button></div></div>';
-  h+='<div style="height:20px"></div>';
-  document.getElementById('rep-admin').innerHTML=h;
-  loadConfig();
-}
-function openEditPlant(id){
-  var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
-  document.getElementById('ep-id').value=id;
-  document.getElementById('ep-name').value=p.name;
-  document.getElementById('ep-price').value=p.price;
-  document.getElementById('ep-qty').value=p.qty;
-  document.getElementById('ep-date').value=p.date;
-  document.getElementById('ep-note').value=p.note||'';
-  openM('m-editplant');
-}
-function savePlantEdit(){
-  var id=parseInt(document.getElementById('ep-id').value);
-  var p=S.plants.find(function(x){return x.id===id;});if(!p)return;
-  p.name=document.getElementById('ep-name').value;
-  p.price=parseInt(document.getElementById('ep-price').value)||p.price;
-  p.qty=parseInt(document.getElementById('ep-qty').value)||0;
-  p.date=document.getElementById('ep-date').value||p.date;
-  p.note=document.getElementById('ep-note').value;
-  closeM('m-editplant');renderAdmin();renderInv();renderPos();
-}
-function openEditBoard(id){
-  var b=id?S.boards.find(function(x){return x.id===id;}):null;
-  document.getElementById('eb-id').value=id||'';
-  document.getElementById('eb-name').value=b?b.name:'';
-  document.getElementById('eb-cost').value=b?b.costVnd:'';
-  document.getElementById('eb-price').value=b?b.price:'';
-  document.getElementById('eb-qty').value=b?b.qty:'';
-  openM('m-addboard');
-}
-function saveBoard(){
-  var id=parseInt(document.getElementById('eb-id').value)||0;
-  var name=document.getElementById('eb-name').value.trim();if(!name)return;
-  var cost=parseInt(document.getElementById('eb-cost').value)||0;
-  var price=parseInt(document.getElementById('eb-price').value)||0;
-  var qty=parseInt(document.getElementById('eb-qty').value)||0;
-  if(id){var b=S.boards.find(function(x){return x.id===id;});if(b){b.name=name;b.costVnd=cost;b.price=price;b.qty=qty;}}
-  else S.boards.push({id:S.nextId++,name:name,costVnd:cost,price:price,qty:qty,locs:{mine:qty,quang:0,helper:0}});
-  closeM('m-addboard');renderAdmin();renderBoardInv();renderPos();
-}
-
-// PURCHASE
-function addPurItem(){purItems.push({name:'',qty:1,costNtd:0});renderPurItems();}
-function renderPurItems(){
-  var h='<div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:500">Chi tiết lô / 進貨明細</div>';
-  purItems.forEach(function(item,i){
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px"><div class="field" style="margin-bottom:7px"><input class="inp" placeholder="品名" value="'+item.name+'" onchange="purItems['+i+'].name=this.value"></div>';
-    h+='<div class="irow"><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="數量" value="'+(item.qty||'')+'" onchange="purItems['+i+'].qty=parseInt(this.value)||0"></div><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="成本 NTD" value="'+(item.costNtd||'')+'" onchange="purItems['+i+'].costNtd=parseInt(this.value)||0"></div></div></div>';
-  });
-  document.getElementById('pur-items-wrap').innerHTML=h;
-}
-function savePurchase(){
-  var vendor=document.getElementById('pur-vendor').value.trim();
-  if(!vendor||purItems.length===0){alert('請填寫廠商和品項');return;}
-  var items=purItems.map(function(i){return{name:i.name,qty:i.qty,costNtd:i.costNtd,costVnd:i.costNtd*CFG.rate,totalVnd:i.qty*i.costNtd*CFG.rate};});
-  S.purchases.unshift({id:S.nextId++,vendor:vendor,date:document.getElementById('pur-date').value||todayStr(),note:document.getElementById('pur-note').value,items:items,totalVnd:items.reduce(function(s,i){return s+i.totalVnd;},0)});
-  purItems=[];['pur-vendor','pur-note'].forEach(function(id){document.getElementById(id).value='';});
-  closeM('m-newpur');renderPur();
-}
-
-// CSV EXPORT
-function exportCSV(type){
-  var rows=[],filename='';
-  if(type==='summary'){
-    filename='月度摘要.csv';
-    rows.push(['月份','營收(VND)','毛利(VND)','毛利率','訂單數']);
-    var monthly={};
-    S.orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),rev:0,profit:0,count:0};monthly[k].rev+=o.total;monthly[k].profit+=o.profit;monthly[k].count++;});
-    Object.keys(monthly).sort().reverse().forEach(function(k){var m=monthly[k];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;rows.push([m.label,m.rev,m.profit,mg+'%',m.count]);});
-  } else if(type==='orders'){
-    filename='訂單明細.csv';
-    rows.push(['日期','訂單編號','客戶','聯絡','地址','來源','付款','成交人','品項','金額(VND)','毛利(VND)','毛利率','備註']);
-    S.orders.forEach(function(o){var mg=o.total>0?(o.profit/o.total*100).toFixed(1):0;var items=o.items.map(function(i){return i.name+'×'+i.qty;}).join(' | ');rows.push([o.date,'#'+String(o.id).padStart(4,'0'),o.customer,o.contact,o.addr,o.src,o.pay,o.seller,items,o.total,o.profit,mg+'%',o.note]);});
-  } else if(type==='members'){
-    filename='成員業績.csv';
-    rows.push(['成員','訂單數','總營收(VND)','總毛利(VND)','毛利率']);
-    var members={};
-    S.orders.forEach(function(o){if(!members[o.seller])members[o.seller]={rev:0,profit:0,count:0};members[o.seller].rev+=o.total;members[o.seller].profit+=o.profit;members[o.seller].count++;});
-    Object.keys(members).forEach(function(name){var m=members[name];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;rows.push([name,m.count,m.rev,m.profit,mg+'%']);});
-  } else if(type==='plants-sold'){
-    filename='植物銷售.csv';
-    rows.push(['Tên cây / 植物名稱','售出數量','總營收(VND)','總毛利(VND)','毛利率']);
-    var ps={};S.orders.forEach(function(o){o.items.forEach(function(item){if(!ps[item.name])ps[item.name]={qty:0,rev:0,profit:0};ps[item.name].qty+=item.qty;ps[item.name].rev+=item.price*item.qty;ps[item.name].profit+=(item.price-item.cost)*item.qty;});});
-    Object.keys(ps).sort(function(a,b){return ps[b].rev-ps[a].rev;}).forEach(function(name){var s=ps[name];var mg=s.rev>0?(s.profit/s.rev*100).toFixed(1):0;rows.push([name,s.qty,s.rev,s.profit,mg+'%']);});
-  } else if(type==='invstatus'){
-    filename='庫存狀態.csv';
-    rows.push(['Tên cây / 植物名稱','分類','位置','數量','在庫天數','原始成本(VND)','當前成本(VND)','售價(VND)','毛利率','進貨日期']);
-    S.plants.filter(function(p){return p.status!=='rehab';}).forEach(function(p){var ac=agedCost(p);var mg=mgn(p);rows.push([p.name,p.cat,locLabels[p.loc],p.qty,daysSince(p.date),p.costVnd,ac,p.price,mg+'%',p.date]);});
-  } else if(type==='rehab-log'){
-    filename='修整記錄.csv';
-    rows.push(['編號','植物','數量','位置','進貨日期','修整開始日','在庫天數','修整天數','原因']);
-    S.rehab.forEach(function(r){rows.push([r.rid,r.name,r.qty,locLabels[r.loc],r.date,r.rehabDate||r.date,daysSince(r.date),daysSince(r.rehabDate||r.date),r.note]);});
-  } else if(type==='writeoff'){
-    filename='死亡報廢.csv';
-    rows.push(['日期','Tên cây / 植物名稱','數量','位置','Lý do / 死亡原因','Người thực hiện / 操作人員','損失成本(VND)']);
-    S.writeoffs.forEach(function(w){rows.push([w.date,w.name,w.qty,locLabels[w.loc]||'',w.reason,w.operator,w.cost||0]);});
-  } else if(type==='purchase'){
-    filename='進貨記錄.csv';
-    rows.push(['批次日期','廠商','品名','數量','單位成本NTD','單位成本VND','小計VND','備註']);
-    S.purchases.forEach(function(p){p.items.forEach(function(i){rows.push([p.date,p.vendor,i.name,i.qty,i.costNtd,i.costVnd,i.totalVnd,p.note]);});});
-  }
-  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var bom='\uFEFF';
-  var blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
-}
-
-// MODAL UTILS
-function openM(id){document.getElementById(id).classList.add('open');}
-function closeM(id){document.getElementById(id).classList.remove('open');}
-function bgClose(e,id){if(e.target.id===id)closeM(id);}
-function doPrint(){var h=document.getElementById('printable').outerHTML;document.getElementById('print-area').innerHTML=h;window.print();setTimeout(function(){document.getElementById('print-area').innerHTML='';},1000);}
-</script>
+<script src="db.js"></script>
+<script src="auth.js"></script>
+<script src="pos.js"></script>
+<script src="inventory.js"></script>
+<script src="orders.js"></script>
+<script src="reports.js"></script>
+<script src="modals.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+// ==================== AUTH MODULE ====================
+
+let pendingUserId = null;
+
+function renderLoginScreen() {
+  const roles = [
+    { id: 'owner', emoji: '👑', name: 'Chandler Wei', desc: 'Toàn quyền quản lý / 完整後台權限' },
+    { id: 'quang', emoji: '🌱', name: 'Quang', desc: 'Thành viên / Xem cây, tạo đơn' },
+    { id: 'helper', emoji: '🪴', name: 'Trợ lý / 小幫手', desc: 'Thành viên / Xem cây, tạo đơn' },
+  ];
+  document.getElementById('role-list').innerHTML = roles.map(r =>
+    `<button class="role-btn" onclick="selectRole('${r.id}')">
+      <span style="font-size:26px">${r.emoji}</span>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:var(--text)">${r.name}</div>
+        <div style="font-size:11px;color:var(--text2)">${r.desc}</div>
+      </div>
+    </button>`
+  ).join('');
+}
+
+function selectRole(userId) {
+  pendingUserId = userId;
+  document.getElementById('login-title').textContent = userId === 'owner' ? 'Chandler Wei' : userId === 'quang' ? 'Quang' : 'Trợ lý / 小幫手';
+  document.getElementById('login-pw').value = '';
+  openM('m-login');
+}
+
+async function doLogin() {
+  const pw = document.getElementById('login-pw').value;
+  const ok = await DB.verifyUser(pendingUserId, pw);
+  if (!ok) { showToast('Sai mật khẩu / 密碼錯誤', 'error'); return; }
+  closeM('m-login');
+  await startApp(pendingUserId);
+}
+
+async function startApp(userId) {
+  showLoading(true);
+  ROLE = userId;
+  USER = userId;
+  const badgeMap = { owner: ['Chandler Wei', 'badge ba'], quang: ['Quang', 'badge bg'], helper: ['Trợ lý', 'badge br'] };
+  const [label, cls] = badgeMap[userId];
+  document.getElementById('role-badge').textContent = label;
+  document.getElementById('role-badge').className = cls;
+  document.getElementById('home-date').textContent = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  await DB.getConfig();
+  await loadAllData();
+  showLoading(false);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  buildRepTabs();
+  renderHome();
+  renderPos();
+  renderInv();
+  renderOrders(null);
+}
+
+function logout() {
+  ROLE = null; USER = null;
+  cart = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function showLoading(show) {
+  document.getElementById('loading').style.display = show ? 'flex' : 'none';
+}
