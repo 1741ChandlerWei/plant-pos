@@ -147,7 +147,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <!-- HOME -->
 <div class="screen active" id="screen-home">
   <div class="topbar">
-    <div><div class="ttitle">今日總覽 <span style="font-size:12px;font-family:'Noto Sans',sans-serif;color:var(--text2)">Tổng quan</span></div><div class="tsub" id="home-date"></div></div>
+    <div><div class="ttitle">今日總覽 / Tổng quan hôm nay <span style="font-size:12px;font-family:'Noto Sans',sans-serif;color:var(--text2)">Tổng quan</span></div><div class="tsub" id="home-date"></div></div>
     <div style="display:flex;gap:7px;align-items:center"><span id="role-badge" class="badge"></span><button class="btn btns btnsm" onclick="logout()">登出</button></div>
   </div>
   <div style="height:14px"></div>
@@ -162,12 +162,12 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <div class="screen" id="screen-pos">
   <div class="topbar">
     <div><div class="ttitle">開立訂單</div><div class="tsub">Tạo đơn hàng</div></div>
-    <button class="btn btns btnsm" onclick="clearCart()">清空</button>
+    <button class="btn btns btnsm" onclick="clearCart()">Xóa / 清空</button>
   </div>
   <div class="tabs" style="margin-top:12px">
     <button class="tab active" id="ptab-plant" onclick="posTab('plant')">植物<span class="vi">Cây</span></button>
     <button class="tab" id="ptab-board" onclick="posTab('board')">板子<span class="vi">Tấm gỗ</span></button>
-    <button class="tab" id="ptab-writeoff" onclick="posTab('writeoff')">死亡報廢<span class="vi">Hao hụt</span></button>
+    <button class="tab" id="ptab-writeoff" onclick="posTab('writeoff')">Hao hụt<span class="vi">Hao hụt</span></button>
     <button class="tab" id="ptab-cart" onclick="posTab('cart')">購物車 <span id="cart-badge"></span><span class="vi">Giỏ hàng</span></button>
   </div>
   <div id="pos-plant"></div>
@@ -247,8 +247,8 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <div class="modal-overlay" id="m-addplant" onclick="bgClose(event,'m-addplant')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">新增植物庫存<span class="vi">Thêm cây vào kho</span></div>
-    <div class="field"><label class="flabel">植物名稱</label><input class="inp" id="np-name" placeholder="AR SP、mew..."></div>
+    <div class="mtitle">Thêm cây vào kho / 新增植物<span class="vi">Thêm cây vào kho</span></div>
+    <div class="field"><label class="flabel">Tên cây / 植物名稱</label><input class="inp" id="np-name" placeholder="AR SP、mew..."></div>
     <div class="field"><label class="flabel">分類</label><select class="inp" id="np-cat"><option>植物</option><option>植物（代）</option><option>植物（自）</option><option>植物（批）</option></select></div>
     <div class="irow">
       <div class="field"><label class="flabel">成本 NTD</label><input class="inp" id="np-cntd" type="number" placeholder="500" oninput="document.getElementById('np-cvnd').value=Math.round(this.value*CFG.rate).toLocaleString()"></div>
@@ -262,7 +262,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="field"><label class="flabel">位置</label>
       <select class="inp" id="np-loc"><option value="mine">在我家 / Nhà chủ</option><option value="quang">在 Quang 家</option><option value="helper">在小幫手家</option></select>
     </div>
-    <div class="field"><label class="flabel">廠商 / 備註</label><input class="inp" id="np-note" placeholder="廠商名稱..."></div>
+    <div class="field"><label class="flabel">Nhà cung cấp / Ghi chú</label><input class="inp" id="np-note" placeholder="廠商名稱..."></div>
     <button class="btn btnp btnf" onclick="addPlant()">儲存 / Lưu</button>
   </div>
 </div>
@@ -272,14 +272,14 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="mhandle"></div>
     <div class="mtitle">編輯植物 / Sửa cây</div>
     <input type="hidden" id="ep-id">
-    <div class="field"><label class="flabel">植物名稱</label><input class="inp" id="ep-name"></div>
+    <div class="field"><label class="flabel">Tên cây / 植物名稱</label><input class="inp" id="ep-name"></div>
     <div class="irow">
       <div class="field"><label class="flabel">建議售價 VND</label><input class="inp" id="ep-price" type="number"></div>
-      <div class="field"><label class="flabel">庫存數量</label><input class="inp" id="ep-qty" type="number" min="0"></div>
+      <div class="field"><label class="flabel">Số lượng / 庫存數量</label><input class="inp" id="ep-qty" type="number" min="0"></div>
     </div>
     <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="ep-date" type="date"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="ep-note"></div>
-    <button class="btn btnp btnf" onclick="savePlantEdit()">儲存</button>
+    <button class="btn btnp btnf" onclick="savePlantEdit()">Lưu / 儲存</button>
   </div>
 </div>
 
@@ -293,7 +293,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
       <div class="field"><label class="flabel">成本 VND</label><input class="inp" id="eb-cost" type="number"></div>
       <div class="field"><label class="flabel">售價 VND</label><input class="inp" id="eb-price" type="number"></div>
     </div>
-    <div class="field"><label class="flabel">總庫存數量</label><input class="inp" id="eb-qty" type="number" min="0"></div>
+    <div class="field"><label class="flabel">總Số lượng / 庫存數量</label><input class="inp" id="eb-qty" type="number" min="0"></div>
     <button class="btn btnp btnf" onclick="saveBoard()">儲存 / Lưu</button>
   </div>
 </div>
@@ -301,77 +301,77 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 <div class="modal-overlay" id="m-moveplant" onclick="bgClose(event,'m-moveplant')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">移動植物<span class="vi">Di chuyển cây</span></div>
+    <div class="mtitle">Di chuyển cây / 移動植物<span class="vi">Di chuyển cây</span></div>
     <div id="move-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-    <div class="field"><label class="flabel">移至 / Chuyển đến</label>
+    <div class="field"><label class="flabel">Di chuyển đến / 移至</label>
       <select class="inp" id="move-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
     </div>
     <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="move-qty" type="number" min="1" value="1"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="move-note" placeholder="每天噴水..."></div>
-    <button class="btn btnp btnf" onclick="doMove()">確認移動 / Xác nhận</button>
+    <button class="btn btnp btnf" onclick="doMove()">Xác nhận di chuyển</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="m-moveboard" onclick="bgClose(event,'m-moveboard')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">移動板子<span class="vi">Di chuyển tấm</span></div>
+    <div class="mtitle">Di chuyển tấm gỗ / 移動板子<span class="vi">Di chuyển tấm</span></div>
     <div id="moveboard-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
     <div class="field"><label class="flabel">移至</label>
       <select class="inp" id="moveboard-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
     </div>
     <div class="field"><label class="flabel">數量</label><input class="inp" id="moveboard-qty" type="number" min="1" value="1"></div>
-    <button class="btn btnp btnf" onclick="doMoveBoard()">確認移動</button>
+    <button class="btn btnp btnf" onclick="doMoveBoard()">Xác nhận / 確認</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="m-rehab" onclick="bgClose(event,'m-rehab')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">移入修整區<span class="vi">Khu chỉnh sửa</span></div>
+    <div class="mtitle">Khu chỉnh sửa / 移入修整區<span class="vi">Khu chỉnh sửa</span></div>
     <div id="rehab-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
     <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="rehab-qty" type="number" min="1" value="1"></div>
-    <div class="field"><label class="flabel">修整原因</label><input class="inp" id="rehab-note" placeholder="葉片受損..."></div>
+    <div class="field"><label class="flabel">Lý do chỉnh sửa / 修整原因</label><input class="inp" id="rehab-note" placeholder="葉片受損..."></div>
     <div style="background:var(--abg);border:1px solid var(--aborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--amber)">移入後自動分配編號 R-XXX</div>
-    <button class="btn btnp btnf" id="rehab-confirm-btn">確認移入 / Xác nhận</button>
+    <button class="btn btnp btnf" id="rehab-confirm-btn">Xác nhận chuyển vào</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="m-editrehab" onclick="bgClose(event,'m-editrehab')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">編輯修整記錄</div>
+    <div class="mtitle">Chỉnh sửa ghi chú / 編輯修整記錄</div>
     <input type="hidden" id="er-rid">
-    <div class="field"><label class="flabel">修整開始日期</label><input class="inp" id="er-date" type="date"></div>
+    <div class="field"><label class="flabel">Ngày bắt đầu chỉnh sửa / 修整開始日期</label><input class="inp" id="er-date" type="date"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="er-note"></div>
-    <button class="btn btnp btnf" onclick="saveRehabEdit()">儲存</button>
+    <button class="btn btnp btnf" onclick="saveRehabEdit()">Lưu / 儲存</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="m-releaserhab" onclick="bgClose(event,'m-releaserhab')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">移回庫存</div>
+    <div class="mtitle">Chuyển lại kho</div>
     <input type="hidden" id="rr-rid">
     <div id="rr-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-    <div class="field"><label class="flabel">移回至</label>
+    <div class="field"><label class="flabel">Chuyển về / 移回至</label>
       <select class="inp" id="rr-loc"><option value="mine">我家 / Nhà chủ</option><option value="quang">Quang 家</option><option value="helper">小幫手家</option></select>
     </div>
     <div class="field"><label class="flabel">數量</label><input class="inp" id="rr-qty" type="number" min="1" value="1"></div>
-    <button class="btn btnp btnf" onclick="doReleaseRehab()">確認移回</button>
+    <button class="btn btnp btnf" onclick="doReleaseRehab()">Xác nhận / 確認移回</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="m-newpur" onclick="bgClose(event,'m-newpur')">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">新增進貨批次<span class="vi">Thêm lô nhập hàng</span></div>
+    <div class="mtitle">Thêm lô nhập hàng / 新增進貨<span class="vi">Thêm lô nhập hàng</span></div>
     <div class="field"><label class="flabel">廠商</label><input class="inp" id="pur-vendor" placeholder="Chen Ying..."></div>
     <div class="field"><label class="flabel">進貨日期</label><input class="inp" id="pur-date" type="date"></div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="pur-note" placeholder="備註..."></div>
     <div id="pur-items-wrap"></div>
-    <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ 新增品項</button>
-    <button class="btn btnp btnf" onclick="savePurchase()">儲存批次 / Lưu</button>
+    <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ Thêm mặt hàng</button>
+    <button class="btn btnp btnf" onclick="savePurchase()">Lưu lô hàng</button>
   </div>
 </div>
 
@@ -379,28 +379,28 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   <div class="modal">
     <div class="mhandle"></div>
     <div class="mtitle">完成結帳<span class="vi">Hoàn tất thanh toán</span></div>
-    <div class="field"><label class="flabel">客戶姓名</label><input class="inp" id="co-name" placeholder="Tên khách hàng"></div>
-    <div class="field"><label class="flabel">聯絡方式</label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
-    <div class="field"><label class="flabel">收件地址（自取免填）</label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
-    <div class="field"><label class="flabel">訂單來源</label>
+    <div class="field"><label class="flabel">Tên khách / 客戶姓名</label><input class="inp" id="co-name" placeholder="Tên khách hàng"></div>
+    <div class="field"><label class="flabel">Liên hệ / 聯絡方式</label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
+    <div class="field"><label class="flabel">Địa chỉ giao hàng (tự lấy bỏ trống)</label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
+    <div class="field"><label class="flabel">Nguồn đơn / 訂單來源</label>
       <select class="inp" id="co-src"><option>FB 訊息</option><option>來家選購</option><option>Zalo / Line</option><option>其他</option></select>
     </div>
-    <div class="field"><label class="flabel">付款方式</label>
+    <div class="field"><label class="flabel">Thanh toán / 付款方式</label>
       <select class="inp" id="co-pay"><option>現金</option><option>銀行轉帳</option><option>Momo / LINE Pay</option><option>其他</option></select>
     </div>
-    <div class="field"><label class="flabel">成交人員</label>
+    <div class="field"><label class="flabel">Người bán / 成交人員</label>
       <select class="inp" id="co-seller"><option>Chandler Wei</option><option>Quang</option><option>小幫手</option></select>
     </div>
     <div class="field"><label class="flabel">備註</label><input class="inp" id="co-note" placeholder="Ghi chú..."></div>
     <div id="co-summary" style="background:var(--bg3);border-radius:var(--r);padding:13px;margin-bottom:14px"></div>
-    <button class="btn btnp btnf" onclick="completeOrder()">確認成交 → 出貨單</button>
+    <button class="btn btnp btnf" onclick="completeOrder()">Xác nhận & xuất phiếu</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="m-receipt">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mtitle">出貨單 <span style="font-size:12px;color:var(--text2);font-weight:400">Phiếu xuất hàng</span></div>
+    <div class="mtitle">Phiếu xuất hàng / 出貨單 <span style="font-size:12px;color:var(--text2);font-weight:400">Phiếu xuất hàng</span></div>
     <div id="receipt-body"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="btn btns" style="flex:1" onclick="closeM('m-receipt')">關閉</button>
@@ -437,7 +437,7 @@ var moveBoardId=null;
 var cart=[];
 var purItems=[];
 var orderFilterMonth=null;
-var locLabels={mine:'我家',quang:'Quang家',helper:'小幫手家'};
+var locLabels={mine:'Nhà chủ',quang:'Nhà Quang',helper:'Nhà trợ lý'};
 var locClass={mine:'loc-m',quang:'loc-q',helper:'loc-h'};
 
 var S={
@@ -574,16 +574,16 @@ function renderHome(){
   var moRev=moOrds.reduce(function(s,o){return s+o.total;},0);
   var moP=moOrds.reduce(function(s,o){return s+o.profit;},0);
   document.getElementById('home-metrics').innerHTML=
-    '<div class="metric"><div class="ml">今日營收</div><div class="mv blue">'+vnd(toRev)+'</div></div>'+
-    '<div class="metric"><div class="ml">今日毛利</div><div class="mv green">'+vnd(toP)+'</div></div>'+
-    '<div class="metric"><div class="ml">本月營收</div><div class="mv blue">'+vnd(moRev)+'</div></div>'+
-    '<div class="metric"><div class="ml">本月毛利</div><div class="mv green">'+vnd(moP)+'</div></div>';
+    '<div class="metric"><div class="ml">今日營收 / Doanh thu hôm nay</div><div class="mv blue">'+vnd(toRev)+'</div></div>'+
+    '<div class="metric"><div class="ml">今日毛利 / Lợi nhuận hôm nay</div><div class="mv green">'+vnd(toP)+'</div></div>'+
+    '<div class="metric"><div class="ml">本月營收 / Doanh thu tháng</div><div class="mv blue">'+vnd(moRev)+'</div></div>'+
+    '<div class="metric"><div class="ml">本月毛利 / Lợi nhuận tháng</div><div class="mv green">'+vnd(moP)+'</div></div>';
   var toEl=document.getElementById('today-orders');
-  toEl.innerHTML=toOrds.length===0?'<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">今日尚無訂單</div>'
+  toEl.innerHTML=toOrds.length===0?'<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">Chưa có đơn hôm nay / 今日尚無訂單</div>'
     :toOrds.map(function(o){return '<div class="pi" onclick="showReceipt('+o.id+')"><div class="pdot" style="background:var(--green)"></div><div class="pinfo"><div class="pname">'+o.customer+'</div><div class="pmeta">'+o.src+' · '+o.seller+'</div></div><div class="pright"><div class="pprice">'+vnd(o.total)+'</div><div class="psub" style="color:var(--green)">+'+vnd(o.profit)+'</div></div></div>';}).join('');
   var low=S.plants.filter(function(p){return p.qty<=2&&p.status!=='rehab';});
-  document.getElementById('low-stock').innerHTML=low.length===0?'<div style="padding:13px 18px;color:var(--text3);font-size:12px">目前無低庫存</div>'
-    :low.map(function(p){return '<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+' · '+locLabels[p.loc]+'</div></div><div class="pright"><span class="badge '+(p.qty===0?'br':'ba')+'">'+(p.qty===0?'缺貨':p.qty+' 株')+'</span></div></div>';}).join('');
+  document.getElementById('low-stock').innerHTML=low.length===0?'<div style="padding:13px 18px;color:var(--text3);font-size:12px">Không có SL thấp / 目前無低庫存</div>'
+    :low.map(function(p){return '<div class="pi"><div class="pdot" style="background:var(--amber)"></div><div class="pinfo"><div class="pname">'+p.name+'</div><div class="pmeta">'+p.cat+' · '+locLabels[p.loc]+'</div></div><div class="pright"><span class="badge '+(p.qty===0?'br':'ba')+'">'+(p.qty===0?'Hết hàng / 缺貨':p.qty+' 株')+'</span></div></div>';}).join('');
 }
 
 // POS
@@ -675,7 +675,7 @@ function openCheckout(){
 }
 function completeOrder(){
   var name=document.getElementById('co-name').value.trim();
-  if(!name){alert('請填寫客戶姓名');return;}
+  if(!name){alert('請填寫Tên khách / 客戶姓名');return;}
   var sub=cart.reduce(function(s,c){return s+c.price*c.qty;},0);
   var cost=cart.reduce(function(s,c){return s+c.cost*c.qty;},0);
   var o={id:S.nextId++,date:todayStr(),customer:name,contact:document.getElementById('co-contact').value,addr:document.getElementById('co-addr').value,src:document.getElementById('co-src').value,pay:document.getElementById('co-pay').value,seller:document.getElementById('co-seller').value,note:document.getElementById('co-note').value,items:cart.map(function(c){return{type:c.type,name:c.name,qty:c.qty,price:c.price,cost:c.cost,loc:c.loc};}),total:sub,profit:sub-cost};
@@ -693,14 +693,14 @@ function completeOrder(){
 function renderWriteoffForm(){
   var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
   var avail=S.plants.filter(function(p){return p.qty>0&&p.status!=='rehab'&&(role==='owner'||p.loc===myLoc);});
-  var h='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:12px;color:var(--red)">死亡報廢將從庫存中扣除，記錄在報表頁「死亡報廢」tab</div>';
+  var h='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:12px;color:var(--red)">Cây chết/hỏng sẽ trừ khỏi kho và lưu vào báo cáo hao hụt / 死亡報廢</div>';
   h+='<div class="field"><label class="flabel">植物</label><select class="inp" id="wo-plant">';
   avail.forEach(function(p){h+='<option value="'+p.id+'">'+p.name+' ('+locLabels[p.loc]+') · '+p.qty+'株</option>';});
   h+='</select></div>';
   h+='<div class="irow"><div class="field"><label class="flabel">報廢數量</label><input class="inp" id="wo-qty" type="number" min="1" value="1"></div></div>';
   h+='<div class="field"><label class="flabel">死亡原因</label><input class="inp" id="wo-reason" placeholder="根部腐爛、葉片枯萎..."></div>';
   h+='<div class="field"><label class="flabel">操作人員</label><select class="inp" id="wo-op"><option>Chandler Wei</option><option>Quang</option><option>小幫手</option></select></div>';
-  h+='<button class="btn btnd btnf" onclick="confirmWriteoff()">確認報廢</button>';
+  h+='<button class="btn btnd btnf" onclick="confirmWriteoff()">Xác nhận hao hụt / 確認報廢</button>';
   document.getElementById('pos-writeoff').innerHTML=h;
 }
 function confirmWriteoff(){
@@ -710,12 +710,12 @@ function confirmWriteoff(){
   var op=document.getElementById('wo-op').value;
   var p=S.plants.find(function(x){return x.id===pid;});
   if(!p)return;
-  if(qty>p.qty){alert('數量超過庫存 ('+p.qty+'株)');return;}
-  if(!reason){alert('請填寫死亡原因');return;}
-  if(!confirm('確定報廢 '+p.name+' × '+qty+' 株？此操作無法復原'))return;
+  if(qty>p.qty){alert('Vượt SL kho (+p.qty+'株)');return;}
+  if(!reason){alert('Vui lòng nhập lý do / 請填寫死亡原因');return;}
+  if(!confirm('Xác nhận hao hụt? '+p.name+' × '+qty+' 株？此操作無法復原'))return;
   S.writeoffs.unshift({id:S.nextId++,date:todayStr(),name:p.name,qty:qty,reason:reason,loc:p.loc,operator:op,cost:agedCost(p)*qty});
   p.qty-=qty;
-  alert('已記錄報廢');renderAll();renderWriteoffForm();
+  alert('Đã ghi nhận / 已記錄報廢');renderAll();renderWriteoffForm();
 }
 
 // RECEIPT
@@ -741,7 +741,7 @@ function renderOrders(filterMonth){
   var orders=filterMonth?S.orders.filter(function(o){return monthKey(o.date)===filterMonth;}):S.orders;
   document.getElementById('orders-clear-filter').style.display=filterMonth?'flex':'none';
   document.getElementById('orders-filter-badge').textContent=filterMonth?'● 篩選中':'';
-  if(orders.length===0){document.getElementById('orders-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">無訂單記錄</div>';return;}
+  if(orders.length===0){document.getElementById('orders-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">Chưa có đơn hàng / 無訂單記錄</div>';return;}
   var monthly={};
   orders.forEach(function(o){var k=monthKey(o.date);if(!monthly[k])monthly[k]={label:monthLabel(o.date),orders:[],rev:0,profit:0};monthly[k].orders.push(o);monthly[k].rev+=o.total;monthly[k].profit+=o.profit;});
   var html='';
@@ -780,14 +780,14 @@ function renderInv(){
   document.getElementById('inv-addbtn').innerHTML=role==='owner'?'<button class="btn btnp btnsm" onclick="openM(\'m-addplant\')">+ 新增</button>':'';
   var myLoc=role==='quang'?'quang':role==='helper'?'helper':null;
   var plants=(myLoc?S.plants.filter(function(p){return p.loc===myLoc;}):S.plants).filter(function(p){return p.status!=='rehab';});
-  document.getElementById('inv-plant').innerHTML=plants.length===0?'<div style="padding:24px;text-align:center;color:var(--text3)">無植物庫存</div>'
+  document.getElementById('inv-plant').innerHTML=plants.length===0?'<div style="padding:24px;text-align:center;color:var(--text3)">Không có cây / 無植物庫存</div>'
     :plants.map(function(p){
       var ac=agedCost(p),mg=parseFloat(mgn(p));
       var mc=mg>40?'var(--green)':mg>20?'var(--amber)':'var(--red)';
       var days=daysSince(p.date),pct=Math.min(days/90*100,100);
       var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
       var lb=role==='owner'?'<span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span>':'';
-      var btns=role==='owner'?'<div style="display:flex;gap:4px;margin-top:6px"><button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal('+p.id+')">移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="event.stopPropagation();openRehabModal('+p.id+')">修整</button></div>':'';
+      var btns=role==='owner'?'<div style="display:flex;gap:4px;margin-top:6px"><button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal('+p.id+')">Di chuyển / 移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="event.stopPropagation();openRehabModal('+p.id+')">修整</button></div>':'';
       return '<div class="pi" onclick="openDetail('+p.id+')" style="align-items:flex-start;padding:13px 18px"><div class="pdot" style="background:'+mc+';margin-top:4px"></div><div class="pinfo"><div class="pname">'+p.name+' '+lb+'</div><div class="pmeta">'+p.cat+' · '+p.qty+'株 · '+days+'天</div><div class="age-bar"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>'+(role==='owner'?'<div style="font-size:10px;color:var(--text3);margin-top:3px">CP '+vnd(ac)+' · 毛利 '+mg+'%</div>':'')+btns+'</div><div class="pright"><div class="pprice">'+vnd(p.price)+'</div></div></div>';
     }).join('');
 }
@@ -795,21 +795,21 @@ function renderBoardInv(){
   var h='';
   S.boards.forEach(function(b){
     h+='<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:13px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:600">'+b.name+'</div><span class="badge bb">總庫存 '+b.qty+'</span></div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:600">'+b.name+'</div><span class="badge bb">Tổng / '+b.qty+'</span></div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px">';
     Object.keys(b.locs).forEach(function(loc){
       h+='<div style="background:var(--bg3);border-radius:var(--r);padding:8px;text-align:center"><div style="font-size:9px;color:var(--text2);margin-bottom:3px">'+locLabels[loc]+'</div><div style="font-size:15px;font-weight:700">'+b.locs[loc]+'</div></div>';
     });
     h+='</div>';
     if(role==='owner'){
-      h+='<div style="display:flex;gap:7px"><button class="btn btns btnsm" style="flex:1" onclick="openMoveBoardModal('+b.id+')">移動</button><button class="btn btns btnsm" style="flex:1" onclick="openEditBoard('+b.id+')">編輯</button></div>';
+      h+='<div style="display:flex;gap:7px"><button class="btn btns btnsm" style="flex:1" onclick="openMoveBoardModal('+b.id+')">Di chuyển / 移動</button><button class="btn btns btnsm" style="flex:1" onclick="openEditBoard('+b.id+')">Sửa / 編輯</button></div>';
     }
     h+='</div>';
   });
   document.getElementById('inv-board').innerHTML=h||'<div style="padding:24px;text-align:center;color:var(--text3)">無板子庫存</div>';
 }
 function renderMember(){
-  if(role!=='owner'){document.getElementById('inv-member').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">無權限</div>';return;}
+  if(role!=='owner'){document.getElementById('inv-member').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">Không có quyền / 無權限</div>';return;}
   var members=[{key:'quang',label:'Quang',av:'Q'},{key:'helper',label:'小幫手',av:'H'}];
   var h='';
   members.forEach(function(m){
@@ -817,12 +817,12 @@ function renderMember(){
     var mb=[];S.boards.forEach(function(b){if(b.locs[m.key]>0)mb.push({name:b.name,qty:b.locs[m.key],id:b.id});});
     h+='<div style="margin:0 16px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">';
     h+='<div style="display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)"><div style="width:36px;height:36px;border-radius:50%;background:var(--accdim);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)">'+m.av+'</div><div><div style="font-size:14px;font-weight:500">'+m.label+'</div><div style="font-size:11px;color:var(--text2)">植物 '+mp.reduce(function(s,p){return s+p.qty;},0)+'株 · 板子 '+mb.reduce(function(s,b){return s+b.qty;},0)+'片</div></div></div>';
-    if(mp.length===0&&mb.length===0){h+='<div style="padding:14px;color:var(--text3);font-size:13px">目前無庫存</div>';}
+    if(mp.length===0&&mb.length===0){h+='<div style="padding:14px;color:var(--text3);font-size:13px">Chưa có hàng tại đây</div>';}
     mp.forEach(function(p){
-      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+p.qty+'株 · '+daysSince(p.date)+'天</div></div><div style="display:flex;gap:5px"><button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="openRehabModal('+p.id+')">修整</button></div></div>';
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+p.qty+'株 · '+daysSince(p.date)+'天</div></div><div style="display:flex;gap:5px"><button class="btn btns btnsm" onclick="openMoveModal('+p.id+')">Di chuyển / 移動</button><button class="btn btnsm" style="background:var(--abg);color:var(--amber);border:1px solid var(--aborder)" onclick="openRehabModal('+p.id+')">修整</button></div></div>';
     });
     mb.forEach(function(b){
-      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--blue)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+b.name+'（板子）</div><div style="font-size:11px;color:var(--text2)">'+b.qty+' 片</div></div><button class="btn btns btnsm" onclick="openMoveBoardModal('+b.id+')">移動</button></div>';
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)"><div class="pdot" style="background:var(--blue)"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+b.name+'（板子）</div><div style="font-size:11px;color:var(--text2)">'+b.qty+' 片</div></div><button class="btn btns btnsm" onclick="openMoveBoardModal('+b.id+')">Di chuyển / 移動</button></div>';
     });
     h+='</div>';
   });
@@ -834,10 +834,10 @@ function openDetail(id){
   var bc=pct>66?'var(--red)':pct>33?'var(--amber)':'var(--green)';
   var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="mtitle" style="margin:0">'+p.name+'</div></div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
-  h+='<div class="metric"><div class="ml">當前成本</div><div class="mv amber" style="font-size:15px">'+vnd(ac)+'</div></div>';
-  h+='<div class="metric"><div class="ml">建議售價</div><div class="mv blue" style="font-size:15px">'+vnd(p.price)+'</div></div>';
+  h+='<div class="metric"><div class="ml">Giá vốn HT / 當前成本</div><div class="mv amber" style="font-size:15px">'+vnd(ac)+'</div></div>';
+  h+='<div class="metric"><div class="ml">Giá bán ĐX / 建議售價</div><div class="mv blue" style="font-size:15px">'+vnd(p.price)+'</div></div>';
   h+='<div class="metric"><div class="ml">毛利率</div><div class="mv" style="font-size:15px;color:'+(parseFloat(mg)>30?'var(--green)':'var(--red)')+'">'+mg+'%</div></div>';
-  h+='<div class="metric"><div class="ml">在庫天數</div><div class="mv" style="font-size:15px">'+days+' 天</div></div></div>';
+  h+='<div class="metric"><div class="ml">Ngày trong kho / Ngày kho / 在庫天數</div><div class="mv" style="font-size:15px">'+days+' 天</div></div></div>';
   h+='<div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:12px;font-size:12px">';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">分類</span><span>'+p.cat+'</span></div>';
   h+='<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--text2)">原始成本</span><span>'+vnd(p.costVnd)+'</span></div>';
@@ -849,7 +849,7 @@ function openDetail(id){
   h+='</div>';
   h+='<div class="age-bar" style="height:7px;margin-bottom:14px"><div class="age-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>';
   h+='<div style="display:flex;gap:10px"><button class="btn btns" style="flex:1" onclick="closeM(\'m-detail\')">關閉</button>';
-  if(role==='owner'){h+='<button class="btn btnd" style="flex:1" onclick="closeM(\'m-detail\');openRehabModal('+p.id+')">→ 修整區</button>';}
+  if(role==='owner'){h+='<button class="btn btnd" style="flex:1" onclick="closeM(\'m-detail\');openRehabModal('+p.id+')">→ Khu chỉnh sửa</button>';}
   h+='</div>';
   document.getElementById('detail-inner').innerHTML=h;
   openM('m-detail');
@@ -897,7 +897,7 @@ function doMoveBoard(){
   closeM('m-moveboard');renderBoardInv();renderMember();
 }
 function addPlant(){
-  var name=document.getElementById('np-name').value.trim();if(!name){alert('請填寫植物名稱');return;}
+  var name=document.getElementById('np-name').value.trim();if(!name){alert('請填寫Tên cây / 植物名稱');return;}
   var cntd=parseInt(document.getElementById('np-cntd').value)||0;
   S.plants.push({id:S.nextId++,name:name,cat:document.getElementById('np-cat').value,costNtd:cntd,costVnd:cntd*CFG.rate,price:parseInt(document.getElementById('np-price').value)||0,qty:parseInt(document.getElementById('np-qty').value)||1,date:document.getElementById('np-date').value||todayStr(),loc:document.getElementById('np-loc').value,note:document.getElementById('np-note').value,status:'ok'});
   document.getElementById('np-name').value='';closeM('m-addplant');renderInv();renderPos();
@@ -918,29 +918,29 @@ function openRehabModal(id){
     S.rehab.push({rid:rid,plantId:p.id,name:p.name,qty:qty,date:p.date,rehabDate:todayStr(),note:note,loc:p.loc,status:'rehab'});
     p.qty-=qty;if(p.qty===0)p.status='rehab';
     closeM('m-rehab');renderInv();renderMember();renderRehab();
-    alert('已移入修整區\n編號：'+rid);
+    alert('Đã chuyển vào khu chỉnh sửa\n編號：'+rid);
   };
   openM('m-rehab');
 }
 function renderRehab(){
   var el=document.getElementById('inv-rehab');if(!el)return;
-  if(S.rehab.length===0){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">修整區無植物</div>';return;}
+  if(S.rehab.length===0){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây trong khu chỉnh sửa / 修整區無植物</div>';return;}
   var h='';
   S.rehab.forEach(function(r){
     var stockDays=daysSince(r.date);var rehabDays=daysSince(r.rehabDate||r.date);
     h+='<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);padding:13px">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">'+r.rid+'</span><span class="badge ba">'+r.qty+'株 修整中</span></div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-family:DM Mono,monospace;font-size:13px;color:var(--amber);font-weight:700">'+r.rid+'</span><span class="badge ba">'+r.qty+'株 Đang CS / 修整中</span></div>';
     h+='<div style="font-size:14px;font-weight:600;margin-bottom:4px">'+r.name+'</div>';
     h+='<div style="font-size:11px;color:var(--text2);margin-bottom:8px"><span class="'+locClass[r.loc]+'">'+locLabels[r.loc]+'</span></div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">在庫天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">'+stockDays+'</div></div>';
-    h+='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">修整天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">'+rehabDays+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">Ngày trong kho / Ngày kho / 在庫天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">'+stockDays+'</div></div>';
+    h+='<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:9px;text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">Ngày chỉnh sửa / 修整天數</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--red)">'+rehabDays+'</div></div>';
     h+='</div>';
     if(r.note)h+='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+r.note+'</div>';
     if(role==='owner'){
       h+='<div style="display:flex;gap:8px">';
-      h+='<button class="btn btns btnsm" style="flex:1" onclick="openEditRehab(\''+r.rid+'\')">編輯日期</button>';
-      h+='<button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab(\''+r.rid+'\')">移回庫存</button>';
+      h+='<button class="btn btns btnsm" style="flex:1" onclick="openEditRehab(\''+r.rid+'\')">Sửa ngày</button>';
+      h+='<button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab(\''+r.rid+'\')">Chuyển lại kho</button>';
       h+='</div>';
     }
     h+='</div>';
@@ -978,7 +978,7 @@ function doReleaseRehab(){
   if(qty>r.qty){alert('數量超過修整區庫存');return;}
   var existing=S.plants.find(function(p){return p.name===r.name&&p.loc===toLoc&&p.status==='ok';});
   if(existing){existing.qty+=qty;}
-  else{S.plants.push({id:S.nextId++,name:r.name,cat:'植物',costNtd:0,costVnd:0,price:0,qty:qty,date:r.date,loc:toLoc,note:'從修整區移回',status:'ok'});}
+  else{S.plants.push({id:S.nextId++,name:r.name,cat:'植物',costNtd:0,costVnd:0,price:0,qty:qty,date:r.date,loc:toLoc,note:'Chuyển từ khu CS về kho',status:'ok'});}
   r.qty-=qty;
   if(r.qty<=0)S.rehab=S.rehab.filter(function(x){return x.rid!==rid;});
   closeM('m-releaserhab');renderRehab();renderInv();renderMember();
@@ -989,7 +989,7 @@ function renderRepSummary(){
   var tv=S.orders.reduce(function(s,o){return s+o.total;},0);
   var tp=S.orders.reduce(function(s,o){return s+o.profit;},0);
   var am=tv>0?(tp/tv*100).toFixed(1):0;
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">月度摘要</span><button class="csv-btn" onclick="exportCSV(\'summary\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Tổng hợp tháng</span><button class="csv-btn" onclick="exportCSV(\'summary\')">⬇ Xuất CSV</button></div>';
   h+='<div class="metrics">';
   h+='<div class="metric"><div class="ml">總營收</div><div class="mv blue">'+vnd(tv)+'</div></div>';
   h+='<div class="metric"><div class="ml">總毛利</div><div class="mv green">'+vnd(tp)+'</div></div>';
@@ -1015,7 +1015,7 @@ function renderRepSummary(){
 
 // REPORT - ORDERS
 function renderRepOrders(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">全部訂單明細</span><button class="csv-btn" onclick="exportCSV(\'orders\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Chi tiết tất cả đơn / 全部訂單明細</span><button class="csv-btn" onclick="exportCSV(\'orders\')">⬇ Xuất CSV</button></div>';
   h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">日期</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">客戶</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">金額</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">成交人</th></tr>';
   S.orders.forEach(function(o){
@@ -1033,14 +1033,14 @@ function renderRepMembers(){
     if(!members[o.seller])members[o.seller]={rev:0,profit:0,count:0};
     members[o.seller].rev+=o.total;members[o.seller].profit+=o.profit;members[o.seller].count++;
   });
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">成員業績</span><button class="csv-btn" onclick="exportCSV(\'members\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Doanh số TV</span><button class="csv-btn" onclick="exportCSV(\'members\')">⬇ Xuất CSV</button></div>';
   h+='<div style="padding:0 16px">';
   Object.keys(members).forEach(function(name){
     var m=members[name];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;
     h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:12px">';
     h+='<div style="font-size:15px;font-weight:600;margin-bottom:10px">'+name+'</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">';
-    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">筆數</div><div style="font-size:16px;font-weight:700">'+m.count+'</div></div>';
+    h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">Số đơn / 筆數</div><div style="font-size:16px;font-weight:700">'+m.count+'</div></div>';
     h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">營收</div><div style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">'+vnd(m.rev)+'</div></div>';
     h+='<div style="background:var(--bg3);border-radius:var(--r);padding:9px"><div style="font-size:9px;color:var(--text2)">毛利率</div><div style="font-size:11px;font-weight:700;color:var(--green)">'+mg+'%</div></div>';
     h+='</div></div>';
@@ -1060,7 +1060,7 @@ function renderRepPlantsSold(){
       plantSales[item.name].profit+=(item.price-item.cost)*item.qty;
     });
   });
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">植物銷售統計</span><button class="csv-btn" onclick="exportCSV(\'plants-sold\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Thống kê doanh số cây / 植物銷售統計</span><button class="csv-btn" onclick="exportCSV(\'plants-sold\')">⬇ Xuất CSV</button></div>';
   var sorted=Object.keys(plantSales).sort(function(a,b){return plantSales[b].rev-plantSales[a].rev;});
   h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">品名</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">數量</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">營收</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利率</th></tr>';
@@ -1072,7 +1072,7 @@ function renderRepPlantsSold(){
   var soldNames=Object.keys(plantSales);
   var unsold=S.plants.filter(function(p){return p.status!=='rehab'&&soldNames.indexOf(p.name)===-1;});
   if(unsold.length>0){
-    h+='<tr style="background:var(--bg3)"><td colspan="4" style="padding:8px 6px;font-size:10px;color:var(--text3)">未售出植物</td></tr>';
+    h+='<tr style="background:var(--bg3)"><td colspan="4" style="padding:8px 6px;font-size:10px;color:var(--text3)">Cây chưa bán / 未售出植物</td></tr>';
     unsold.forEach(function(p){
       h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 6px;color:var(--text3)">'+p.name+'</td><td style="padding:8px 6px;text-align:right;color:var(--text3)">'+p.qty+'株在庫</td><td style="padding:8px 6px;text-align:right;color:var(--text3)">-</td><td style="padding:8px 6px;text-align:right;color:var(--amber)">'+daysSince(p.date)+'天</td></tr>';
     });
@@ -1083,7 +1083,7 @@ function renderRepPlantsSold(){
 
 // REPORT - INV STATUS
 function renderInvStatus(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">當前庫存狀態</span><button class="csv-btn" onclick="exportCSV(\'invstatus\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Trạng thái kho hiện tại / 當前庫存狀態</span><button class="csv-btn" onclick="exportCSV(\'invstatus\')">⬇ Xuất CSV</button></div>';
   var active=S.plants.filter(function(p){return p.status!=='rehab';}).sort(function(a,b){return daysSince(b.date)-daysSince(a.date);});
   h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">位置</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">天數</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">當前成本</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">毛利率</th></tr>';
@@ -1098,7 +1098,7 @@ function renderInvStatus(){
 
 // REPORT - REHAB LOG
 function renderRehabLog(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">修整記錄</span><button class="csv-btn" onclick="exportCSV(\'rehab-log\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Lịch sử CS</span><button class="csv-btn" onclick="exportCSV(\'rehab-log\')">⬇ Xuất CSV</button></div>';
   if(S.rehab.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">無修整記錄</div>';document.getElementById('rep-rehab-log').innerHTML=h;return;}
   h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">編號</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">在庫天</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">修整天</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">原因</th></tr>';
@@ -1111,13 +1111,13 @@ function renderRehabLog(){
 
 // REPORT - WRITEOFF
 function renderWriteoffRep(){
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">死亡報廢記錄</span><button class="csv-btn" onclick="exportCSV(\'writeoff\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Danh sách hao hụt / 死亡報廢記錄</span><button class="csv-btn" onclick="exportCSV(\'writeoff\')">⬇ Xuất CSV</button></div>';
   var totalQty=S.writeoffs.reduce(function(s,w){return s+w.qty;},0);
   var totalCost=S.writeoffs.reduce(function(s,w){return s+(w.cost||0);},0);
   h+='<div class="metrics" style="margin-bottom:8px">';
-  h+='<div class="metric"><div class="ml">報廢總數</div><div class="mv red" style="color:var(--red)">'+totalQty+' 株</div></div>';
-  h+='<div class="metric"><div class="ml">損失成本</div><div class="mv red" style="color:var(--red)">'+vnd(totalCost)+'</div></div></div>';
-  if(S.writeoffs.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">無報廢記錄</div>';document.getElementById('rep-writeoff').innerHTML=h;return;}
+  h+='<div class="metric"><div class="ml">Tổng hao hụt / 報廢總數</div><div class="mv red" style="color:var(--red)">'+totalQty+' 株</div></div>';
+  h+='<div class="metric"><div class="ml">Chi phí thiệt hại / 損失成本</div><div class="mv red" style="color:var(--red)">'+vnd(totalCost)+'</div></div></div>';
+  if(S.writeoffs.length===0){h+='<div style="padding:24px;text-align:center;color:var(--text3)">Chưa có ghi nhận hao hụt</div>';document.getElementById('rep-writeoff').innerHTML=h;return;}
   h+='<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="background:var(--bg3);color:var(--text2)"><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">日期</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">植物</th><th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">數量</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">原因</th><th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">操作人</th></tr>';
   S.writeoffs.forEach(function(w){
@@ -1130,11 +1130,11 @@ function renderWriteoffRep(){
 // REPORT - PURCHASE
 function renderPur(){
   var tv=S.purchases.reduce(function(s,p){return s+p.totalVnd;},0);
-  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">進貨記錄</span><button class="csv-btn" onclick="exportCSV(\'purchase\')">⬇ 導出 CSV</button></div>';
+  var h='<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">Nhập hàng</span><button class="csv-btn" onclick="exportCSV(\'purchase\')">⬇ Xuất CSV</button></div>';
   h+='<div class="metrics" style="margin-bottom:8px">';
-  h+='<div class="metric"><div class="ml">批次數</div><div class="mv">'+S.purchases.length+'</div></div>';
-  h+='<div class="metric"><div class="ml">總進貨成本</div><div class="mv amber">'+vnd(tv)+'</div></div></div>';
-  h+='<div style="padding:0 16px 10px;display:flex;justify-content:flex-end"><button class="btn btnp btnsm" onclick="openM(\'m-newpur\')">+ 新增進貨</button></div>';
+  h+='<div class="metric"><div class="ml">Số lô hàng / 批次數</div><div class="mv">'+S.purchases.length+'</div></div>';
+  h+='<div class="metric"><div class="ml">Tổng chi phí nhập / 總進貨成本</div><div class="mv amber">'+vnd(tv)+'</div></div></div>';
+  h+='<div style="padding:0 16px 10px;display:flex;justify-content:flex-end"><button class="btn btnp btnsm" onclick="openM(\'m-newpur\')">+ Thêm lô hàng</button></div>';
   S.purchases.forEach(function(p){
     h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin:0 16px 10px">';
     h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-weight:500;font-size:14px">'+p.vendor+'</span><span style="color:var(--text2);font-size:12px;margin-left:8px">'+p.date+'</span></div><span class="badge bb">'+p.items.reduce(function(s,i){return s+i.qty;},0)+' 株</span></div>';
@@ -1149,27 +1149,27 @@ function renderPur(){
 function renderAdmin(){
   loadConfig();
   var h='<div style="height:12px"></div>';
-  h+='<div class="admin-section"><div class="admin-section-title">系統設定</div><div style="padding:14px 16px">';
-  h+='<div class="field"><label class="flabel">匯率：1 NTD = ? VND</label><input class="inp" id="cfg-rate" type="number"></div>';
-  h+='<div class="field"><label class="flabel">每月成本增加（VND）</label><input class="inp" id="cfg-monthly-inc" type="number"></div>';
-  h+='<div class="field"><label class="flabel">最高增加上限（VND）</label><input class="inp" id="cfg-max-inc" type="number"></div>';
-  h+='<button class="btn btnp btnf" onclick="saveConfig()">儲存設定</button></div></div>';
-  h+='<div class="admin-section"><div class="admin-section-title">植物管理</div>';
+  h+='<div class="admin-section"><div class="admin-section-title">Cài đặt hệ thống / 系統設定</div><div style="padding:14px 16px">';
+  h+='<div class="field"><label class="flabel">Tỷ giá: 1 NTD = ? VND</label><input class="inp" id="cfg-rate" type="number"></div>';
+  h+='<div class="field"><label class="flabel">Chi phí tăng/tháng (VND)</label><input class="inp" id="cfg-monthly-inc" type="number"></div>';
+  h+='<div class="field"><label class="flabel">Giới hạn tăng tối đa (VND)</label><input class="inp" id="cfg-max-inc" type="number"></div>';
+  h+='<button class="btn btnp btnf" onclick="saveConfig()">Lưu cài đặt</button></div></div>';
+  h+='<div class="admin-section"><div class="admin-section-title">Quản lý cây / 植物管理</div>';
   S.plants.filter(function(p){return p.status!=='rehab';}).forEach(function(p){
-    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(p.price)+' · '+p.qty+'株 · <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></div></div><button class="btn btns btnsm" onclick="openEditPlant('+p.id+')">編輯</button></div>';
+    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+p.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(p.price)+' · '+p.qty+'株 · <span class="'+locClass[p.loc]+'">'+locLabels[p.loc]+'</span></div></div><button class="btn btns btnsm" onclick="openEditPlant('+p.id+')">Sửa / 編輯</button></div>';
   });
   h+='</div>';
-  h+='<div class="admin-section"><div class="admin-section-title">板子管理</div>';
+  h+='<div class="admin-section"><div class="admin-section-title">Quản lý tấm gỗ / 板子管理</div>';
   S.boards.forEach(function(b){
-    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+b.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(b.price)+' · 總庫存 '+b.qty+'</div></div><button class="btn btns btnsm" onclick="openEditBoard('+b.id+')">編輯</button></div>';
+    h+='<div class="admin-row"><div><div style="font-size:13px;font-weight:500">'+b.name+'</div><div style="font-size:11px;color:var(--text2)">'+vnd(b.price)+' · Tổng / '+b.qty+'</div></div><button class="btn btns btnsm" onclick="openEditBoard('+b.id+')">Sửa / 編輯</button></div>';
   });
-  h+='<div style="padding:12px 16px"><button class="btn btns btnf" onclick="openEditBoard(0)">+ 新增板子種類</button></div></div>';
-  h+='<div class="admin-section"><div class="admin-section-title">活動價 / 批發價</div><div style="padding:14px 16px">';
-  h+='<div class="field"><label class="flabel">活動折扣（%）</label><input class="inp" id="cfg-promo" type="number"></div>';
-  h+='<div class="field"><label class="flabel">活動結束日</label><input class="inp" id="cfg-promo-end" type="date"></div>';
-  h+='<div class="field"><label class="flabel">批發客戶名稱</label><input class="inp" id="cfg-wholesale-name"></div>';
-  h+='<div class="field"><label class="flabel">批發折扣（%）</label><input class="inp" id="cfg-wholesale-pct" type="number"></div>';
-  h+='<button class="btn btnp btnf" onclick="savePromo()">儲存</button></div></div>';
+  h+='<div style="padding:12px 16px"><button class="btn btns btnf" onclick="openEditBoard(0)">+ Thêm loại tấm gỗ</button></div></div>';
+  h+='<div class="admin-section"><div class="admin-section-title">Giá KM / 活動批發價</div><div style="padding:14px 16px">';
+  h+='<div class="field"><label class="flabel">Giảm giá sự kiện (%)</label><input class="inp" id="cfg-promo" type="number"></div>';
+  h+='<div class="field"><label class="flabel">Ngày kết thúc KM</label><input class="inp" id="cfg-promo-end" type="date"></div>';
+  h+='<div class="field"><label class="flabel">Tên khách sỉ</label><input class="inp" id="cfg-wholesale-name"></div>';
+  h+='<div class="field"><label class="flabel">Giảm giá sỉ (%)</label><input class="inp" id="cfg-wholesale-pct" type="number"></div>';
+  h+='<button class="btn btnp btnf" onclick="savePromo()">Lưu / 儲存</button></div></div>';
   h+='<div style="height:20px"></div>';
   document.getElementById('rep-admin').innerHTML=h;
   loadConfig();
@@ -1217,7 +1217,7 @@ function saveBoard(){
 // PURCHASE
 function addPurItem(){purItems.push({name:'',qty:1,costNtd:0});renderPurItems();}
 function renderPurItems(){
-  var h='<div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:500">進貨明細</div>';
+  var h='<div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:500">Chi tiết lô / 進貨明細</div>';
   purItems.forEach(function(item,i){
     h+='<div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px"><div class="field" style="margin-bottom:7px"><input class="inp" placeholder="品名" value="'+item.name+'" onchange="purItems['+i+'].name=this.value"></div>';
     h+='<div class="irow"><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="數量" value="'+(item.qty||'')+'" onchange="purItems['+i+'].qty=parseInt(this.value)||0"></div><div class="field" style="margin-bottom:0"><input class="inp" type="number" placeholder="成本 NTD" value="'+(item.costNtd||'')+'" onchange="purItems['+i+'].costNtd=parseInt(this.value)||0"></div></div></div>';
@@ -1254,12 +1254,12 @@ function exportCSV(type){
     Object.keys(members).forEach(function(name){var m=members[name];var mg=m.rev>0?(m.profit/m.rev*100).toFixed(1):0;rows.push([name,m.count,m.rev,m.profit,mg+'%']);});
   } else if(type==='plants-sold'){
     filename='植物銷售.csv';
-    rows.push(['植物名稱','售出數量','總營收(VND)','總毛利(VND)','毛利率']);
+    rows.push(['Tên cây / 植物名稱','售出數量','總營收(VND)','總毛利(VND)','毛利率']);
     var ps={};S.orders.forEach(function(o){o.items.forEach(function(item){if(!ps[item.name])ps[item.name]={qty:0,rev:0,profit:0};ps[item.name].qty+=item.qty;ps[item.name].rev+=item.price*item.qty;ps[item.name].profit+=(item.price-item.cost)*item.qty;});});
     Object.keys(ps).sort(function(a,b){return ps[b].rev-ps[a].rev;}).forEach(function(name){var s=ps[name];var mg=s.rev>0?(s.profit/s.rev*100).toFixed(1):0;rows.push([name,s.qty,s.rev,s.profit,mg+'%']);});
   } else if(type==='invstatus'){
     filename='庫存狀態.csv';
-    rows.push(['植物名稱','分類','位置','數量','在庫天數','原始成本(VND)','當前成本(VND)','售價(VND)','毛利率','進貨日期']);
+    rows.push(['Tên cây / 植物名稱','分類','位置','數量','在庫天數','原始成本(VND)','當前成本(VND)','售價(VND)','毛利率','進貨日期']);
     S.plants.filter(function(p){return p.status!=='rehab';}).forEach(function(p){var ac=agedCost(p);var mg=mgn(p);rows.push([p.name,p.cat,locLabels[p.loc],p.qty,daysSince(p.date),p.costVnd,ac,p.price,mg+'%',p.date]);});
   } else if(type==='rehab-log'){
     filename='修整記錄.csv';
@@ -1267,7 +1267,7 @@ function exportCSV(type){
     S.rehab.forEach(function(r){rows.push([r.rid,r.name,r.qty,locLabels[r.loc],r.date,r.rehabDate||r.date,daysSince(r.date),daysSince(r.rehabDate||r.date),r.note]);});
   } else if(type==='writeoff'){
     filename='死亡報廢.csv';
-    rows.push(['日期','植物名稱','數量','位置','死亡原因','操作人員','損失成本(VND)']);
+    rows.push(['日期','Tên cây / 植物名稱','數量','位置','Lý do / 死亡原因','Người thực hiện / 操作人員','損失成本(VND)']);
     S.writeoffs.forEach(function(w){rows.push([w.date,w.name,w.qty,locLabels[w.loc]||'',w.reason,w.operator,w.cost||0]);});
   } else if(type==='purchase'){
     filename='進貨記錄.csv';
