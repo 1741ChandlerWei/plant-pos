@@ -1,6 +1,10 @@
 // ==================== ORDERS MODULE ====================
 let orderFilterMonth = null;
 
+function getOrderItemsStr(o) {
+  return (o.order_items || []).map(i => i.item_name + (i.qty > 1 ? ' ×' + i.qty : '')).join('、');
+}
+
 function renderHome() {
   const today = todayStr();
   const now = new Date();
@@ -14,22 +18,25 @@ function renderHome() {
   const toP = toOrds.reduce((s, o) => s + o.profit, 0);
   const moRev = moOrds.reduce((s, o) => s + o.total, 0);
   const moP = moOrds.reduce((s, o) => s + o.profit, 0);
-
   document.getElementById('home-metrics').innerHTML = `
     <div class="metric"><div class="ml">Doanh thu hôm nay / 今日營收</div><div class="mv blue">${vnd(toRev)}</div></div>
     <div class="metric"><div class="ml">Lợi nhuận hôm nay / 今日毛利</div><div class="mv green">${vnd(toP)}</div></div>
     <div class="metric"><div class="ml">Doanh thu tháng / 本月營收</div><div class="mv blue">${vnd(moRev)}</div></div>
     <div class="metric"><div class="ml">Lợi nhuận tháng / 本月毛利</div><div class="mv green">${vnd(moP)}</div></div>`;
-
   const toEl = document.getElementById('today-orders');
   toEl.innerHTML = toOrds.length === 0
     ? '<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">Chưa có đơn hôm nay / 今日尚無訂單</div>'
-    : toOrds.map(o => `<div class="pi" onclick="showReceipt(${o.id})">
-        <div class="pdot" style="background:var(--green)"></div>
-        <div class="pinfo"><div class="pname">${o.customer}</div><div class="pmeta">${o.source} · ${o.seller}</div></div>
-        <div class="pright"><div class="pprice">${vnd(o.total)}</div><div class="psub" style="color:var(--green)">+${vnd(o.profit)}</div></div>
-      </div>`).join('');
-
+    : toOrds.map(o => {
+        const items = getOrderItemsStr(o);
+        return `<div class="pi" onclick="showReceipt(${o.id})">
+          <div class="pdot" style="background:var(--green)"></div>
+          <div class="pinfo">
+            <div class="pname"><span style="color:var(--text2);font-size:11px">#${String(o.id).padStart(4,'0')}</span> ${o.customer}</div>
+            <div class="pmeta">${items || '-'}</div>
+          </div>
+          <div class="pright"><div class="pprice">${vnd(o.total)}</div><div class="psub" style="color:var(--green)">+${vnd(o.profit)}</div></div>
+        </div>`;
+      }).join('');
   const low = DATA.plants.filter(p => p.qty <= 2 && p.status === 'ok');
   document.getElementById('low-stock').innerHTML = low.length === 0
     ? '<div style="padding:13px 18px;color:var(--text3);font-size:12px">Không có SL thấp / 目前無低庫存</div>'
@@ -41,14 +48,33 @@ function renderHome() {
 }
 
 function renderOrders(filterMonth) {
+  orderFilterMonth = filterMonth;
+
+  // 月份頁籤
+  const allMonths = [...new Set(DATA.orders.map(o => o.order_date.substring(0, 7)))].sort().reverse();
+  document.getElementById('orders-tabs').innerHTML = `
+    <div style="display:flex;gap:8px;overflow-x:auto;padding:12px 16px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+      <button onclick="renderOrders(null)" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${!filterMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!filterMonth ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+        Tất cả / 全部
+      </button>
+      ${allMonths.map(m => {
+        const [yr, mo] = m.split('-');
+        const isActive = filterMonth === m;
+        return `<button onclick="renderOrders('${m}')" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          ${yr}/${mo}
+        </button>`;
+      }).join('')}
+    </div>`;
+
   const orders = filterMonth
-    ? DATA.orders.filter(o => monthKey(o.order_date) === filterMonth)
+    ? DATA.orders.filter(o => o.order_date.startsWith(filterMonth))
     : DATA.orders;
-  document.getElementById('orders-clear-filter').style.display = filterMonth ? 'flex' : 'none';
+
   if (orders.length === 0) {
     document.getElementById('orders-list').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Chưa có đơn hàng / 無訂單記錄</div>';
     return;
   }
+
   const monthly = {};
   orders.forEach(o => {
     const k = monthKey(o.order_date);
@@ -56,6 +82,7 @@ function renderOrders(filterMonth) {
     monthly[k].orders.push(o);
     if (o.status === 'completed') { monthly[k].rev += o.total; monthly[k].profit += o.profit; }
   });
+
   let html = '';
   Object.keys(monthly).sort().reverse().forEach(k => {
     const m = monthly[k];
@@ -69,7 +96,6 @@ function renderOrders(filterMonth) {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:13px;font-weight:700;color:${mgc}">${mg}%</span>
-          <button onclick="event.stopPropagation();goOrdersFiltered('${k}')" style="background:var(--bbg);color:var(--blue);border:1px solid var(--bborder);border-radius:100px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit">Chi tiết →</button>
         </div>
       </div>
       <div>
@@ -78,17 +104,24 @@ function renderOrders(filterMonth) {
           <div style="text-align:center"><div style="font-size:9px;color:var(--text2)">Lợi nhuận / 毛利</div><div style="font-size:12px;font-weight:700;font-family:DM Mono,monospace;color:var(--green)">${vnd(m.profit)}</div></div>
           <div style="text-align:center"><div style="font-size:9px;color:var(--text2)">Tỷ lệ / 毛利率</div><div style="font-size:12px;font-weight:700;color:${mgc}">${mg}%</div></div>
         </div>
-        ${m.orders.map(o => `
-          <div class="order-row" onclick="showReceipt(${o.id})">
+        ${m.orders.map(o => {
+          const items = getOrderItemsStr(o);
+          return `<div class="order-row" onclick="showReceipt(${o.id})">
             <div>
-              <div style="font-size:13px;font-weight:500">${o.customer} ${o.status === 'cancelled' ? '<span class="cancelled-badge">Đã hủy / 已取消</span>' : ''}</div>
-              <div style="font-size:11px;color:var(--text2);margin-top:2px">${o.order_date.slice(5)} · ${o.seller} · ${o.payment}</div>
+              <div style="font-size:13px;font-weight:500">
+                <span style="color:var(--text2);font-size:11px">#${String(o.id).padStart(4,'0')}</span>
+                <span style="margin-left:4px">${o.order_date.slice(5)}</span>
+                <span style="margin-left:6px">${o.customer}</span>
+                ${o.status === 'cancelled' ? '<span class="cancelled-badge">Đã hủy / 已取消</span>' : ''}
+              </div>
+              <div style="font-size:11px;color:var(--text2);margin-top:2px">${items || '-'}</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:13px;font-weight:500;font-family:DM Mono,monospace;${o.status==='cancelled'?'text-decoration:line-through;color:var(--text3)':''}">${vnd(o.total)}</div>
               ${o.status === 'completed' ? `<div style="font-size:11px;color:var(--green)">+${vnd(o.profit)}</div>` : ''}
             </div>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   });
@@ -108,7 +141,9 @@ function showReceipt(id) {
       ${o.address ? `<div style="font-size:11px;color:#444;margin-top:2px">📦 ${o.address}</div>` : '<div style="font-size:11px;color:#888;margin-top:2px">Tự lấy / 自取</div>'}
     </div>
     <div class="rsec"><div class="rlabel">Chi tiết / 商品明細</div>`;
-  items.forEach(item => { h += `<div class="rrow"><span>${item.item_name} × ${item.qty}</span><span>${vnd(item.price * item.qty)}</span></div>`; });
+  items.forEach(item => {
+    h += `<div class="rrow"><span>${item.item_name} × ${item.qty}</span><span>${vnd(item.price * item.qty)}</span></div>`;
+  });
   h += `<div class="rtotal"><span>Tổng / 合計</span><span>${vnd(o.total)}</span></div></div>
     <div class="rsec">
       <div class="rrow"><span style="color:#888">Thanh toán / 付款</span><span>${o.payment}</span></div>
@@ -118,7 +153,6 @@ function showReceipt(id) {
     </div>
   </div>`;
   document.getElementById('receipt-body').innerHTML = h;
-  // Show cancel button only for owner and completed orders
   const cancelBtn = document.getElementById('receipt-cancel-btn');
   if (cancelBtn) cancelBtn.style.display = (ROLE === 'owner' && o.status === 'completed') ? 'flex' : 'none';
   if (cancelBtn) cancelBtn.onclick = () => openCancelOrder(id);
@@ -140,7 +174,6 @@ async function doCancelOrder() {
   if (!o) return;
   showLoading(true);
   await DB.cancelOrder(cancelOrderId, reason, ROLE === 'owner' ? 'Chandler Wei' : ROLE);
-  // 退回庫存
   const items = o.order_items || [];
   for (const item of items) {
     if (item.item_type === 'plant') {
@@ -149,10 +182,7 @@ async function doCancelOrder() {
       else await DB.addPlant({ name: item.item_name, cat: '植物', cost_ntd: 0, cost_vnd: item.cost, price: item.price, qty: item.qty, purchase_date: todayStr(), loc: item.loc, note: 'Hoàn trả / 退貨退回', status: 'ok' });
     } else {
       const b = DATA.boards.find(x => x.name === item.item_name);
-      if (b) {
-        const field = 'qty_' + item.loc;
-        await DB.updateBoard(b.id, { [field]: b[field] + item.qty });
-      }
+      if (b) { const field = 'qty_' + item.loc; await DB.updateBoard(b.id, { [field]: b[field] + item.qty }); }
     }
   }
   await loadAllData();

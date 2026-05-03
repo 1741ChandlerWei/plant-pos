@@ -92,6 +92,7 @@ function renderRepOrders() {
   <div style="overflow-x:auto;margin:0 16px">
   <table style="width:100%;border-collapse:collapse;font-size:11px">
   <tr style="background:var(--bg3);color:var(--text2)">
+    <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)"># / 編號</th>
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Ngày / 日期</th>
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Khách / 客戶</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Tổng / 金額</th>
@@ -101,9 +102,14 @@ function renderRepOrders() {
   </tr>`;
   completed.forEach(o => {
     const mg = o.total > 0 ? (o.profit / o.total * 100).toFixed(0) : 0;
+    const items = (o.order_items || []).map(i => i.item_name + (i.qty > 1 ? ' ×' + i.qty : '')).join('、');
     h += `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="showReceipt(${o.id})">
+      <td style="padding:8px 6px;color:var(--amber);font-family:DM Mono,monospace;font-weight:600">#${String(o.id).padStart(4,'0')}</td>
       <td style="padding:8px 6px;color:var(--text2)">${o.order_date.slice(5)}</td>
-      <td style="padding:8px 6px;font-weight:500">${o.customer}</td>
+      <td style="padding:8px 6px">
+        <div style="font-weight:500">${o.customer}</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:2px">${items || '-'}</div>
+      </td>
       <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(o.total)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(o.profit)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--green)">${mg}%</td>
