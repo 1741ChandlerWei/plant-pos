@@ -13,26 +13,25 @@ function posTab(t) {
 
 function renderPos() {
   const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok');
-  
   document.getElementById('pos-plant').innerHTML = avail.length === 0
     ? '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây / 無庫存</div>'
     : avail.map(p => {
-        const ac = agedCost(p.cost_vnd, p.purchase_date);
-        const mg = parseFloat(margin(p.price, p.cost_vnd, p.purchase_date));
-        const mc = mg > 40 ? 'var(--green)' : mg > 20 ? 'var(--amber)' : 'var(--red)';
-        const days = daysSince(p.purchase_date);
-        const pct = Math.min(days / 90 * 100, 100);
-        const bc = pct > 66 ? 'var(--red)' : pct > 33 ? 'var(--amber)' : 'var(--green)';
-        return `<div class="pi" onclick="addCart('plant',${p.id})">
-          <div class="pdot" style="background:${mc}"></div>
-          <div class="pinfo">
-            <div class="pname">${p.name} <span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></div>
-            <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}天</div>
-            <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
-          </div>
-          <div class="pright"><div class="pprice">${vnd(p.price)}</div><div class="psub" style="color:${mc}">${vnd(p.price - ac)}</div><div class="psub" style="color:${mc}">${mg}%</div></div>
-        </div>`;
-      }).join('');
+      const ac = agedCost(p.cost_vnd, p.purchase_date);
+      const mg = parseFloat(margin(p.price, p.cost_vnd, p.purchase_date));
+      const mc = mg > 40 ? 'var(--green)' : mg > 20 ? 'var(--amber)' : 'var(--red)';
+      const days = daysSince(p.purchase_date);
+      const pct = Math.min(days / 90 * 100, 100);
+      const bc = pct > 66 ? 'var(--red)' : pct > 33 ? 'var(--amber)' : 'var(--green)';
+      return `<div class="pi" onclick="addCart('plant',${p.id})">
+        <div class="pdot" style="background:${mc}"></div>
+        <div class="pinfo">
+          <div class="pname">${p.name} <span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></div>
+          <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}天</div>
+          <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
+        </div>
+        <div class="pright"><div class="pprice">${vnd(p.price)}</div><div class="psub" style="color:${mc}">${vnd(p.price - ac)}</div><div class="psub" style="color:${mc}">${mg}%</div></div>
+      </div>`;
+    }).join('');
 
   let boardHtml = '';
   DATA.boards.forEach(b => {
@@ -81,7 +80,10 @@ function updateBadge() {
 
 function renderCart() {
   const el = document.getElementById('pos-cart');
-  if (cart.length === 0) { el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3)">Giỏ hàng trống / 購物車為空</div>'; return; }
+  if (cart.length === 0) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3)">Giỏ hàng trống / 購物車為空</div>';
+    return;
+  }
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const cost = cart.reduce((s, c) => s + c.cost * c.qty, 0);
   const prof = sub - cost;
@@ -137,6 +139,9 @@ function openCheckout() {
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const prof = sub - cart.reduce((s, c) => s + c.cost * c.qty, 0);
   ['co-name','co-contact','co-addr','co-note'].forEach(id => document.getElementById(id).value = '');
+  // 重設日期為今天
+  const coDate = document.getElementById('co-date');
+  if (coDate) coDate.value = new Date().toISOString().split('T')[0];
   document.getElementById('co-summary').innerHTML =
     '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">Sản phẩm / 品項</div>' +
     cart.map(c => `<div style="font-size:12px;padding:2px 0">${c.name} × ${c.qty} <span class="${LOC_CLASS[c.loc]}">${LOC_LABELS[c.loc]}</span> = ${vnd(c.price * c.qty)}</div>`).join('') +
@@ -150,8 +155,11 @@ async function completeOrder() {
   if (!name) { showToast('Vui lòng nhập tên khách / 請填寫客戶姓名', 'error'); return; }
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const cost = cart.reduce((s, c) => s + c.cost * c.qty, 0);
+  // 讀取日期欄位，預設今天
+  const coDateEl = document.getElementById('co-date');
+  const orderDate = (coDateEl && coDateEl.value) ? coDateEl.value : todayStr();
   const order = {
-    order_date: todayStr(),
+    order_date: orderDate,
     customer: name,
     contact: document.getElementById('co-contact').value,
     address: document.getElementById('co-addr').value,
@@ -163,14 +171,10 @@ async function completeOrder() {
     profit: sub - cost,
     status: 'completed'
   };
-  const items = cart.map(c => ({
-    item_type: c.type, item_name: c.name, qty: c.qty,
-    price: c.price, cost: c.cost, loc: c.loc
-  }));
+  const items = cart.map(c => ({ item_type: c.type, item_name: c.name, qty: c.qty, price: c.price, cost: c.cost, loc: c.loc }));
   showLoading(true);
   const o = await DB.addOrder(order, items);
   if (!o) { showLoading(false); return; }
-
   // 扣庫存
   for (const c of cart) {
     if (c.type === 'plant') {
@@ -218,19 +222,9 @@ async function confirmWriteoff() {
   if (qty > p.qty) { showToast('Vượt SL tồn kho / 數量超過庫存', 'error'); return; }
   if (!reason) { showToast('Vui lòng nhập lý do / 請填寫死亡原因', 'error'); return; }
   if (!confirm(`Xác nhận hao hụt / 確認報廢 ${p.name} × ${qty}？`)) return;
-
-  // 計算報廢時的實際成本（考慮在庫時間）
   const actualCost = agedCost(p.cost_vnd, p.purchase_date) * qty;
-
   showLoading(true);
-  await DB.addWriteoff({
-    writeoff_date: todayStr(),
-    plant_name: p.name,
-    qty, reason,
-    loc: p.loc,
-    operator: op,
-    cost: actualCost
-  });
+  await DB.addWriteoff({ writeoff_date: todayStr(), plant_name: p.name, qty, reason, loc: p.loc, operator: op, cost: actualCost });
   await DB.updatePlant(p.id, { qty: p.qty - qty });
   await loadAllData();
   showLoading(false);
