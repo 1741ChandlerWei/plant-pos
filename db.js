@@ -1,8 +1,6 @@
 // ==================== DB MODULE ====================
 // 所有 Supabase 資料庫操作集中在這裡
-
 const DB = {
-
   // CONFIG
   async getConfig() {
     const { data } = await sb.from('config').select('*').single();
@@ -83,12 +81,11 @@ const DB = {
   },
   async cancelOrder(orderId, reason, operator) {
     await sb.from('orders').update({ status: 'cancelled' }).eq('id', orderId);
-    await sb.from('cancellations').insert({
-      order_id: orderId,
-      cancel_date: todayStr(),
-      reason,
-      operator
-    });
+    await sb.from('cancellations').insert({ order_id: orderId, cancel_date: todayStr(), reason, operator });
+  },
+  async updateShipped(orderId, shipped) {
+    const { error } = await sb.from('orders').update({ shipped }).eq('id', orderId);
+    return !error;
   },
 
   // PURCHASES
