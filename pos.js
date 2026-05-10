@@ -249,31 +249,78 @@ async function completeOrder() {
 // WRITEOFF
 function renderWriteoffForm() {
   const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok');
+  const rehabAvail = DATA.rehab.filter(r => r.status === 'rehab' || r.status === 'tracking' || r.status === 'available');
+
   let h = '<div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:12px;color:var(--red)">Cây chết/hỏng sẽ trừ khỏi kho và lưu vào báo cáo / 死亡報廢將從庫存中扣除並記錄</div>';
-  h += '<div class="field"><label class="flabel">Cây / 植物</label><select class="inp" id="wo-plant">';
-  avail.forEach(p => { h += `<option value="${p.id}">${p.name} (${LOC_LABELS[p.loc]}) · ${p.qty}株</option>`; });
+  h += '<div class="field"><label class="flabel">Cây / 植物</label><select class="inp" id="wo-plant" onchange="woTypeChange(this)">';
+
+  // 一般庫存植物
+  if (avail.length > 0) {
+    h += '<optgroup label="── 一般庫存 ──">';
+    avail.forEach(p => { h += `<option value="plant-${p.id}">${p.name} (${LOC_LABELS[p.loc]}) · ${p.qty}株</option>`; });
+    h += '</optgroup>';
+  }
+
+  // 修整區和追蹤區植物
+  if (rehabAvail.length > 0) {
+    h += '<optgroup label="── 修整/追蹤區 ──">';
+    rehabAvail.forEach(r => {
+      const label = r.status === 'rehab' ? '修整中' : r.status === 'tracking' ? '追蹤中' : '可售';
+      h += `<option value="rehab-${r.id}">${r.plant_name} [${r.rid}] (${label})</option>`;
+    });
+    h += '</optgroup>';
+  }
+
   h += '</select></div>';
-  h += '<div class="field"><label class="flabel">Số lượng / 報廢數量</label><input class="inp" id="wo-qty" type="number" min="1" value="1"></div>';
+  h += '<div class="field" id="wo-qty-wrap"><label class="flabel">Số lượng / 報廢數量</label><input class="inp" id="wo-qty" type="number" min="1" value="1"></div>';
   h += '<div class="field"><label class="flabel">Lý do / 死亡原因</label><input class="inp" id="wo-reason" placeholder="Rễ bị thối / 根部腐爛..."></div>';
   h += '<div class="field"><label class="flabel">Người thực hiện / 操作人員</label><select class="inp" id="wo-op"><option>Chandler Wei</option><option>Quang</option><option>Trợ lý / 小幫手</option></select></div>';
   h += '<button class="btn btnd btnf" onclick="confirmWriteoff()">Xác nhận hao hụt / 確認報廢</button>';
   document.getElementById('pos-writeoff').innerHTML = h;
+  woTypeChange(document.getElementById('wo-plant'));
+}
+
+function woTypeChange(sel) {
+  const val = sel.value;
+  const qtyWrap = document.getElementById('wo-qty-wrap');
+  // rehab 植物固定1株，隱藏數量
+  if (val && val.startsWith('rehab-')) {
+    qtyWrap.style.display = 'none';
+  } else {
+    qtyWrap.style.display = '';
+  }
 }
 
 async function confirmWriteoff() {
-  const pid = parseInt(document.getElementById('wo-plant').value);
-  const qty = parseInt(document.getElementById('wo-qty').value) || 1;
+  const val = document.getElementById('wo-plant').value;
   const reason = document.getElementById('wo-reason').value;
   const op = document.getElementById('wo-op').value;
-  const p = DATA.plants.find(x => x.id === pid);
-  if (!p) return;
-  if (qty > p.qty) { showToast('Vượt SL tồn kho / 數量超過庫存', 'error'); return; }
   if (!reason) { showToast('Vui lòng nhập lý do / 請填寫死亡原因', 'error'); return; }
-  if (!confirm(`Xác nhận hao hụt / 確認報廢 ${p.name} × ${qty}？`)) return;
-  const actualCost = agedCost(p.cost_vnd, p.purchase_date) * qty;
-  showLoading(true);
-  await DB.addWriteoff({ writeoff_date: todayStr(), plant_name: p.name, qty, reason, loc: p.loc, operator: op, cost: actualCost });
-  await DB.updatePlant(p.id, { qty: p.qty - qty });
+
+  if (val.startsWith('rehab-')) {
+    // 修整/追蹤區植物報廢
+    const rid_id = parseInt(val.replace('rehab-', ''));
+    const r = DATA.rehab.find(x => x.id === rid_id);
+    if (!r) return;
+    if (!confirm(`確認報廢 ${r.plant_name} [${r.rid}]？`)) return;
+    const actualCost = agedCost(r.cost_vnd || 0, r.purchase_date);
+    showLoading(true);
+    await DB.addWriteoff({ writeoff_date: todayStr(), plant_name: `${r.plant_name} [${r.rid}]`, qty: 1, reason, loc: r.loc, operator: op, cost: actualCost });
+    await DB.updateRehab(r.id, { status: 'writeoff' });
+  } else {
+    // 一般庫存植物報廢
+    const pid = parseInt(val.replace('plant-', ''));
+    const qty = parseInt(document.getElementById('wo-qty').value) || 1;
+    const p = DATA.plants.find(x => x.id === pid);
+    if (!p) return;
+    if (qty > p.qty) { showToast('Vượt SL tồn kho / 數量超過庫存', 'error'); return; }
+    if (!confirm(`Xác nhận hao hụt / 確認報廢 ${p.name} × ${qty}？`)) return;
+    const actualCost = agedCost(p.cost_vnd, p.purchase_date) * qty;
+    showLoading(true);
+    await DB.addWriteoff({ writeoff_date: todayStr(), plant_name: p.name, qty, reason, loc: p.loc, operator: op, cost: actualCost });
+    await DB.updatePlant(p.id, { qty: p.qty - qty });
+  }
+
   await loadAllData();
   showLoading(false);
   showToast('Đã ghi nhận hao hụt / 已記錄報廢');

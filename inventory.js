@@ -374,27 +374,56 @@ function renderTracking() {
     return;
   }
 
+  const renderGroup = (items, label, color) => {
+    if (items.length === 0) return '';
+    const groupId = 'tg-' + label.replace(/\s/g,'');
+    let h = `<div style="margin:0 16px 4px">
+      <div onclick="document.getElementById('${groupId}').style.display=document.getElementById('${groupId}').style.display==='none'?'block':'none'"
+        style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-radius:var(--r);cursor:pointer;border:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;color:${color}">${label} (${items.length})</span>
+        <span style="font-size:10px;color:var(--text3)">點擊展開/收合</span>
+      </div>
+      <div id="${groupId}">`;
+    items.forEach(r => { h += renderTrackingRow(r); });
+    h += `</div></div>`;
+    return h;
+  };
+
   let h = '';
-
-  // 追蹤中區塊
-  if (trackingItems.length > 0) {
-    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--blue);padding:8px 0">🎬 追蹤中</div>`;
-    trackingItems.forEach(r => { h += renderTrackingCard(r, false); });
-  }
-
-  // 可售區塊（追蹤中且已標記可售）
-  if (availableItems.length > 0) {
-    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--acc);padding:8px 0">✅ 可售中（追蹤）</div>`;
-    availableItems.forEach(r => { h += renderTrackingCard(r, false); });
-  }
-
-  // 已售出區塊
-  if (soldItems.length > 0) {
-    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--green);padding:8px 0">🏠 已售出</div>`;
-    soldItems.forEach(r => { h += renderTrackingCard(r, true); });
-  }
+  h += renderGroup(trackingItems, '🎬 追蹤中', 'var(--blue)');
+  h += renderGroup(availableItems, '✅ 可售中', 'var(--acc)');
+  h += renderGroup(soldItems, '🏠 已售出', 'var(--green)');
 
   el.innerHTML = h;
+}
+
+function renderTrackingRow(r) {
+  const trackDays = daysSince(r.rehab_date);
+  const statusColor = r.status === 'sold' ? 'var(--green)' : r.status === 'available' ? 'var(--acc)' : 'var(--blue)';
+  return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg2);cursor:pointer"
+    onclick="openTrackingDetail('${r.rid}')">
+    <div class="pdot" style="background:${statusColor}"></div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.plant_name}</div>
+      <div style="font-size:10px;color:var(--text2);margin-top:1px">
+        <span style="font-family:DM Mono,monospace;color:var(--amber)">${r.rid}</span>
+        · 追蹤${trackDays}天
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:12px;font-weight:500;font-family:DM Mono,monospace">${vnd(r.price || 0)}</div>
+    </div>
+  </div>`;
+}
+
+let trackingDetailRid = null;
+function openTrackingDetail(rid) {
+  trackingDetailRid = rid;
+  const r = DATA.rehab.find(x => x.rid === rid);
+  if (!r) return;
+  const isSold = r.status === 'sold';
+  document.getElementById('detail-inner').innerHTML = renderTrackingCard(r, isSold);
+  openM('m-detail');
 }
 
 function renderTrackingCard(r, isSold) {
