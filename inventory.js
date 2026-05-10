@@ -25,7 +25,7 @@ function renderInvPlants() {
 
   // 先顯示可販售R編號植物
   if (availableRehab.length > 0) {
-    html += `<div style="margin:8px 16px 4px;font-size:11px;font-weight:700;color:var(--acc)">✅ 可販售（植物履歷）</div>`;
+    html += `<div style="margin:8px 16px 4px;font-size:11px;font-weight:700;color:var(--acc)">✅ 可販售（植物履歷）/ Có thể bán (Hồ sơ cây)</div>`;
     availableRehab.forEach(r => {
       const trackDays = daysSince(r.rehab_date);
       const stockDays = daysSince(r.purchase_date);

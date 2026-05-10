@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </select>
         </div>
         <div class="field"><label class="flabel">Số lượng / 數量</label><input class="inp" id="move-qty" type="number" min="1" value="1"></div>
-        <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="move-note" placeholder="Tưới nước mỗi ngày..."></div>
+        <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="move-note" placeholder="備註 / Tưới nước mỗi ngày..."></div>
         <button class="btn btnp btnf" onclick="doMove()">Xác nhận / 確認移動</button>
       </div>
     </div>
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="mtitle">Hoàn tất thanh toán / 完成結帳</div>
         <div class="field"><label class="flabel">Tên khách / 客戶姓名 *</label><input class="inp" id="co-name" placeholder="客戶姓名 / Tên khách hàng..."></div>
         <div class="field"><label class="flabel">Ngày đặt hàng / 訂單日期</label><input class="inp" id="co-date" type="date"></div>
-        <div class="field"><label class="flabel">Liên hệ / 聯絡方式</label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
+        <div class="field"><label class="flabel">Liên hệ / 聯絡方式</label><input class="inp" id="co-contact" placeholder="聯絡方式 / LINE / Zalo / SĐT"></div>
         <div class="field"><label class="flabel">Địa chỉ giao hàng (tự lấy bỏ trống) / 收件地址</label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
         <div class="field"><label class="flabel">Nguồn đơn / 訂單來源</label>
           <select class="inp" id="co-src"><option>FB Messenger</option><option>Đến nhà chọn / 來家選購</option><option>Zalo / LINE</option><option>Khác / 其他</option></select>

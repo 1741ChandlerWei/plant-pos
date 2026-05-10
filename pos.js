@@ -29,7 +29,7 @@ function renderPos() {
       const days = daysSince(r.purchase_date);
       const rehabDays = daysSince(r.rehab_date);
       const isTracking = r.status === 'tracking';
-      const statusLabel = isTracking ? '🎬 追蹤中' : '✅ 可售';
+      const statusLabel = isTracking ? '🎬 追蹤中 / Đang theo dõi' : '✅ 可售 / Có thể bán';
       const statusColor = isTracking ? 'var(--acc)' : 'var(--green)';
       return `<div class="pi" onclick="addCartRehab('${r.rid}')">
         <div class="pdot" style="background:${statusColor}"></div>
@@ -276,7 +276,7 @@ function renderWriteoffForm() {
   if (rehabAvail.length > 0) {
     h += '<optgroup label="── 修整/追蹤區 ──">';
     rehabAvail.forEach(r => {
-      const label = r.status === 'rehab' ? '修整中' : r.status === 'tracking' ? '追蹤中' : '可售';
+      const label = r.status === 'rehab' ? '修整中 / Đang chỉnh sửa' : r.status === 'tracking' ? '追蹤中 / Đang theo dõi' : '可售 / Có thể bán';
       h += `<option value="rehab-${r.id}">${r.plant_name} [${r.rid}] (${label})</option>`;
     });
     h += '</optgroup>';

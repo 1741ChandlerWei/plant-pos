@@ -452,7 +452,7 @@ function renderAdmin() {
       <div class="field"><label class="flabel">Thành viên / 成員</label>
         <select class="inp" id="pw-user"><option value="owner">Chandler Wei</option><option value="quang">Quang</option><option value="helper">Trợ lý / 小幫手</option></select>
       </div>
-      <div class="field"><label class="flabel">Mật khẩu mới / 新密碼</label><input class="inp" id="pw-new" type="password" placeholder="Nhập mật khẩu mới..."></div>
+      <div class="field"><label class="flabel">Mật khẩu mới / 新密碼</label><input class="inp" id="pw-new" type="password" placeholder="新密碼 / Nhập mật khẩu mới..."></div>
       <button class="btn btnp btnf" onclick="savePassword()">Lưu mật khẩu / 儲存密碼</button>
     </div>
   </div>
@@ -498,7 +498,7 @@ function renderPurItems() {
       </div>
       <div class="field" style="margin-bottom:7px"><input class="inp" id="pur-name-${i}" placeholder="Tên hàng / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value"></div>
       <div class="irow" style="margin-bottom:7px">
-        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-qty-${i}" type="number" placeholder="SL / 數量" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0"></div>
+        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-qty-${i}" type="number" placeholder="數量 / SL" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0"></div>
         <div class="field" style="margin-bottom:0"><input class="inp" id="pur-cost-${i}" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" oninput="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
       </div>
       <div class="field" style="margin-bottom:0"><input class="inp" id="pur-price-${i}" type="number" placeholder="Giá bán VND / 建議售價 VND" value="${item.price || ''}" oninput="purItems[${i}].price=parseInt(this.value)||0"></div>
