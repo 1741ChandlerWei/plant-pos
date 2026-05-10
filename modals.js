@@ -143,9 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="mhandle"></div>
         <div class="mtitle">🎬 開始縮時追蹤 / Bắt đầu theo dõi</div>
         <div id="tracking-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
+        <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="tracking-qty" type="number" min="1" value="1"></div>
         <div class="field"><label class="flabel">備註 / Ghi chú</label><input class="inp" id="tracking-note" placeholder="開始追蹤原因..."></div>
         <div style="background:var(--gbg);border:1px solid var(--gborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--green)">
-          將從庫存扣除1株，自動分配 R-XXX 編號並產生 QR Code
+          每株自動分配獨立 R-XXX 編號並產生 QR Code
         </div>
         <button class="btn btnp btnf" onclick="confirmTracking()">🎬 確認開始追蹤</button>
       </div>

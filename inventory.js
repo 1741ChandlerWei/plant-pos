@@ -328,6 +328,8 @@ function openTrackingModal(id) {
   trackingPlantId = id;
   const p = DATA.plants.find(x => x.id === id);
   document.getElementById('tracking-info').innerHTML = `<span style="font-weight:500">${p.name}</span> <span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span> · ${p.qty}株`;
+  document.getElementById('tracking-qty').value = 1;
+  document.getElementById('tracking-qty').max = p.qty;
   document.getElementById('tracking-note').value = '';
   openM('m-tracking');
 }
@@ -335,23 +337,30 @@ function openTrackingModal(id) {
 async function confirmTracking() {
   const p = DATA.plants.find(x => x.id === trackingPlantId);
   if (!p) return;
+  const qty = parseInt(document.getElementById('tracking-qty').value) || 1;
   const note = document.getElementById('tracking-note').value;
+  if (qty > p.qty) { showToast('數量超過庫存', 'error'); return; }
   if (p.qty <= 0) { showToast('庫存不足', 'error'); return; }
   showLoading(true);
-  const rid = await DB.getNextRid();
-  const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
-  await DB.addRehab({
-    rid, plant_id: p.id, plant_name: p.name, qty: 1,
-    purchase_date: p.purchase_date, rehab_date: todayStr(),
-    note, loc: p.loc, status: 'tracking', qr_code: qrUrl, price: p.price
-  });
-  await DB.updatePlant(p.id, { qty: p.qty - 1 });
+  const firstRid = await DB.getNextRid();
+  const firstNum = parseInt(firstRid.replace('R-', ''));
+  for (let i = 0; i < qty; i++) {
+    const rid = 'R-' + String(firstNum + i).padStart(3, '0');
+    const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
+    await DB.addRehab({
+      rid, plant_id: p.id, plant_name: p.name, qty: 1,
+      purchase_date: p.purchase_date, rehab_date: todayStr(),
+      note, loc: p.loc, status: 'tracking', qr_code: qrUrl, price: p.price
+    });
+  }
+  await DB.updatePlant(p.id, { qty: p.qty - qty });
   await loadAllData();
   showLoading(false);
   closeM('m-tracking');
   renderInv();
   invTab('tracking');
-  showToast(`🎬 ${rid} 已開始追蹤，QR Code 已產生`);
+  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(3, '0');
+  showToast(`🎬 ${firstRid} ~ ${lastRid} 已開始追蹤`);
 }
 
 function renderTracking() {
@@ -389,7 +398,7 @@ function renderTracking() {
             <div style="font-size:13px;font-weight:700;font-family:DM Mono,monospace">${vnd(r.price || 0)}</div>
           </div>
         </div>
-        ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:8px;padding:6px 8px;background:var(--bbg);border-radius:6px;word-break:break-all">🔗 ${r.qr_code}</div>` : ''}
+        ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:8px;padding:6px 8px;background:var(--bbg);border-radius:6px;word-break:break-all;display:flex;align-items:center;gap:8px"><span style="flex:1">🔗 ${r.qr_code}</span><button class="btn btnt btnsm" style="flex-shrink:0;padding:4px 8px;font-size:10px" onclick="event.stopPropagation();navigator.clipboard.writeText('${r.qr_code}').then(()=>showToast('已複製網址！'))">複製</button></div>` : ''}
         ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
         ${ROLE === 'owner' ? `<div style="display:flex;gap:6px">
           <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
