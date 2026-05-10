@@ -1,6 +1,6 @@
 // ==================== INVENTORY MODULE ====================
 function invTab(t) {
-  ['plant','board','member','rehab'].forEach(x => {
+  ['plant','board','member','rehab','tracking'].forEach(x => {
     document.getElementById('itab-' + x).classList.toggle('active', x === t);
     document.getElementById('inv-' + x).style.display = x === t ? 'block' : 'none';
   });
@@ -8,6 +8,7 @@ function invTab(t) {
   if (t === 'board') renderBoardInv();
   if (t === 'member') renderMember();
   if (t === 'rehab') renderRehab();
+  if (t === 'tracking') renderTracking();
 }
 
 function renderInv() {
@@ -339,20 +340,66 @@ async function confirmTracking() {
   showLoading(true);
   const rid = await DB.getNextRid();
   const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
-  // 新增一筆到rehab表，status為tracking
   await DB.addRehab({
     rid, plant_id: p.id, plant_name: p.name, qty: 1,
     purchase_date: p.purchase_date, rehab_date: todayStr(),
     note, loc: p.loc, status: 'tracking', qr_code: qrUrl, price: p.price
   });
-  // 從庫存扣1株
   await DB.updatePlant(p.id, { qty: p.qty - 1 });
   await loadAllData();
   showLoading(false);
   closeM('m-tracking');
   renderInv();
-  invTab('rehab');
+  invTab('tracking');
   showToast(`🎬 ${rid} 已開始追蹤，QR Code 已產生`);
+}
+
+function renderTracking() {
+  const el = document.getElementById('inv-tracking');
+  const items = DATA.rehab.filter(r => r.status === 'tracking');
+  if (items.length === 0) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">🎬 尚無縮時追蹤植物<br><span style="font-size:11px">在庫存植物頁面點「追蹤」開始</span></div>';
+    return;
+  }
+  let h = '';
+  items.forEach(r => {
+    const stockDays = daysSince(r.purchase_date);
+    const trackDays = daysSince(r.rehab_date);
+    const bc = trackDays > 30 ? 'var(--green)' : trackDays > 14 ? 'var(--amber)' : 'var(--blue)';
+    h += `<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--bborder);border-radius:var(--rl);overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bbg);border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:700">${r.plant_name}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${r.rid} · <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span></div>
+        </div>
+        <span class="badge bb">🎬 追蹤中</span>
+      </div>
+      <div style="padding:12px 14px">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
+            <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+            <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+          </div>
+          <div style="background:var(--bbg);border:1px solid var(--bborder);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
+            <div style="font-size:9px;color:var(--text2)">追蹤天數</div>
+            <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${trackDays}</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
+            <div style="font-size:9px;color:var(--text2)">售價</div>
+            <div style="font-size:13px;font-weight:700;font-family:DM Mono,monospace">${vnd(r.price || 0)}</div>
+          </div>
+        </div>
+        ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:8px;padding:6px 8px;background:var(--bbg);border-radius:6px;word-break:break-all">🔗 ${r.qr_code}</div>` : ''}
+        ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
+        ${ROLE === 'owner' ? `<div style="display:flex;gap:6px">
+          <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
+          <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可售</button>
+          <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  });
+  el.innerHTML = h;
 }
 
 function renderRehab() {
@@ -368,12 +415,6 @@ function renderRehab() {
   const availableItems = DATA.rehab.filter(r => r.status === 'available');
 
   let h = '';
-
-  // 追蹤中區塊
-  if (trackingItems.length > 0) {
-    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--acc);padding:8px 0">🎬 縮時追蹤中 / Đang theo dõi</div>`;
-    trackingItems.forEach(r => h += renderRehabCard(r));
-  }
 
   // 可售區塊
   if (availableItems.length > 0) {
