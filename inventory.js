@@ -33,10 +33,10 @@ function renderInvPlants() {
         <div class="pdot" style="background:var(--acc);margin-top:4px"></div>
         <div class="pinfo">
           <div class="pname">📖 ${r.plant_name} <span style="font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:var(--amber);background:var(--abg);border:1px solid var(--aborder);border-radius:6px;padding:1px 6px">${r.rid}</span> <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span></div>
-          <div class="pmeta">✅ 可販售 · 在庫${stockDays}天 · 追蹤${trackDays}天</div>
+          <div class="pmeta">✅ 可販售 / Có thể bán · 在庫${stockDays}天 / ${stockDays}ng · 追蹤${trackDays}天 / ${trackDays}ng TD / ${trackDays}ng theo dõi</div>
           ${ROLE === 'owner' ? `<div style="display:flex;gap:4px;margin-top:6px">
-            <button class="btn btnt btnsm" onclick="event.stopPropagation();invTab('tracking');renderTracking('available')">📖 植物履歷</button>
-            <button class="btn btnd btnsm" onclick="event.stopPropagation();openRehabWriteoff('${r.rid}')">報廢</button>
+            <button class="btn btnt btnsm" onclick="event.stopPropagation();invTab('tracking');renderTracking('available')">📖 植物履歷 / Hồ sơ</button>
+            <button class="btn btnd btnsm" onclick="event.stopPropagation();openRehabWriteoff('${r.rid}')">報廢 / Thanh lý</button>
           </div>` : ''}
         </div>
         <div class="pright">
@@ -70,7 +70,7 @@ function renderInvPlants() {
         const btns = ROLE === 'owner' ? `<div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal(${p.id})">Di chuyển / 移動</button>
           <button class="btn btnw btnsm" onclick="event.stopPropagation();openRehabModal(${p.id})">Chỉnh sửa / 修整</button>
-          <button class="btn btnt btnsm" onclick="event.stopPropagation();openTrackingModal(${p.id})">📖 植物履歷</button>
+          <button class="btn btnt btnsm" onclick="event.stopPropagation();openTrackingModal(${p.id})">📖 植物履歷 / Hồ sơ</button>
         </div>` : '';
         return `<div class="pi" onclick="openPlantDetail(${p.id})" style="align-items:flex-start;padding:13px 18px">
           <div class="pdot" style="background:${mc};margin-top:4px"></div>
@@ -186,7 +186,7 @@ function openPlantDetail(id) {
   <div style="display:flex;gap:10px">
     <button class="btn btns" style="flex:1" onclick="closeM('m-detail')">Đóng / 關閉</button>
     ${ROLE === 'owner' ? `<button class="btn btnw" style="flex:1" onclick="closeM('m-detail');openRehabModal(${p.id})">→ Khu CS / 修整區</button>` : ''}
-    ${ROLE === 'owner' ? `<button class="btn btnt" style="flex:1" onclick="closeM('m-detail');openTrackingModal(${p.id})">🎬 追蹤</button>` : ''}
+    ${ROLE === 'owner' ? `<button class="btn btnt" style="flex:1" onclick="closeM('m-detail');openTrackingModal(${p.id})">🎬 追蹤 / Theo dõi</button>` : ''}
   </div>`;
   document.getElementById('detail-inner').innerHTML = h;
   openM('m-detail');
@@ -439,7 +439,7 @@ function renderTracking(sub) {
 
   const tabs = [
     { key: 'tracking', label: '待販售', count: trackingItems.length, color: 'var(--blue)' },
-    { key: 'available', label: '可販售', count: availableItems.length, color: 'var(--acc)' },
+    { key: 'available', label: '可販售 / Có thể bán', count: availableItems.length, color: 'var(--acc)' },
     { key: 'sold', label: '售出', count: soldItems.length, color: 'var(--green)' },
   ];
 
@@ -473,7 +473,7 @@ function renderTrackingRow(r) {
       <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.plant_name}</div>
       <div style="font-size:10px;color:var(--text2);margin-top:1px">
         <span style="font-family:DM Mono,monospace;color:var(--amber)">${r.rid}</span>
-        · 追蹤${trackDays}天
+        · 追蹤${trackDays}天 / ${trackDays}ng TD
       </div>
     </div>
     <div style="text-align:right;flex-shrink:0">
@@ -498,7 +498,7 @@ function renderTrackingCard(r, isSold) {
   const bc = trackDays > 30 ? 'var(--green)' : trackDays > 14 ? 'var(--amber)' : 'var(--blue)';
   const borderColor = isSold ? 'var(--gborder)' : 'var(--bborder)';
   const bgColor = isSold ? 'var(--gbg)' : 'var(--bbg)';
-  const badge = isSold ? '<span class="badge bg">✅ 已售出</span>' : '<span class="badge bb">🎬 追蹤中</span>';
+  const badge = isSold ? '<span class="badge bg">✅ 已售出 / Đã bán</span>' : '<span class="badge bb">🎬 追蹤中 / Đang TD</span>';
   const qrUrl = r.qr_code || '';
   const qrImg = qrUrl ? `https://chart.googleapis.com/chart?chs=160x160&cht=qr&chl=${encodeURIComponent(qrUrl)}` : '';
 
@@ -513,11 +513,11 @@ function renderTrackingCard(r, isSold) {
     <div style="padding:12px 14px">
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
-          <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+          <div style="font-size:9px;color:var(--text2)">在庫 / Ngày kho</div>
           <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
         </div>
         <div style="background:${bgColor};border:1px solid ${borderColor};border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
-          <div style="font-size:9px;color:var(--text2)">追蹤天數</div>
+          <div style="font-size:9px;color:var(--text2)">追蹤 / Ngày TD</div>
           <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${trackDays}</div>
         </div>
         <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
@@ -539,9 +539,9 @@ function renderTrackingCard(r, isSold) {
         <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
         ${r.status === 'available'
           ? `<button class="btn btnt btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','tracking')">↩ 待販售</button>`
-          : `<button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可販售</button>`
+          : `<button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可販售 / Đánh dấu bán</button>`
         }
-        <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
+        <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢 / Thanh lý</button>
       </div>` : ''}
     </div>
   </div>`;
@@ -596,7 +596,7 @@ function renderRehabCardInner(r) {
   const stockDays = daysSince(r.purchase_date);
   const rehabDays = daysSince(r.rehab_date);
   const bc = rehabDays > 14 ? 'var(--red)' : rehabDays > 7 ? 'var(--amber)' : 'var(--green)';
-  const statusLabel = r.status === 'tracking' ? '🎬 追蹤中' : r.status === 'available' ? '✅ 可售' : '🔧 修整中';
+  const statusLabel = r.status === 'tracking' ? '🎬 追蹤中 / Đang TD' : r.status === 'available' ? '✅ 可售 / Có thể bán' : '🔧 修整中 / Đang CS';
   const cardId = 'rc-' + r.rid;
   return `<div style="border-bottom:1px solid var(--border)">
     <div onclick="const d=document.getElementById('${cardId}');d.style.display=d.style.display==='none'?'block':'none'"
@@ -618,19 +618,19 @@ function renderRehabCardInner(r) {
       </div>` : ''}
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
-          <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+          <div style="font-size:9px;color:var(--text2)">在庫 / Ngày kho</div>
           <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
         </div>
         <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
-          <div style="font-size:9px;color:var(--text2)">修整天數</div>
+          <div style="font-size:9px;color:var(--text2)">修整 / Ngày CS</div>
           <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${rehabDays}</div>
         </div>
       </div>
       ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:7px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
       ${ROLE === 'owner' ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
-        <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 可販售</button>
-        <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
+        <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 可販售 / Có thể bán</button>
+        <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢 / Thanh lý</button>
       </div>` : ''}
     </div>
   </div>`;
@@ -645,7 +645,7 @@ async function setRehabStatus(rid, status) {
   showLoading(false);
   renderRehab();
   renderPos();
-  const msg = status === 'available' ? `${rid} 已標記可售，開單區可看到` : `${rid} 已開始縮時追蹤`;
+  const msg = status === 'available' ? `${rid} 已標記可販售 / Đã đánh dấu có thể bán` : `${rid} 已開始追蹤 / Đã bắt đầu theo dõi`;
   showToast(msg);
 }
 
@@ -669,7 +669,7 @@ async function confirmRehabWriteoff() {
   if (!reason) { showToast('請填寫報廢原因 / Vui lòng nhập lý do thanh lý', 'error'); return; }
   const r = DATA.rehab.find(x => x.rid === rehabWriteoffRid);
   if (!r) return;
-  if (!confirm(`確認報廢 ${r.rid} ${r.plant_name}？`)) return;
+  if (!confirm(`確認報廢 / Xác nhận thanh lý: ${r.rid} ${r.plant_name}？`)) return;
   showLoading(true);
   const actualCost = agedCost(r.cost_vnd || 0, r.purchase_date);
   await DB.addWriteoff({

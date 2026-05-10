@@ -16,7 +16,7 @@ function renderPos() {
   const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok');
 
   // 修整區中可售 + 追蹤中的植物（R 編號獨立個體）
-  const rehabAvail = DATA.rehab.filter(r => r.status === 'available' || r.status === 'tracking');
+  const rehabAvail = DATA.rehab.filter(r => r.status === 'available');
 
   // 渲染一般植物
   let plantHtml = avail.length === 0 && rehabAvail.length === 0
