@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <option value="helper">Nhà trợ lý / 小幫手家</option>
           </select>
         </div>
-        <div class="field"><label class="flabel">NCC / Ghi chú / 廠商備註</label><input class="inp" id="np-note" placeholder="廠商名稱..."></div>
+        <div class="field"><label class="flabel">NCC / Ghi chú / 廠商備註</label><input class="inp" id="np-note" placeholder="廠商名稱 / Tên nhà cung cấp..."></div>
         <button class="btn btnp btnf" onclick="addPlant()">Lưu / 儲存</button>
       </div>
     </div>
@@ -144,11 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="mtitle">🎬 開始縮時追蹤 / Bắt đầu theo dõi</div>
         <div id="tracking-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
         <div class="field"><label class="flabel">數量 / Số lượng</label><input class="inp" id="tracking-qty" type="number" min="1" value="1"></div>
-        <div class="field"><label class="flabel">備註 / Ghi chú</label><input class="inp" id="tracking-note" placeholder="開始追蹤原因..."></div>
+        <div class="field"><label class="flabel">備註 / Ghi chú</label><input class="inp" id="tracking-note" placeholder="開始追蹤原因 / Lý do bắt đầu theo dõi..."></div>
         <div style="background:var(--gbg);border:1px solid var(--gborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--green)">
           每株自動分配獨立 R-XXX 編號並產生 QR Code
         </div>
-        <button class="btn btnp btnf" onclick="confirmTracking()">🎬 確認開始追蹤</button>
+        <button class="btn btnp btnf" onclick="confirmTracking()">🎬 確認開始追蹤 / Xác nhận theo dõi</button>
       </div>
     </div>
 
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--red)">
           報廢後將記錄損失，QR Code 頁面保留歷史記錄
         </div>
-        <button class="btn btnd btnf" onclick="confirmRehabWriteoff()">確認報廢</button>
+        <button class="btn btnd btnf" onclick="confirmRehabWriteoff()">確認報廢 / Xác nhận thanh lý</button>
       </div>
     </div>
 
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="modal">
         <div class="mhandle"></div>
         <div class="mtitle">Hoàn tất thanh toán / 完成結帳</div>
-        <div class="field"><label class="flabel">Tên khách / 客戶姓名 *</label><input class="inp" id="co-name" placeholder="Tên khách hàng..."></div>
+        <div class="field"><label class="flabel">Tên khách / 客戶姓名 *</label><input class="inp" id="co-name" placeholder="客戶姓名 / Tên khách hàng..."></div>
         <div class="field"><label class="flabel">Ngày đặt hàng / 訂單日期</label><input class="inp" id="co-date" type="date"></div>
         <div class="field"><label class="flabel">Liên hệ / 聯絡方式</label><input class="inp" id="co-contact" placeholder="LINE / Zalo / SĐT"></div>
         <div class="field"><label class="flabel">Địa chỉ giao hàng (tự lấy bỏ trống) / 收件地址</label><input class="inp" id="co-addr" placeholder="Tự lấy / 自取"></div>
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="field"><label class="flabel">Người bán / 成交人員</label>
           <select class="inp" id="co-seller"><option>Chandler Wei</option><option>Quang</option><option>Trợ lý / 小幫手</option></select>
         </div>
-        <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="co-note" placeholder="Ghi chú..."></div>
+        <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="co-note" placeholder="備註 / Ghi chú..."></div>
         <div id="co-summary" style="background:var(--bg3);border-radius:var(--r);padding:13px;margin-bottom:14px"></div>
         <button class="btn btnp btnf" onclick="completeOrder()">Xác nhận & xuất phiếu / 確認成交</button>
       </div>
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="mtitle">Thêm lô nhập hàng / 新增進貨批次</div>
         <div class="field"><label class="flabel">NCC / 廠商</label><input class="inp" id="pur-vendor" placeholder="Chen Ying..."></div>
         <div class="field"><label class="flabel">Ngày nhập / 進貨日期</label><input class="inp" id="pur-date" type="date"></div>
-        <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="pur-note" placeholder="Ghi chú..."></div>
+        <div class="field"><label class="flabel">Ghi chú / 備註</label><input class="inp" id="pur-note" placeholder="備註 / Ghi chú..."></div>
         <div id="pur-items-wrap"></div>
         <button class="btn btns btnf" onclick="addPurItem()" style="margin-bottom:11px">+ Thêm mặt hàng / 新增品項</button>
         <div style="background:var(--gbg);border:1px solid var(--gborder);border-radius:var(--r);padding:12px;margin-bottom:12px">

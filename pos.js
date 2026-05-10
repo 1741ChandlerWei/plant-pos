@@ -109,7 +109,7 @@ function addCartRehab(rid) {
   if (!r) return;
   const key = 'rehab-' + rid;
   const ex = cart.find(c => c.key === key);
-  if (ex) { showToast('此株已在購物車中', 'error'); return; }
+  if (ex) { showToast('此株已在購物車中 / Cây này đã có trong giỏ hàng', 'error'); return; }
   const price = r.price || 0;
   cart.push({
     key, type: 'rehab', rid, id: r.id,
@@ -118,7 +118,7 @@ function addCartRehab(rid) {
     isRehab: true
   });
   updateBadge();
-  showToast(`${rid} 已加入購物車，可在購物車修改售價`);
+  showToast(`${rid} 已加入購物車，可修改售價 / Đã thêm vào giỏ, có thể chỉnh giá`);
 }
 
 function addCartBoard(id, loc) {

@@ -53,7 +53,7 @@ function renderInvPlants() {
   }
 
   if (plants.length > 0) {
-    if (availableRehab.length > 0) html += `<div style="margin:8px 16px 4px;font-size:11px;font-weight:700;color:var(--text2)">📦 一般庫存</div>`;
+    if (availableRehab.length > 0) html += `<div style="margin:8px 16px 4px;font-size:11px;font-weight:700;color:var(--text2)">🪴 寄養存放 / Ký gửi</div>`;
     html += plants.map(p => {
         const ac = agedCost(p.cost_vnd, p.purchase_date);
         const mg = parseFloat(margin(p.price, p.cost_vnd, p.purchase_date));
@@ -383,7 +383,7 @@ async function confirmRehab() {
   renderInv();
   invTab('rehab');
   const lastRid = 'R-' + String(firstNum + qty - 1).padStart(3, '0');
-  showToast(`已移入修整區 ${firstRid} ~ ${lastRid}`);
+  showToast(`已移入修整區 ${firstRid} ~ ${lastRid} / Đã chuyển vào khu chỉnh sửa`);
 }
 
 // TRACKING（縮時追蹤）
@@ -404,8 +404,8 @@ async function confirmTracking() {
   if (!p) return;
   const qty = parseInt(document.getElementById('tracking-qty').value) || 1;
   const note = document.getElementById('tracking-note').value;
-  if (qty > p.qty) { showToast('數量超過庫存', 'error'); return; }
-  if (p.qty <= 0) { showToast('庫存不足', 'error'); return; }
+  if (qty > p.qty) { showToast('數量超過庫存 / Vượt số lượng tồn kho', 'error'); return; }
+  if (p.qty <= 0) { showToast('庫存不足 / Không đủ tồn kho', 'error'); return; }
   showLoading(true);
   const firstRid = await DB.getNextRid();
   const firstNum = parseInt(firstRid.replace('R-', ''));
@@ -425,7 +425,7 @@ async function confirmTracking() {
   renderInv();
   invTab('tracking');
   const lastRid = 'R-' + String(firstNum + qty - 1).padStart(3, '0');
-  showToast(`🎬 ${firstRid} ~ ${lastRid} 已開始追蹤`);
+  showToast(`🎬 ${firstRid} ~ ${lastRid} 已開始追蹤 / Bắt đầu theo dõi`);
 }
 
 let trackingSubTab = 'tracking';
@@ -531,7 +531,7 @@ function renderTrackingCard(r, isSold) {
         <div style="flex:1;min-width:0">
           <div style="font-size:10px;color:var(--text2);margin-bottom:4px">客戶頁面網址</div>
           <div style="font-size:10px;color:var(--blue);word-break:break-all;margin-bottom:8px">${qrUrl}</div>
-          <button class="btn btnt btnsm" style="width:100%" onclick="navigator.clipboard.writeText('${qrUrl}').then(()=>showToast('已複製網址！'))">複製連結</button>
+          <button class="btn btnt btnsm" style="width:100%" onclick="navigator.clipboard.writeText('${qrUrl}').then(()=>showToast('已複製網址！/ Đã sao chép liên kết!'))">複製連結</button>
         </div>
       </div>` : ''}
       ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
@@ -614,7 +614,7 @@ function renderRehabCardInner(r) {
       <div style="font-size:10px;color:var(--text2);margin-bottom:6px">${statusLabel}</div>
       ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:8px;padding:6px 8px;background:var(--bbg);border-radius:6px;display:flex;align-items:center;gap:6px">
         <span style="flex:1;word-break:break-all">${r.qr_code}</span>
-        <button class="btn btnt btnsm" style="flex-shrink:0;padding:3px 8px;font-size:10px" onclick="event.stopPropagation();navigator.clipboard.writeText('${r.qr_code}').then(()=>showToast('已複製！'))">複製</button>
+        <button class="btn btnt btnsm" style="flex-shrink:0;padding:3px 8px;font-size:10px" onclick="event.stopPropagation();navigator.clipboard.writeText('${r.qr_code}').then(()=>showToast('已複製！/ Đã sao chép!'))">複製</button>
       </div>` : ''}
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
@@ -666,7 +666,7 @@ function openRehabWriteoff(rid) {
 
 async function confirmRehabWriteoff() {
   const reason = document.getElementById('rwo-reason').value.trim();
-  if (!reason) { showToast('請填寫報廢原因', 'error'); return; }
+  if (!reason) { showToast('請填寫報廢原因 / Vui lòng nhập lý do thanh lý', 'error'); return; }
   const r = DATA.rehab.find(x => x.rid === rehabWriteoffRid);
   if (!r) return;
   if (!confirm(`確認報廢 ${r.rid} ${r.plant_name}？`)) return;
@@ -682,7 +682,7 @@ async function confirmRehabWriteoff() {
   showLoading(false);
   closeM('m-rehabwriteoff');
   renderRehab();
-  showToast(`${r.rid} 已報廢`);
+  showToast(`${r.rid} 已報廢 / Đã thanh lý`);
 }
 
 // 編輯修整記錄
