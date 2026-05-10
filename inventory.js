@@ -66,7 +66,7 @@ function renderInvPlants() {
         const rehabRec = DATA.rehab.find(r => r.plant_id === p.id && ['rehab','tracking','available','sold'].includes(r.status));
         // 有履歷顯示📖，但R編號只在qty=1時顯示（批次庫存不顯示R編號）
         const ridBadge = (rehabRec && p.qty === 1) ? `<span style="font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:var(--amber);background:var(--abg);border:1px solid var(--aborder);border-radius:6px;padding:1px 6px;margin-left:4px">${rehabRec.rid}</span>` : '';
-        const profileIcon = rehabRec ? `<span style="font-size:13px;margin-left:2px" title="植物履歷">📖</span>` : '';
+        const profileIcon = (rehabRec && p.qty === 1) ? `<span style="font-size:13px;margin-left:2px" title="植物履歷">📖</span>` : '';
         const btns = ROLE === 'owner' ? `<div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal(${p.id})">Di chuyển / 移動</button>
           <button class="btn btnw btnsm" onclick="event.stopPropagation();openRehabModal(${p.id})">Chỉnh sửa / 修整</button>
