@@ -234,19 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="modal"><div id="detail-inner"></div></div>
     </div>
 
-    <!-- 登入密碼 -->
-    <div class="modal-overlay" id="m-login">
-      <div class="modal">
-        <div class="mhandle"></div>
-        <div class="mtitle" id="login-title">Đăng nhập / 登入</div>
-        <div class="field">
-          <label class="flabel">Mật khẩu / 密碼</label>
-          <input class="inp" id="login-pw" type="password" placeholder="Nhập mật khẩu / 輸入密碼...">
-        </div>
-        <button class="btn btnp btnf" onclick="doLogin()">Đăng nhập / 登入</button>
-      </div>
-    </div>
-
     <!-- 新增進貨 -->
     <div class="modal-overlay" id="m-newpur" onclick="bgClose(event,'m-newpur')">
       <div class="modal">
@@ -285,8 +272,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const coDate = document.getElementById('co-date');
   if (coDate) coDate.value = today;
 
-  // Enter key on password
-  document.getElementById('login-pw').addEventListener('keypress', e => {
-    if (e.key === 'Enter') doLogin();
-  });
+  // Enter key on password - 由auth.js處理
 });

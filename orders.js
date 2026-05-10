@@ -25,10 +25,17 @@ function renderHome() {
     ? '<div style="padding:18px;text-align:center;color:var(--text3);font-size:13px">Chưa có đơn hôm nay / 今日尚無訂單</div>'
     : toOrds.map(o => {
         const items = getOrderItemsStr(o);
+        // 找出訂單裡有沒有R編號植物
+        const rehabItems = (o.order_items || []).filter(i => i.item_type === 'rehab');
+        const ridStr = rehabItems.map(i => {
+          const m = i.item_name.match(/\[([R]-\d+)\]/);
+          return m ? m[1] : '';
+        }).filter(Boolean).join(' ');
+        const profileBadge = ridStr ? `<span style="font-size:13px">📖</span> <span style="font-family:DM Mono,monospace;font-size:12px;font-weight:700;color:var(--amber)">${ridStr}</span>` : '';
         return `<div class="pi" onclick="showReceipt(${o.id})">
           <div class="pdot" style="background:var(--green)"></div>
           <div class="pinfo">
-            <div class="pname"><span style="color:var(--text2);font-size:11px">#${String(o.id).padStart(4,'0')}</span> ${o.customer}</div>
+            <div class="pname"><span style="color:var(--text2);font-size:11px">#${String(o.id).padStart(4,'0')}</span> ${o.customer} ${profileBadge}</div>
             <div class="pmeta">${items || '-'}</div>
           </div>
           <div class="pright"><div class="pprice">${vnd(o.total)}</div><div class="psub" style="color:var(--green)">+${vnd(o.profit)}</div></div>
