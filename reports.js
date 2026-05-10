@@ -81,11 +81,22 @@ function renderRepSummary() {
   document.getElementById('rep-summary').innerHTML = h;
 }
 
-function renderRepOrders() {
-  const completed = DATA.orders.filter(o => o.status === 'completed');
+let repOrdersMonth = null;
+function renderRepOrders(filterMonth) {
+  if (filterMonth !== undefined) repOrdersMonth = filterMonth;
+  const allOrders = DATA.orders.filter(o => o.status === 'completed');
+  const allMonths = [...new Set(allOrders.map(o => o.order_date.substring(0, 7)))].sort().reverse();
+  const completed = repOrdersMonth ? allOrders.filter(o => o.order_date.startsWith(repOrdersMonth)) : allOrders;
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Chi tiết đơn hàng / 訂單明細</span>
     <button class="csv-btn" onclick="exportCSV('orders')">⬇ Xuất CSV</button>
+  </div>
+  <div style="padding:4px 16px 10px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
+    <select onchange="renderRepOrders(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
+      <option value="">全部</option>
+      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return \`<option value="\${m}" \${repOrdersMonth === m ? 'selected' : ''}>\${yr}年\${mo}月</option>\`; }).join('')}
+    </select>
   </div>
   <div style="overflow-x:auto;margin:0 16px">
   <table style="width:100%;border-collapse:collapse;font-size:11px">
@@ -143,9 +154,14 @@ function renderRepMembers() {
   document.getElementById('rep-members').innerHTML = h;
 }
 
-function renderRepPlantsSold() {
+let repPlantsSoldMonth = null;
+function renderRepPlantsSold(filterMonth) {
+  if (filterMonth !== undefined) repPlantsSoldMonth = filterMonth;
+  const allOrders = DATA.orders.filter(o => o.status === 'completed');
+  const allMonths = [...new Set(allOrders.map(o => o.order_date.substring(0, 7)))].sort().reverse();
   const ps = {};
-  DATA.orders.filter(o => o.status === 'completed').forEach(o => {
+  const filteredOrders = repPlantsSoldMonth ? allOrders.filter(o => o.order_date.startsWith(repPlantsSoldMonth)) : allOrders;
+  filteredOrders.forEach(o => {
     (o.order_items || []).forEach(item => {
       if (!ps[item.item_name]) ps[item.item_name] = { qty: 0, rev: 0, profit: 0 };
       ps[item.item_name].qty += item.qty;
@@ -156,6 +172,13 @@ function renderRepPlantsSold() {
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Thống kê doanh số cây / 植物銷售統計</span>
     <button class="csv-btn" onclick="exportCSV('plants-sold')">⬇ Xuất CSV</button>
+  </div>
+  <div style="padding:4px 16px 10px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
+    <select onchange="renderRepPlantsSold(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
+      <option value="">全部</option>
+      \${allMonths.map(m => { const [yr, mo] = m.split('-'); return \`<option value="\${m}" \${repPlantsSoldMonth === m ? 'selected' : ''}>\${yr}年\${mo}月</option>\`; }).join('')}
+    </select>
   </div>
   <div style="overflow-x:auto;margin:0 16px">
   <table style="width:100%;border-collapse:collapse;font-size:11px">
