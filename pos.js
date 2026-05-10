@@ -41,7 +41,11 @@ function renderPos() {
           </div>
           <div class="pmeta">${statusLabel} · 1株 · 在庫${days}天 · 追蹤${rehabDays}天</div>
         </div>
-        <div class="pright"><div class="pprice" style="font-size:13px;color:var(--text2)">點擊開單</div></div>
+        <div class="pright">
+          <div class="pprice">${vnd(r.price || 0)}</div>
+          <div class="psub" style="color:var(--green)">${vnd((r.price||0) - agedCost(r.cost_vnd, r.purchase_date))}</div>
+          <div class="psub" style="color:var(--green)">${margin(r.price||0, r.cost_vnd, r.purchase_date)}%</div>
+        </div>
       </div>`;
     }).join('');
   }
