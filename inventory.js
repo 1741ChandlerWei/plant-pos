@@ -366,9 +366,10 @@ async function confirmTracking() {
 function renderTracking() {
   const el = document.getElementById('inv-tracking');
   const trackingItems = DATA.rehab.filter(r => r.status === 'tracking');
+  const availableItems = DATA.rehab.filter(r => r.status === 'available');
   const soldItems = DATA.rehab.filter(r => r.status === 'sold');
 
-  if (trackingItems.length === 0 && soldItems.length === 0) {
+  if (trackingItems.length === 0 && availableItems.length === 0 && soldItems.length === 0) {
     el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">🎬 尚無縮時追蹤植物<br><span style="font-size:11px">在庫存植物頁面點「追蹤」開始</span></div>';
     return;
   }
@@ -381,9 +382,15 @@ function renderTracking() {
     trackingItems.forEach(r => { h += renderTrackingCard(r, false); });
   }
 
+  // 可售區塊（追蹤中且已標記可售）
+  if (availableItems.length > 0) {
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--acc);padding:8px 0">✅ 可售中（追蹤）</div>`;
+    availableItems.forEach(r => { h += renderTrackingCard(r, false); });
+  }
+
   // 已售出區塊
   if (soldItems.length > 0) {
-    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--green);padding:8px 0">✅ 已售出</div>`;
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--green);padding:8px 0">🏠 已售出</div>`;
     soldItems.forEach(r => { h += renderTrackingCard(r, true); });
   }
 
@@ -449,18 +456,10 @@ function renderRehab() {
     return;
   }
 
-  // 依狀態分組顯示
+  // 只顯示修整中
   const rehabItems = DATA.rehab.filter(r => r.status === 'rehab');
-  const trackingItems = DATA.rehab.filter(r => r.status === 'tracking');
-  const availableItems = DATA.rehab.filter(r => r.status === 'available');
 
   let h = '';
-
-  // 可售區塊
-  if (availableItems.length > 0) {
-    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--green);padding:8px 0">✅ 可售 / Có thể bán</div>`;
-    availableItems.forEach(r => h += renderRehabCard(r));
-  }
 
   // 修整中區塊
   if (rehabItems.length > 0) {
@@ -483,7 +482,7 @@ function renderRehab() {
     });
   }
 
-  el.innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">無記錄</div>';
+  el.innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">🔧 目前無修整中植物</div>';
 }
 
 function renderRehabCard(r) {
