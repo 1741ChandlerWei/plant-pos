@@ -95,7 +95,7 @@ function renderRepOrders(filterMonth) {
     <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
     <select onchange="renderRepOrders(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
       <option value="">全部</option>
-      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return \`<option value="\${m}" \${repOrdersMonth === m ? 'selected' : ''}>\${yr}年\${mo}月</option>\`; }).join('')}
+      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${repOrdersMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
     </select>
   </div>
   <div style="overflow-x:auto;margin:0 16px">
@@ -177,7 +177,7 @@ function renderRepPlantsSold(filterMonth) {
     <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
     <select onchange="renderRepPlantsSold(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
       <option value="">全部</option>
-      \${allMonths.map(m => { const [yr, mo] = m.split('-'); return \`<option value="\${m}" \${repPlantsSoldMonth === m ? 'selected' : ''}>\${yr}年\${mo}月</option>\`; }).join('')}
+      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${repPlantsSoldMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
     </select>
   </div>
   <div style="overflow-x:auto;margin:0 16px">
