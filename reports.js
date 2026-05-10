@@ -204,56 +204,97 @@ function renderRepPlantsSold(filterMonth) {
   document.getElementById('rep-plants-sold').innerHTML = h;
 }
 
-// 庫存狀態 — 加月份頁籤
+// 庫存狀態 — 植物/物料頂層tab + 月份篩選
 let invStatusMonth = null;
-function renderInvStatus(filterMonth) {
-  if (filterMonth !== undefined) invStatusMonth = filterMonth;
-  const active = DATA.plants.filter(p => p.status === 'ok').sort((a, b) => daysSince(b.purchase_date) - daysSince(a.purchase_date));
+let invStatusType = 'plant'; // 'plant' | 'material'
 
-  // 月份頁籤
-  const allMonths = [...new Set(active.map(p => p.purchase_date.substring(0, 7)))].sort().reverse();
+function renderInvStatus(filterMonth, filterType) {
+  if (filterMonth !== undefined) invStatusMonth = filterMonth;
+  if (filterType !== undefined) invStatusType = filterType;
+
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Trạng thái kho / 當前庫存狀態</span>
     <button class="csv-btn" onclick="exportCSV('invstatus')">⬇ Xuất CSV</button>
   </div>`;
 
-  // 月份篩選下拉選單
-  h += `<div style="padding:4px 16px 10px;display:flex;align-items:center;gap:8px">
-    <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
-    <select onchange="renderInvStatus(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
-      <option value="">全部</option>
-      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${invStatusMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
-    </select>
+  // 頂層tab：植物 / 物料
+  h += `<div style="display:flex;gap:6px;padding:0 16px 10px">
+    <button onclick="renderInvStatus(null,'plant')" style="flex:1;padding:7px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1px solid ${invStatusType==='plant' ? 'rgba(163,230,53,.3)' : 'var(--border)'};background:${invStatusType==='plant' ? 'var(--accdim)' : 'transparent'};color:${invStatusType==='plant' ? 'var(--acc)' : 'var(--text2)'};font-family:inherit">🌿 Cây / 植物</button>
+    <button onclick="renderInvStatus(null,'material')" style="flex:1;padding:7px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1px solid ${invStatusType==='material' ? 'rgba(96,165,250,.3)' : 'var(--border)'};background:${invStatusType==='material' ? 'var(--bbg)' : 'transparent'};color:${invStatusType==='material' ? 'var(--blue)' : 'var(--text2)'};font-family:inherit">🪵 Vật liệu / 物料</button>
   </div>`;
 
-  const filtered = invStatusMonth ? active.filter(p => p.purchase_date.startsWith(invStatusMonth)) : active;
-
-  h += `<div style="overflow-x:auto;margin:0 16px">
-  <table style="width:100%;border-collapse:collapse;font-size:11px">
-  <tr style="background:var(--bg3);color:var(--text2)">
-    <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Cây / 植物</th>
-    <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Vị trí / 位置</th>
-    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Ngày / 天數</th>
-    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Giá vốn HT / 當前成本</th>
-    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN / Est.毛利</th>
-    <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN% / Est.毛利率</th>
-  </tr>`;
-  filtered.forEach(p => {
-    const days = daysSince(p.purchase_date);
-    const ac = agedCost(p.cost_vnd, p.purchase_date);
-    const mg = margin(p.price, p.cost_vnd, p.purchase_date);
-    const mgc = parseFloat(mg) > 30 ? 'var(--green)' : 'var(--red)';
-    const profit = p.price - ac;
-    h += `<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:8px 6px;font-weight:500">${p.name} ×${p.qty}</td>
-      <td style="padding:8px 6px"><span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></td>
-      <td style="padding:8px 6px;text-align:right">${days}</td>
-      <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(ac)}</td>
-      <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(profit)}</td>
-      <td style="padding:8px 6px;text-align:right;color:${mgc}">${mg}%</td>
+  if (invStatusType === 'plant') {
+    // 植物庫存
+    const active = DATA.plants.filter(p => p.status === 'ok').sort((a, b) => daysSince(b.purchase_date) - daysSince(a.purchase_date));
+    const allMonths = [...new Set(active.map(p => p.purchase_date.substring(0, 7)))].sort().reverse();
+    h += `<div style="padding:0 16px 10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
+      <select onchange="renderInvStatus(this.value||null,'plant')" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
+        <option value="">全部</option>
+        ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${invStatusMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
+      </select>
+    </div>`;
+    const filtered = invStatusMonth ? active.filter(p => p.purchase_date.startsWith(invStatusMonth)) : active;
+    h += `<div style="overflow-x:auto;margin:0 16px">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+    <tr style="background:var(--bg3);color:var(--text2)">
+      <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Cây / 植物</th>
+      <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Vị trí / 位置</th>
+      <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Ngày / 天數</th>
+      <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Giá vốn HT / 當前成本</th>
+      <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN / Est.毛利</th>
+      <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN% / Est.毛利率</th>
     </tr>`;
-  });
-  h += '</table></div>';
+    filtered.forEach(p => {
+      const days = daysSince(p.purchase_date);
+      const ac = agedCost(p.cost_vnd, p.purchase_date);
+      const mg = margin(p.price, p.cost_vnd, p.purchase_date);
+      const mgc = parseFloat(mg) > 30 ? 'var(--green)' : 'var(--red)';
+      const profit = p.price - ac;
+      h += `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 6px;font-weight:500">${p.name} ×${p.qty}</td>
+        <td style="padding:8px 6px"><span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></td>
+        <td style="padding:8px 6px;text-align:right">${days}</td>
+        <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(ac)}</td>
+        <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(profit)}</td>
+        <td style="padding:8px 6px;text-align:right;color:${mgc}">${mg}%</td>
+      </tr>`;
+    });
+    h += '</table></div>';
+  } else {
+    // 物料庫存
+    const boards = DATA.boards || [];
+    if (boards.length === 0) {
+      h += `<div style="padding:32px;text-align:center;color:var(--text3)">Không có vật liệu / 無物料庫存</div>`;
+    } else {
+      h += `<div style="overflow-x:auto;margin:0 16px">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <tr style="background:var(--bg3);color:var(--text2)">
+        <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Vật liệu / 物料</th>
+        <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">我家</th>
+        <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Quang家</th>
+        <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">小幫手家</th>
+        <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">合計</th>
+        <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">成本/件</th>
+        <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">庫存總值</th>
+      </tr>`;
+      boards.forEach(b => {
+        const total = (b.qty_mine || 0) + (b.qty_quang || 0) + (b.qty_helper || 0);
+        const totalCost = total * (b.cost_vnd || 0);
+        h += `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 6px;font-weight:500">${b.name}</td>
+          <td style="padding:8px 6px;text-align:right">${b.qty_mine || 0}</td>
+          <td style="padding:8px 6px;text-align:right">${b.qty_quang || 0}</td>
+          <td style="padding:8px 6px;text-align:right">${b.qty_helper || 0}</td>
+          <td style="padding:8px 6px;text-align:right;font-weight:600">${total}</td>
+          <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(b.cost_vnd || 0)}</td>
+          <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace;color:var(--blue)">${vnd(totalCost)}</td>
+        </tr>`;
+      });
+      h += '</table></div>';
+    }
+  }
+
   document.getElementById('rep-invstatus').innerHTML = h;
 }
 
@@ -441,14 +482,21 @@ async function savePassword() {
 // PURCHASE FORM
 let purItems = [];
 function addPurItem() {
-  purItems.push({ name: '', qty: 1, cost_ntd: 0, price: 0 });
+  purItems.push({ name: '', qty: 1, cost_ntd: 0, price: 0, item_type: 'plant' });
   renderPurItems();
 }
 
 function renderPurItems() {
   document.getElementById('pur-items-wrap').innerHTML = purItems.map((item, i) => `
     <div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px">
-      <div class="field" style="margin-bottom:7px"><input class="inp" id="pur-name-${i}" placeholder="Tên cây / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value"></div>
+      <div class="field" style="margin-bottom:7px">
+        <label class="flabel">Loại / 類型</label>
+        <select class="inp" id="pur-type-${i}" onchange="purItems[${i}].item_type=this.value">
+          <option value="plant" ${item.item_type === 'plant' ? 'selected' : ''}>🌿 Cây / 植物</option>
+          <option value="material" ${item.item_type === 'material' ? 'selected' : ''}>🪵 Vật liệu / 物料</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:7px"><input class="inp" id="pur-name-${i}" placeholder="Tên hàng / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value"></div>
       <div class="irow" style="margin-bottom:7px">
         <div class="field" style="margin-bottom:0"><input class="inp" id="pur-qty-${i}" type="number" placeholder="SL / 數量" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0"></div>
         <div class="field" style="margin-bottom:0"><input class="inp" id="pur-cost-${i}" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" oninput="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
@@ -467,14 +515,17 @@ async function savePurchase() {
     const q = document.getElementById('pur-qty-' + i);
     const c = document.getElementById('pur-cost-' + i);
     const p = document.getElementById('pur-price-' + i);
+    const t = document.getElementById('pur-type-' + i);
     if (n) item.name = n.value;
     if (q) item.qty = parseInt(q.value) || 0;
     if (c) item.cost_ntd = parseInt(c.value) || 0;
     if (p) item.price = parseInt(p.value) || 0;
+    if (t) item.item_type = t.value;
   });
   const items = purItems.map(i => ({
     item_name: i.name, qty: i.qty, cost_ntd: i.cost_ntd,
-    cost_vnd: i.cost_ntd * CFG.rate, total_vnd: i.qty * i.cost_ntd * CFG.rate
+    cost_vnd: i.cost_ntd * CFG.rate, total_vnd: i.qty * i.cost_ntd * CFG.rate,
+    item_type: i.item_type || 'plant'
   }));
   const itemPrices = purItems.map(i => i.price || 0);
   const totalVnd = items.reduce((s, i) => s + i.total_vnd, 0);
@@ -485,9 +536,18 @@ async function savePurchase() {
     for (let idx = 0; idx < items.length; idx++) {
       const i = items[idx];
       if (!i.item_name) continue;
-      const existing = DATA.plants.find(p => p.name === i.item_name && p.loc === stockLoc && p.status === 'ok');
-      if (existing) { await DB.updatePlant(existing.id, { qty: existing.qty + i.qty }); }
-      else { await DB.addPlant({ name: i.item_name, cat: '植物', cost_ntd: i.cost_ntd, cost_vnd: i.cost_vnd, price: itemPrices[idx], qty: i.qty, purchase_date: purchaseDate, loc: stockLoc, note: vendor, status: 'ok' }); }
+      if (i.item_type === 'material') {
+        // 物料 → 入boards表
+        const existing = DATA.boards.find(b => b.name === i.item_name);
+        const qtyField = 'qty_' + stockLoc;
+        if (existing) { await DB.updateBoard(existing.id, { [qtyField]: (existing[qtyField] || 0) + i.qty }); }
+        else { await DB.addBoard({ name: i.item_name, cost_vnd: i.cost_vnd, price: itemPrices[idx], qty_mine: stockLoc === 'mine' ? i.qty : 0, qty_quang: stockLoc === 'quang' ? i.qty : 0, qty_helper: stockLoc === 'helper' ? i.qty : 0 }); }
+      } else {
+        // 植物 → 入plants表
+        const existing = DATA.plants.find(p => p.name === i.item_name && p.loc === stockLoc && p.status === 'ok');
+        if (existing) { await DB.updatePlant(existing.id, { qty: existing.qty + i.qty }); }
+        else { await DB.addPlant({ name: i.item_name, cat: '植物', cost_ntd: i.cost_ntd, cost_vnd: i.cost_vnd, price: itemPrices[idx], qty: i.qty, purchase_date: purchaseDate, loc: stockLoc, note: vendor, status: 'ok' }); }
+      }
     }
   }
   purItems = [];

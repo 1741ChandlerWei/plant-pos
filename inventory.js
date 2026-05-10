@@ -111,7 +111,7 @@ function renderBoardInv() {
       </div>` : ''}
     </div>`;
   });
-  document.getElementById('inv-board').innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">Không có tấm / 無板子庫存</div>';
+  document.getElementById('inv-board').innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">Không có vật liệu / 無物料庫存</div>';
 }
 
 function renderMember() {
@@ -147,7 +147,7 @@ function renderMember() {
     mb.forEach(b => {
       h += `<div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--border)">
         <div class="pdot" style="background:var(--blue)"></div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500">${b.name}（Tấm gỗ / 板子）</div><div style="font-size:11px;color:var(--text2)">${b.qty}片</div></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500">${b.name}（Vật liệu / 物料）</div><div style="font-size:11px;color:var(--text2)">${b.qty}片</div></div>
         <button class="btn btns btnsm" onclick="openMoveBoardModal(${b.id})">Di chuyển / 移動</button>
       </div>`;
     });

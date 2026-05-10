@@ -60,13 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
 
-    <!-- 新增/編輯板子 -->
+    <!-- 新增/編輯物料 -->
     <div class="modal-overlay" id="m-addboard" onclick="bgClose(event,'m-addboard')">
       <div class="modal">
         <div class="mhandle"></div>
-        <div class="mtitle">Tấm gỗ / 板子管理</div>
+        <div class="mtitle">Vật liệu / 物料管理</div>
         <input type="hidden" id="eb-id">
-        <div class="field"><label class="flabel">Tên tấm / 板子名稱</label><input class="inp" id="eb-name" placeholder="Gỗ tiêu chuẩn..."></div>
+        <div class="field"><label class="flabel">Tên vật liệu / 物料名稱</label><input class="inp" id="eb-name" placeholder="Ví dụ: Gỗ, Phân bón... / 例：木板、肥料..."></div>
         <div class="irow">
           <div class="field"><label class="flabel">Giá vốn VND / 成本</label><input class="inp" id="eb-cost" type="number"></div>
           <div class="field"><label class="flabel">Giá bán VND / 售價</label><input class="inp" id="eb-price" type="number"></div>
@@ -95,11 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
 
-    <!-- 移動板子 -->
+    <!-- 移動物料 -->
     <div class="modal-overlay" id="m-moveboard" onclick="bgClose(event,'m-moveboard')">
       <div class="modal">
         <div class="mhandle"></div>
-        <div class="mtitle">Di chuyển tấm gỗ / 移動板子</div>
+        <div class="mtitle">Di chuyển vật liệu / 移動物料</div>
         <div id="moveboard-info" style="margin-bottom:14px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
         <div class="irow">
           <div class="field"><label class="flabel">Từ / 從</label>
