@@ -194,14 +194,13 @@ function renderInvStatus(filterMonth) {
     <button class="csv-btn" onclick="exportCSV('invstatus')">⬇ Xuất CSV</button>
   </div>`;
 
-  // 月份篩選頁籤
-  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none">
-    <button onclick="renderInvStatus(null)" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${!invStatusMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!invStatusMonth ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">全部</button>
-    ${allMonths.map(m => {
-      const [yr, mo] = m.split('-');
-      const isActive = invStatusMonth === m;
-      return `<button onclick="renderInvStatus('${m}')" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">${yr}/${mo}</button>`;
-    }).join('')}
+  // 月份篩選下拉選單
+  h += `<div style="padding:4px 16px 10px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
+    <select onchange="renderInvStatus(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
+      <option value="">全部</option>
+      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${invStatusMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
+    </select>
   </div>`;
 
   const filtered = invStatusMonth ? active.filter(p => p.purchase_date.startsWith(invStatusMonth)) : active;
@@ -323,14 +322,13 @@ function renderPur(filterMonth) {
     <div class="metric"><div class="ml">Tổng chi phí / 總進貨成本</div><div class="mv amber">${vnd(tv)}</div></div>
   </div>`;
 
-  // 月份篩選頁籤
-  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none">
-    <button onclick="renderPur(null)" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${!purFilterMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!purFilterMonth ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">全部</button>
-    ${allMonths.map(m => {
-      const [yr, mo] = m.split('-');
-      const isActive = purFilterMonth === m;
-      return `<button onclick="renderPur('${m}')" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">${yr}/${mo}</button>`;
-    }).join('')}
+  // 月份篩選下拉選單
+  h += `<div style="padding:4px 16px 10px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
+    <select onchange="renderPur(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
+      <option value="">全部</option>
+      ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${purFilterMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
+    </select>
   </div>`;
 
   h += `<div style="padding:0 16px 10px;display:flex;justify-content:flex-end">

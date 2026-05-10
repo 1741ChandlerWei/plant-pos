@@ -55,9 +55,12 @@ function renderOrders(filterMonth) {
   orderFilterMonth = filterMonth;
   const allMonths = [...new Set(DATA.orders.map(o => o.order_date.substring(0, 7)))].sort().reverse();
   document.getElementById('orders-tabs').innerHTML = `
-    <div style="display:flex;gap:8px;overflow-x:auto;padding:12px 16px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch">
-      <button onclick="renderOrders(null)" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${!filterMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!filterMonth ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Tất cả / 全部</button>
-      ${allMonths.map(m => { const [yr, mo] = m.split('-'); const isActive = filterMonth === m; return `<button onclick="renderOrders('${m}')" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">${yr}/${mo}</button>`; }).join('')}
+    <div style="padding:8px 16px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:var(--text2);flex-shrink:0">月份 / Tháng</span>
+      <select onchange="renderOrders(this.value||null)" style="flex:1;padding:6px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;cursor:pointer">
+        <option value="">Tất cả / 全部</option>
+        ${allMonths.map(m => { const [yr, mo] = m.split('-'); return `<option value="${m}" ${filterMonth === m ? 'selected' : ''}>${yr}年${mo}月</option>`; }).join('')}
+      </select>
     </div>`;
   const orders = filterMonth ? DATA.orders.filter(o => o.order_date.startsWith(filterMonth)) : DATA.orders;
   if (orders.length === 0) { document.getElementById('orders-list').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Chưa có đơn hàng / 無訂單記錄</div>'; return; }
