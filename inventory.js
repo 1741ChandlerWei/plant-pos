@@ -28,15 +28,19 @@ function renderInvPlants() {
         const pct = Math.min(days / 90 * 100, 100);
         const bc = pct > 66 ? 'var(--red)' : pct > 33 ? 'var(--amber)' : 'var(--green)';
         const lb = ROLE === 'owner' ? `<span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span>` : '';
+        // 找這株植物有沒有植物履歷
+        const rehabRec = DATA.rehab.find(r => r.plant_id === p.id && ['rehab','tracking','available','sold'].includes(r.status));
+        const ridBadge = rehabRec ? `<span style="font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:var(--amber);background:var(--abg);border:1px solid var(--aborder);border-radius:6px;padding:1px 6px;margin-left:4px">${rehabRec.rid}</span>` : '';
+        const profileIcon = rehabRec ? `<span style="font-size:13px;margin-left:2px" title="植物履歷">📖</span>` : '';
         const btns = ROLE === 'owner' ? `<div style="display:flex;gap:4px;margin-top:6px">
           <button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal(${p.id})">Di chuyển / 移動</button>
           <button class="btn btnw btnsm" onclick="event.stopPropagation();openRehabModal(${p.id})">Chỉnh sửa / 修整</button>
-          <button class="btn btnt btnsm" onclick="event.stopPropagation();openTrackingModal(${p.id})">🎬 追蹤</button>
+          <button class="btn btnt btnsm" onclick="event.stopPropagation();openTrackingModal(${p.id})">📖 植物履歷</button>
         </div>` : '';
         return `<div class="pi" onclick="openPlantDetail(${p.id})" style="align-items:flex-start;padding:13px 18px">
           <div class="pdot" style="background:${mc};margin-top:4px"></div>
           <div class="pinfo">
-            <div class="pname">${p.name} ${lb}</div>
+            <div class="pname">${p.name} ${profileIcon}${ridBadge} ${lb}</div>
             <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}ngày/天</div>
             <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
             ${ROLE === 'owner' ? `<div style="font-size:10px;color:var(--text3);margin-top:3px">CP ${vnd(ac)} · LN ${vnd(p.price - ac)} (${mg}%)</div>` : ''}
@@ -373,9 +377,9 @@ function renderTracking(sub) {
   const soldItems = DATA.rehab.filter(r => r.status === 'sold');
 
   const tabs = [
-    { key: 'tracking', label: `🎬 追蹤中`, count: trackingItems.length, color: 'var(--blue)' },
-    { key: 'available', label: `✅ 可售`, count: availableItems.length, color: 'var(--acc)' },
-    { key: 'sold', label: `🏠 已售出`, count: soldItems.length, color: 'var(--green)' },
+    { key: 'tracking', label: '待販售', count: trackingItems.length, color: 'var(--blue)' },
+    { key: 'available', label: '可販售', count: availableItems.length, color: 'var(--acc)' },
+    { key: 'sold', label: '售出', count: soldItems.length, color: 'var(--green)' },
   ];
 
   let h = `<div style="display:flex;gap:4px;padding:8px 16px 10px;border-bottom:1px solid var(--border)">`;
@@ -470,9 +474,12 @@ function renderTrackingCard(r, isSold) {
         </div>
       </div>` : ''}
       ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
-      ${ROLE === 'owner' && !isSold ? `<div style="display:flex;gap:6px">
+      ${ROLE === 'owner' && !isSold ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
-        <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可售</button>
+        ${r.status === 'available'
+          ? `<button class="btn btnt btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','tracking')">↩ 待販售</button>`
+          : `<button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可販售</button>`
+        }
         <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
       </div>` : ''}
     </div>
@@ -529,30 +536,42 @@ function renderRehabCardInner(r) {
   const rehabDays = daysSince(r.rehab_date);
   const bc = rehabDays > 14 ? 'var(--red)' : rehabDays > 7 ? 'var(--amber)' : 'var(--green)';
   const statusLabel = r.status === 'tracking' ? '🎬 追蹤中' : r.status === 'available' ? '✅ 可售' : '🔧 修整中';
-  return `<div style="padding:11px 14px;border-bottom:1px solid var(--border)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--amber);font-weight:700">${r.rid}</span>
-      <span class="${LOC_CLASS[r.loc]}" style="font-size:10px">${LOC_LABELS[r.loc]}</span>
-    </div>
-    <div style="font-size:10px;color:var(--text2);margin-bottom:6px">${statusLabel}</div>
-    ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:6px">QR: ${r.qr_code}</div>` : ''}
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-      <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
-        <div style="font-size:9px;color:var(--text2)">在庫天數</div>
-        <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+  const cardId = 'rc-' + r.rid;
+  return `<div style="border-bottom:1px solid var(--border)">
+    <div onclick="const d=document.getElementById('${cardId}');d.style.display=d.style.display==='none'?'block':'none'"
+      style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--amber);font-weight:700">${r.rid}</span>
+        <span class="${LOC_CLASS[r.loc]}" style="font-size:10px">${LOC_LABELS[r.loc]}</span>
       </div>
-      <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
-        <div style="font-size:9px;color:var(--text2)">${r.status === 'tracking' ? '追蹤天數' : '修整天數'}</div>
-        <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${rehabDays}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:10px;color:var(--text2)">${rehabDays}天</span>
+        <span style="font-size:10px;color:var(--text3)">▼</span>
       </div>
     </div>
-    ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:7px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
-    ${ROLE === 'owner' ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
-      <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
-      ${r.status !== 'available' ? `<button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可售</button>` : ''}
-      ${r.status !== 'tracking' ? `<button class="btn btnt btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','tracking')">🎬 追蹤</button>` : ''}
-      <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
-    </div>` : ''}
+    <div id="${cardId}" style="display:none;padding:0 14px 11px">
+      <div style="font-size:10px;color:var(--text2);margin-bottom:6px">${statusLabel}</div>
+      ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:8px;padding:6px 8px;background:var(--bbg);border-radius:6px;display:flex;align-items:center;gap:6px">
+        <span style="flex:1;word-break:break-all">${r.qr_code}</span>
+        <button class="btn btnt btnsm" style="flex-shrink:0;padding:3px 8px;font-size:10px" onclick="event.stopPropagation();navigator.clipboard.writeText('${r.qr_code}').then(()=>showToast('已複製！'))">複製</button>
+      </div>` : ''}
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
+          <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+          <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+        </div>
+        <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
+          <div style="font-size:9px;color:var(--text2)">修整天數</div>
+          <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${rehabDays}</div>
+        </div>
+      </div>
+      ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:7px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
+      ${ROLE === 'owner' ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
+        <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 可販售</button>
+        <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
+      </div>` : ''}
+    </div>
   </div>`;
 }
 

@@ -55,10 +55,13 @@ function renderPos() {
       const days = daysSince(p.purchase_date);
       const pct = Math.min(days / 90 * 100, 100);
       const bc = pct > 66 ? 'var(--red)' : pct > 33 ? 'var(--amber)' : 'var(--green)';
+      const rehabRec = DATA.rehab.find(r => r.plant_id === p.id && ['rehab','tracking','available'].includes(r.status));
+      const ridBadge = rehabRec ? `<span style="font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:var(--amber);background:var(--abg);border:1px solid var(--aborder);border-radius:6px;padding:1px 6px;margin-left:4px">${rehabRec.rid}</span>` : '';
+      const profileIcon = rehabRec ? `<span style="font-size:13px">📖</span>` : '';
       return `<div class="pi" onclick="addCart('plant',${p.id})">
         <div class="pdot" style="background:${mc}"></div>
         <div class="pinfo">
-          <div class="pname">${p.name} <span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></div>
+          <div class="pname">${profileIcon} ${p.name} ${ridBadge} <span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span></div>
           <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}天</div>
           <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
         </div>
