@@ -10,10 +10,7 @@ function renderHome() {
   const now = new Date();
   const yr = now.getFullYear(), mo = now.getMonth();
   const toOrds = DATA.orders.filter(o => o.order_date === today && o.status === 'completed');
-  const moOrds = DATA.orders.filter(o => {
-    const d = new Date(o.order_date);
-    return d.getFullYear() === yr && d.getMonth() === mo && o.status === 'completed';
-  });
+  const moOrds = DATA.orders.filter(o => { const d = new Date(o.order_date); return d.getFullYear() === yr && d.getMonth() === mo && o.status === 'completed'; });
   const toRev = toOrds.reduce((s, o) => s + o.total, 0);
   const toP = toOrds.reduce((s, o) => s + o.profit, 0);
   const moRev = moOrds.reduce((s, o) => s + o.total, 0);
@@ -49,32 +46,14 @@ function renderHome() {
 
 function renderOrders(filterMonth) {
   orderFilterMonth = filterMonth;
-
-  // 月份頁籤
   const allMonths = [...new Set(DATA.orders.map(o => o.order_date.substring(0, 7)))].sort().reverse();
   document.getElementById('orders-tabs').innerHTML = `
     <div style="display:flex;gap:8px;overflow-x:auto;padding:12px 16px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch">
-      <button onclick="renderOrders(null)" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${!filterMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!filterMonth ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-        Tất cả / 全部
-      </button>
-      ${allMonths.map(m => {
-        const [yr, mo] = m.split('-');
-        const isActive = filterMonth === m;
-        return `<button onclick="renderOrders('${m}')" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-          ${yr}/${mo}
-        </button>`;
-      }).join('')}
+      <button onclick="renderOrders(null)" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${!filterMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!filterMonth ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Tất cả / 全部</button>
+      ${allMonths.map(m => { const [yr, mo] = m.split('-'); const isActive = filterMonth === m; return `<button onclick="renderOrders('${m}')" style="flex-shrink:0;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">${yr}/${mo}</button>`; }).join('')}
     </div>`;
-
-  const orders = filterMonth
-    ? DATA.orders.filter(o => o.order_date.startsWith(filterMonth))
-    : DATA.orders;
-
-  if (orders.length === 0) {
-    document.getElementById('orders-list').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Chưa có đơn hàng / 無訂單記錄</div>';
-    return;
-  }
-
+  const orders = filterMonth ? DATA.orders.filter(o => o.order_date.startsWith(filterMonth)) : DATA.orders;
+  if (orders.length === 0) { document.getElementById('orders-list').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Chưa có đơn hàng / 無訂單記錄</div>'; return; }
   const monthly = {};
   orders.forEach(o => {
     const k = monthKey(o.order_date);
@@ -82,7 +61,6 @@ function renderOrders(filterMonth) {
     monthly[k].orders.push(o);
     if (o.status === 'completed') { monthly[k].rev += o.total; monthly[k].profit += o.profit; }
   });
-
   let html = '';
   Object.keys(monthly).sort().reverse().forEach(k => {
     const m = monthly[k];
@@ -94,9 +72,7 @@ function renderOrders(filterMonth) {
           <div style="font-size:14px;font-weight:700">${m.label}</div>
           <div style="font-size:11px;color:var(--text2);margin-top:2px">${m.orders.filter(o=>o.status==='completed').length} đơn · ${vnd(m.rev)}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:13px;font-weight:700;color:${mgc}">${mg}%</span>
-        </div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:700;color:${mgc}">${mg}%</span></div>
       </div>
       <div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:12px 16px;background:var(--bg3);border-bottom:1px solid var(--border)">
@@ -132,6 +108,10 @@ function showReceipt(id) {
   const o = DATA.orders.find(x => x.id === id);
   if (!o) return;
   const items = o.order_items || [];
+
+  // 找出有R編號的品項（追蹤植物）
+  const rehabItems = items.filter(i => i.item_type === 'rehab');
+
   let h = `<div class="receipt" id="printable">
     <div class="rshop">根莖葉 / Gốc Thân Lá</div>
     <div class="rsub">Đơn #${String(o.id).padStart(4,'0')} · ${o.order_date} ${o.status === 'cancelled' ? '· [ĐÃ HỦY / 已取消]' : ''}</div>
@@ -141,17 +121,44 @@ function showReceipt(id) {
       ${o.address ? `<div style="font-size:11px;color:#444;margin-top:2px">📦 ${o.address}</div>` : '<div style="font-size:11px;color:#888;margin-top:2px">Tự lấy / 自取</div>'}
     </div>
     <div class="rsec"><div class="rlabel">Chi tiết / 商品明細</div>`;
+
   items.forEach(item => {
     h += `<div class="rrow"><span>${item.item_name} × ${item.qty}</span><span>${vnd(item.price * item.qty)}</span></div>`;
   });
+
   h += `<div class="rtotal"><span>Tổng / 合計</span><span>${vnd(o.total)}</span></div></div>
     <div class="rsec">
       <div class="rrow"><span style="color:#888">Thanh toán / 付款</span><span>${o.payment}</span></div>
       <div class="rrow"><span style="color:#888">Người bán / 售出者</span><span>${o.seller}</span></div>
       <div class="rrow"><span style="color:#888">Nguồn / 來源</span><span>${o.source}</span></div>
       ${o.note ? `<div class="rrow"><span style="color:#888">Ghi chú / 備註</span><span>${o.note}</span></div>` : ''}
-    </div>
-  </div>`;
+    </div>`;
+
+  // 如果有R編號植物，顯示QR Code區塊
+  if (rehabItems.length > 0) {
+    h += `<div class="rsec"><div class="rlabel">🎬 植物履歷 QR Code</div>`;
+    rehabItems.forEach(item => {
+      // 從item_name抓R編號，格式是「植物名 [R-001]」
+      const ridMatch = item.item_name.match(/\[([R]-\d+)\]/);
+      if (ridMatch) {
+        const rid = ridMatch[1];
+        const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
+        const qrImg = `https://chart.googleapis.com/chart?chs=160x160&cht=qr&chl=${encodeURIComponent(qrUrl)}`;
+        h += `<div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;gap:10px">
+          <img src="${qrImg}" style="width:80px;height:80px;border-radius:4px" />
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:700;color:#111;margin-bottom:3px">${rid}</div>
+            <div style="font-size:9px;color:#666;word-break:break-all;margin-bottom:6px">${qrUrl}</div>
+            <div style="font-size:9px;color:#888">掃描查看植物完整履歷</div>
+          </div>
+        </div>`;
+      }
+    });
+    h += `</div>`;
+  }
+
+  h += `</div>`;
+
   document.getElementById('receipt-body').innerHTML = h;
   const cancelBtn = document.getElementById('receipt-cancel-btn');
   if (cancelBtn) cancelBtn.style.display = (ROLE === 'owner' && o.status === 'completed') ? 'flex' : 'none';
@@ -180,6 +187,13 @@ async function doCancelOrder() {
       const p = DATA.plants.find(x => x.name === item.item_name && x.loc === item.loc && x.status === 'ok');
       if (p) await DB.updatePlant(p.id, { qty: p.qty + item.qty });
       else await DB.addPlant({ name: item.item_name, cat: '植物', cost_ntd: 0, cost_vnd: item.cost, price: item.price, qty: item.qty, purchase_date: todayStr(), loc: item.loc, note: 'Hoàn trả / 退貨退回', status: 'ok' });
+    } else if (item.item_type === 'rehab') {
+      // R編號植物取消，狀態改回tracking
+      const ridMatch = item.item_name.match(/\[([R]-\d+)\]/);
+      if (ridMatch) {
+        const r = DATA.rehab.find(x => x.rid === ridMatch[1]);
+        if (r) await DB.updateRehab(r.id, { status: 'tracking' });
+      }
     } else {
       const b = DATA.boards.find(x => x.name === item.item_name);
       if (b) { const field = 'qty_' + item.loc; await DB.updateBoard(b.id, { [field]: b[field] + item.qty }); }

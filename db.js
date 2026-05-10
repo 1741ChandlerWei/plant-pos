@@ -103,7 +103,7 @@ const DB = {
 
   // REHAB
   async getRehab() {
-    const { data } = await sb.from('rehab').select('*').in('status', ['rehab', 'tracking', 'available']).order('rehab_date', { ascending: false });
+    const { data } = await sb.from('rehab').select('*').in('status', ['rehab', 'tracking', 'available', 'sold']).order('rehab_date', { ascending: false });
     return data || [];
   },
   async addRehab(rehab) {

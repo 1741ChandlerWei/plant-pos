@@ -308,7 +308,7 @@ async function confirmRehab() {
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
       purchase_date: p.purchase_date, rehab_date: todayStr(),
-      note, loc: p.loc, status: 'rehab', qr_code: qrUrl, price: p.price
+      note, loc: p.loc, status: 'rehab', qr_code: qrUrl, price: p.price, cost_vnd: p.cost_vnd || 0
     });
   }
   await DB.updatePlant(p.id, { qty: p.qty - qty });
@@ -350,7 +350,7 @@ async function confirmTracking() {
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
       purchase_date: p.purchase_date, rehab_date: todayStr(),
-      note, loc: p.loc, status: 'tracking', qr_code: qrUrl, price: p.price
+      note, loc: p.loc, status: 'tracking', qr_code: qrUrl, price: p.price, cost_vnd: p.cost_vnd || 0
     });
   }
   await DB.updatePlant(p.id, { qty: p.qty - qty });
@@ -365,50 +365,81 @@ async function confirmTracking() {
 
 function renderTracking() {
   const el = document.getElementById('inv-tracking');
-  const items = DATA.rehab.filter(r => r.status === 'tracking');
-  if (items.length === 0) {
+  const trackingItems = DATA.rehab.filter(r => r.status === 'tracking');
+  const soldItems = DATA.rehab.filter(r => r.status === 'sold');
+
+  if (trackingItems.length === 0 && soldItems.length === 0) {
     el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">🎬 尚無縮時追蹤植物<br><span style="font-size:11px">在庫存植物頁面點「追蹤」開始</span></div>';
     return;
   }
+
   let h = '';
-  items.forEach(r => {
-    const stockDays = daysSince(r.purchase_date);
-    const trackDays = daysSince(r.rehab_date);
-    const bc = trackDays > 30 ? 'var(--green)' : trackDays > 14 ? 'var(--amber)' : 'var(--blue)';
-    h += `<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--bborder);border-radius:var(--rl);overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bbg);border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-size:14px;font-weight:700">${r.plant_name}</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px">${r.rid} · <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span></div>
-        </div>
-        <span class="badge bb">🎬 追蹤中</span>
-      </div>
-      <div style="padding:12px 14px">
-        <div style="display:flex;gap:8px;margin-bottom:10px">
-          <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text2)">在庫天數</div>
-            <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
-          </div>
-          <div style="background:var(--bbg);border:1px solid var(--bborder);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text2)">追蹤天數</div>
-            <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${trackDays}</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text2)">售價</div>
-            <div style="font-size:13px;font-weight:700;font-family:DM Mono,monospace">${vnd(r.price || 0)}</div>
-          </div>
-        </div>
-        ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:8px;padding:6px 8px;background:var(--bbg);border-radius:6px;word-break:break-all;display:flex;align-items:center;gap:8px"><span style="flex:1">🔗 ${r.qr_code}</span><button class="btn btnt btnsm" style="flex-shrink:0;padding:4px 8px;font-size:10px" onclick="event.stopPropagation();navigator.clipboard.writeText('${r.qr_code}').then(()=>showToast('已複製網址！'))">複製</button></div>` : ''}
-        ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
-        ${ROLE === 'owner' ? `<div style="display:flex;gap:6px">
-          <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
-          <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可售</button>
-          <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
-        </div>` : ''}
-      </div>
-    </div>`;
-  });
+
+  // 追蹤中區塊
+  if (trackingItems.length > 0) {
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--blue);padding:8px 0">🎬 追蹤中</div>`;
+    trackingItems.forEach(r => { h += renderTrackingCard(r, false); });
+  }
+
+  // 已售出區塊
+  if (soldItems.length > 0) {
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--green);padding:8px 0">✅ 已售出</div>`;
+    soldItems.forEach(r => { h += renderTrackingCard(r, true); });
+  }
+
   el.innerHTML = h;
+}
+
+function renderTrackingCard(r, isSold) {
+  const stockDays = daysSince(r.purchase_date);
+  const trackDays = daysSince(r.rehab_date);
+  const bc = trackDays > 30 ? 'var(--green)' : trackDays > 14 ? 'var(--amber)' : 'var(--blue)';
+  const borderColor = isSold ? 'var(--gborder)' : 'var(--bborder)';
+  const bgColor = isSold ? 'var(--gbg)' : 'var(--bbg)';
+  const badge = isSold ? '<span class="badge bg">✅ 已售出</span>' : '<span class="badge bb">🎬 追蹤中</span>';
+  const qrUrl = r.qr_code || '';
+  const qrImg = qrUrl ? `https://chart.googleapis.com/chart?chs=160x160&cht=qr&chl=${encodeURIComponent(qrUrl)}` : '';
+
+  return `<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid ${borderColor};border-radius:var(--rl);overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:${bgColor};border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:14px;font-weight:700">${r.plant_name}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">${r.rid} · <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span></div>
+      </div>
+      ${badge}
+    </div>
+    <div style="padding:12px 14px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
+          <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+          <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+        </div>
+        <div style="background:${bgColor};border:1px solid ${borderColor};border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
+          <div style="font-size:9px;color:var(--text2)">追蹤天數</div>
+          <div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${trackDays}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--r);padding:8px 10px;text-align:center;flex:1">
+          <div style="font-size:9px;color:var(--text2)">售價</div>
+          <div style="font-size:13px;font-weight:700;font-family:DM Mono,monospace">${vnd(r.price || 0)}</div>
+        </div>
+      </div>
+      ${qrUrl ? `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:var(--bg3);border-radius:var(--r)">
+        <img src="${qrImg}" style="width:80px;height:80px;border-radius:6px;background:#fff;padding:4px" />
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;color:var(--text2);margin-bottom:4px">客戶頁面網址</div>
+          <div style="font-size:10px;color:var(--blue);word-break:break-all;margin-bottom:8px">${qrUrl}</div>
+          <button class="btn btnt btnsm" style="width:100%" onclick="navigator.clipboard.writeText('${qrUrl}').then(()=>showToast('已複製網址！'))">複製連結</button>
+        </div>
+      </div>` : ''}
+      ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
+      ${ROLE === 'owner' && !isSold ? `<div style="display:flex;gap:6px">
+        <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
+        <button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可售</button>
+        <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
+      </div>` : ''}
+    </div>
+  </div>`;
 }
 
 function renderRehab() {
@@ -514,7 +545,12 @@ let rehabWriteoffRid = null;
 function openRehabWriteoff(rid) {
   rehabWriteoffRid = rid;
   const r = DATA.rehab.find(x => x.rid === rid);
-  document.getElementById('rwo-info').innerHTML = `<span style="font-weight:500">${r.rid} ${r.plant_name}</span>`;
+  const cost = agedCost(r.cost_vnd || 0, r.purchase_date);
+  document.getElementById('rwo-info').innerHTML = `
+    <span style="font-weight:500">${r.rid} ${r.plant_name}</span>
+    <div style="margin-top:8px;font-size:12px;color:var(--red)">
+      預估損失成本：${vnd(cost)}
+    </div>`;
   document.getElementById('rwo-reason').value = '';
   openM('m-rehabwriteoff');
 }
@@ -526,10 +562,11 @@ async function confirmRehabWriteoff() {
   if (!r) return;
   if (!confirm(`確認報廢 ${r.rid} ${r.plant_name}？`)) return;
   showLoading(true);
+  const actualCost = agedCost(r.cost_vnd || 0, r.purchase_date);
   await DB.addWriteoff({
     writeoff_date: todayStr(), plant_name: r.plant_name,
     qty: 1, reason, loc: r.loc, operator: ROLE === 'owner' ? 'Chandler Wei' : ROLE,
-    cost: 0
+    cost: actualCost
   });
   await DB.updateRehab(r.id, { status: 'writeoff' });
   await loadAllData();
