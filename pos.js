@@ -35,7 +35,7 @@ function renderPos() {
         <div class="pdot" style="background:${statusColor}"></div>
         <div class="pinfo">
           <div class="pname">
-            ${r.plant_name}
+            📖 ${r.plant_name}
             <span style="font-size:10px;font-weight:700;color:var(--amber);font-family:DM Mono,monospace;margin-left:4px">${r.rid}</span>
             <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span>
           </div>

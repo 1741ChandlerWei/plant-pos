@@ -18,9 +18,43 @@ function renderInv() {
 
 function renderInvPlants() {
   const plants = DATA.plants.filter(p => p.status === 'ok');
-  document.getElementById('inv-plant').innerHTML = plants.length === 0
-    ? '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây / 無植物庫存</div>'
-    : plants.map(p => {
+  // 可販售的R編號植物（available狀態，不在plants表）
+  const availableRehab = DATA.rehab.filter(r => r.status === 'available');
+
+  let html = '';
+
+  // 先顯示可販售R編號植物
+  if (availableRehab.length > 0) {
+    html += `<div style="margin:8px 16px 4px;font-size:11px;font-weight:700;color:var(--acc)">✅ 可販售（植物履歷）</div>`;
+    availableRehab.forEach(r => {
+      const trackDays = daysSince(r.rehab_date);
+      const stockDays = daysSince(r.purchase_date);
+      html += `<div class="pi" style="align-items:flex-start;padding:13px 18px">
+        <div class="pdot" style="background:var(--acc);margin-top:4px"></div>
+        <div class="pinfo">
+          <div class="pname">📖 ${r.plant_name} <span style="font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:var(--amber);background:var(--abg);border:1px solid var(--aborder);border-radius:6px;padding:1px 6px">${r.rid}</span> <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span></div>
+          <div class="pmeta">✅ 可販售 · 在庫${stockDays}天 · 追蹤${trackDays}天</div>
+          ${ROLE === 'owner' ? `<div style="display:flex;gap:4px;margin-top:6px">
+            <button class="btn btnt btnsm" onclick="event.stopPropagation();invTab('tracking');renderTracking('available')">📖 植物履歷</button>
+            <button class="btn btnd btnsm" onclick="event.stopPropagation();openRehabWriteoff('${r.rid}')">報廢</button>
+          </div>` : ''}
+        </div>
+        <div class="pright">
+          <div class="pprice">${vnd(r.price || 0)}</div>
+          <div style="font-size:22px;font-weight:700;font-family:DM Mono,monospace;color:var(--text);margin-top:4px;text-align:right">1<span style="font-size:11px;color:var(--text2);font-weight:400">株</span></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if (plants.length === 0 && availableRehab.length === 0) {
+    document.getElementById('inv-plant').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây / 無植物庫存</div>';
+    return;
+  }
+
+  if (plants.length > 0) {
+    if (availableRehab.length > 0) html += `<div style="margin:8px 16px 4px;font-size:11px;font-weight:700;color:var(--text2)">📦 一般庫存</div>`;
+    html += plants.map(p => {
         const ac = agedCost(p.cost_vnd, p.purchase_date);
         const mg = parseFloat(margin(p.price, p.cost_vnd, p.purchase_date));
         const mc = mg > 40 ? 'var(--green)' : mg > 20 ? 'var(--amber)' : 'var(--red)';
@@ -41,14 +75,19 @@ function renderInvPlants() {
           <div class="pdot" style="background:${mc};margin-top:4px"></div>
           <div class="pinfo">
             <div class="pname">${p.name} ${profileIcon}${ridBadge} ${lb}</div>
-            <div class="pmeta">${p.cat} · ${p.qty}株 · ${days}ngày/天</div>
+            <div class="pmeta">${p.cat} · ${days}ngày/天</div>
             <div class="age-bar"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
             ${ROLE === 'owner' ? `<div style="font-size:10px;color:var(--text3);margin-top:3px">CP ${vnd(ac)} · LN ${vnd(p.price - ac)} (${mg}%)</div>` : ''}
             ${btns}
           </div>
-          <div class="pright"><div class="pprice">${vnd(p.price)}</div></div>
+          <div class="pright">
+            <div class="pprice">${vnd(p.price)}</div>
+            <div style="font-size:22px;font-weight:700;font-family:DM Mono,monospace;color:var(--text);margin-top:4px;text-align:right">${p.qty}<span style="font-size:11px;color:var(--text2);font-weight:400">株</span></div>
+          </div>
         </div>`;
       }).join('');
+  }
+  document.getElementById('inv-plant').innerHTML = html;
 }
 
 function renderBoardInv() {
@@ -86,7 +125,11 @@ function renderMember() {
         <div style="width:36px;height:36px;border-radius:50%;background:var(--accdim);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)">${m.av}</div>
         <div>
           <div style="font-size:14px;font-weight:500">${m.label}</div>
-          <div style="font-size:11px;color:var(--text2)">Cây / 植物 ${mp.reduce((s, p) => s + p.qty, 0)}株 · Tấm / 板子 ${mb.reduce((s, b) => s + b.qty, 0)}片</div>
+          <div style="margin-top:3px">
+            <span style="font-size:18px;font-weight:700;font-family:DM Mono,monospace;color:var(--green)">${mp.reduce((s, p) => s + p.qty, 0)}</span><span style="font-size:10px;color:var(--text2)">株</span>
+            <span style="margin:0 6px;color:var(--border2)">·</span>
+            <span style="font-size:18px;font-weight:700;font-family:DM Mono,monospace;color:var(--blue)">${mb.reduce((s, b) => s + b.qty, 0)}</span><span style="font-size:10px;color:var(--text2)">片板</span>
+          </div>
         </div>
       </div>`;
     if (mp.length === 0 && mb.length === 0) { h += '<div style="padding:14px;color:var(--text3);font-size:13px">Chưa có hàng / 目前無庫存</div>'; }
@@ -519,7 +562,7 @@ function renderRehab() {
     });
   }
 
-  el.innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">🔧 目前無修整中植物</div>';
+  el.innerHTML = rehabItems.length === 0 ? '<div style="padding:32px;text-align:center;color:var(--text3)">🔧 目前無修整中植物</div>' : h;
 }
 
 function renderRehabCard(r) {
