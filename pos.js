@@ -99,7 +99,7 @@ function addCart(type, id) {
   const key = 'plant-' + id;
   const ex = cart.find(c => c.key === key);
   if (ex) { if (ex.qty < p.qty) ex.qty++; }
-  else cart.push({ key, type: 'plant', id, name: p.name, qty: 1, price: p.price, cost: agedCost(p.cost_vnd, p.purchase_date), loc: p.loc });
+  else cart.push({ key, type: 'plant', id, name: p.name, qty: 1, price: p.price, suggestPrice: p.price, baseCost: p.cost_vnd, purchaseDate: p.purchase_date, cost: agedCost(p.cost_vnd, p.purchase_date), loc: p.loc });
   updateBadge();
 }
 
@@ -147,18 +147,25 @@ function renderCart() {
   const mg = sub > 0 ? (prof / sub * 100).toFixed(1) : 0;
   let h = '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:10px">';
   cart.forEach((c, i) => {
-    h += `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="flex:1">
+    // 計算成本明細（只有植物有 baseCost/purchaseDate）
+    const hasDetail = !!(c.baseCost && c.purchaseDate);
+    const aged = hasDetail ? agedCost(c.baseCost, c.purchaseDate) : c.cost;
+    const monthlyInc = hasDetail ? (aged - c.baseCost) : 0;
+    const itemSubtotal = c.price * c.qty;
+    h += `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <div style="font-size:13px;font-weight:500">${c.name} <span class="${LOC_CLASS[c.loc]}">${LOC_LABELS[c.loc]}</span></div>
-        <div style="margin-top:5px"><input style="width:100%;padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" type="number" value="${c.price}" onchange="updPrice(${i},this.value)"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <div style="display:flex;align-items:center;gap:5px">
           <button class="qbtn" onclick="chgQty(${i},-1)">−</button>
           <span style="font-size:14px;min-width:18px;text-align:center">${c.qty}</span>
           <button class="qbtn" onclick="chgQty(${i},1)">+</button>
         </div>
-        <div style="font-size:12px;font-family:DM Mono,monospace">${vnd(c.price * c.qty)}</div>
+      </div>
+      ${c.suggestPrice ? `<div style="font-size:11px;color:var(--text2);margin-bottom:4px">建議售價 / Giá đề xuất：<span style="color:var(--acc);font-family:DM Mono,monospace">${vnd(c.suggestPrice)}</span></div>` : ''}
+      <div style="margin-bottom:5px"><input style="width:100%;padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit" type="number" value="${c.price}" placeholder="請填入單價 / Nhập đơn giá" onchange="updPrice(${i},this.value)"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)">
+        ${hasDetail ? `<span>成本：${vnd(c.baseCost)} + ${vnd(monthlyInc)} = <span style="color:var(--amber)">${vnd(aged)}</span></span>` : `<span>成本：<span style="color:var(--amber)">${vnd(c.cost)}</span></span>`}
+        <span>小計：<span style="color:var(--text);font-family:DM Mono,monospace;font-weight:500">${vnd(itemSubtotal)}</span></span>
       </div>
     </div>`;
   });
