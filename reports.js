@@ -58,9 +58,7 @@ function renderRepSummary() {
   completed.forEach(o => {
     const k = monthKey(o.order_date);
     if (!monthly[k]) monthly[k] = { label: monthLabel(o.order_date), rev: 0, profit: 0, count: 0 };
-    monthly[k].rev += o.total;
-    monthly[k].profit += o.profit;
-    monthly[k].count++;
+    monthly[k].rev += o.total; monthly[k].profit += o.profit; monthly[k].count++;
   });
   h += '<div style="padding:0 16px">';
   Object.keys(monthly).sort().reverse().forEach(k => {
@@ -106,10 +104,7 @@ function renderRepOrders() {
     h += `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="showReceipt(${o.id})">
       <td style="padding:8px 6px;color:var(--amber);font-family:DM Mono,monospace;font-weight:600">#${String(o.id).padStart(4,'0')}</td>
       <td style="padding:8px 6px;color:var(--text2)">${o.order_date.slice(5)}</td>
-      <td style="padding:8px 6px">
-        <div style="font-weight:500">${o.customer}</div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px">${items || '-'}</div>
-      </td>
+      <td style="padding:8px 6px"><div style="font-weight:500">${o.customer}</div><div style="font-size:10px;color:var(--text2);margin-top:2px">${items || '-'}</div></td>
       <td style="padding:8px 6px;text-align:right;font-family:DM Mono,monospace">${vnd(o.total)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--green);font-family:DM Mono,monospace">${vnd(o.profit)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--green)">${mg}%</td>
@@ -125,9 +120,7 @@ function renderRepMembers() {
   const members = {};
   completed.forEach(o => {
     if (!members[o.seller]) members[o.seller] = { rev: 0, profit: 0, count: 0 };
-    members[o.seller].rev += o.total;
-    members[o.seller].profit += o.profit;
-    members[o.seller].count++;
+    members[o.seller].rev += o.total; members[o.seller].profit += o.profit; members[o.seller].count++;
   });
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Doanh số thành viên / 成員業績</span>
@@ -188,13 +181,32 @@ function renderRepPlantsSold() {
   document.getElementById('rep-plants-sold').innerHTML = h;
 }
 
-function renderInvStatus() {
+// 庫存狀態 — 加月份頁籤
+let invStatusMonth = null;
+function renderInvStatus(filterMonth) {
+  if (filterMonth !== undefined) invStatusMonth = filterMonth;
   const active = DATA.plants.filter(p => p.status === 'ok').sort((a, b) => daysSince(b.purchase_date) - daysSince(a.purchase_date));
+
+  // 月份頁籤
+  const allMonths = [...new Set(active.map(p => p.purchase_date.substring(0, 7)))].sort().reverse();
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Trạng thái kho / 當前庫存狀態</span>
     <button class="csv-btn" onclick="exportCSV('invstatus')">⬇ Xuất CSV</button>
-  </div>
-  <div style="overflow-x:auto;margin:0 16px">
+  </div>`;
+
+  // 月份篩選頁籤
+  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none">
+    <button onclick="renderInvStatus(null)" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${!invStatusMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!invStatusMonth ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">全部</button>
+    ${allMonths.map(m => {
+      const [yr, mo] = m.split('-');
+      const isActive = invStatusMonth === m;
+      return `<button onclick="renderInvStatus('${m}')" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">${yr}/${mo}</button>`;
+    }).join('')}
+  </div>`;
+
+  const filtered = invStatusMonth ? active.filter(p => p.purchase_date.startsWith(invStatusMonth)) : active;
+
+  h += `<div style="overflow-x:auto;margin:0 16px">
   <table style="width:100%;border-collapse:collapse;font-size:11px">
   <tr style="background:var(--bg3);color:var(--text2)">
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Cây / 植物</th>
@@ -204,7 +216,7 @@ function renderInvStatus() {
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN / Est.毛利</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">預估LN% / Est.毛利率</th>
   </tr>`;
-  active.forEach(p => {
+  filtered.forEach(p => {
     const days = daysSince(p.purchase_date);
     const ac = agedCost(p.cost_vnd, p.purchase_date);
     const mg = margin(p.price, p.cost_vnd, p.purchase_date);
@@ -230,8 +242,7 @@ function renderRehabLog() {
   </div>`;
   if (DATA.rehab.length === 0) {
     h += '<div style="padding:24px;text-align:center;color:var(--text3)">Không có / 無修整記錄</div>';
-    document.getElementById('rep-rehab-log').innerHTML = h;
-    return;
+    document.getElementById('rep-rehab-log').innerHTML = h; return;
   }
   h += `<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">
   <tr style="background:var(--bg3);color:var(--text2)">
@@ -239,14 +250,18 @@ function renderRehabLog() {
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Cây / 植物</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Ngày kho / 在庫天</th>
     <th style="padding:8px 6px;text-align:right;border-bottom:1px solid var(--border)">Ngày CS / 修整天</th>
+    <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Trạng thái / 狀態</th>
     <th style="padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)">Lý do / 原因</th>
   </tr>`;
   DATA.rehab.forEach(r => {
+    const statusMap = { rehab: '修整中', tracking: '待販售', available: '可販售', sold: '已售出', writeoff: '報廢' };
+    const statusColor = { rehab: 'var(--amber)', tracking: 'var(--blue)', available: 'var(--acc)', sold: 'var(--green)', writeoff: 'var(--red)' };
     h += `<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:8px 6px;color:var(--amber);font-family:DM Mono,monospace">${r.rid}</td>
       <td style="padding:8px 6px">${r.plant_name} ×${r.qty}</td>
       <td style="padding:8px 6px;text-align:right">${daysSince(r.purchase_date)}</td>
       <td style="padding:8px 6px;text-align:right;color:var(--red)">${daysSince(r.rehab_date)}</td>
+      <td style="padding:8px 6px;color:${statusColor[r.status] || 'var(--text2)'}">${statusMap[r.status] || r.status}</td>
       <td style="padding:8px 6px;color:var(--text2)">${r.note || '-'}</td>
     </tr>`;
   });
@@ -267,8 +282,7 @@ function renderWriteoffRep() {
   </div>`;
   if (DATA.writeoffs.length === 0) {
     h += '<div style="padding:24px;text-align:center;color:var(--text3)">Chưa có ghi nhận / 無報廢記錄</div>';
-    document.getElementById('rep-writeoff').innerHTML = h;
-    return;
+    document.getElementById('rep-writeoff').innerHTML = h; return;
   }
   h += `<div style="overflow-x:auto;margin:0 16px"><table style="width:100%;border-collapse:collapse;font-size:11px">
   <tr style="background:var(--bg3);color:var(--text2)">
@@ -291,8 +305,15 @@ function renderWriteoffRep() {
   document.getElementById('rep-writeoff').innerHTML = h;
 }
 
-function renderPur() {
+// 進貨記錄 — 加月份頁籤
+let purFilterMonth = null;
+function renderPur(filterMonth) {
+  if (filterMonth !== undefined) purFilterMonth = filterMonth;
   const tv = DATA.purchases.reduce((s, p) => s + p.total_vnd, 0);
+
+  // 月份頁籤
+  const allMonths = [...new Set(DATA.purchases.map(p => p.purchase_date.substring(0, 7)))].sort().reverse();
+
   let h = `<div style="margin:12px 16px 4px;display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:13px;font-weight:500">Lịch sử nhập hàng / 進貨記錄</span>
     <button class="csv-btn" onclick="exportCSV('purchase')">⬇ Xuất CSV</button>
@@ -300,11 +321,25 @@ function renderPur() {
   <div class="metrics" style="margin-bottom:8px">
     <div class="metric"><div class="ml">Số lô / 批次數</div><div class="mv">${DATA.purchases.length}</div></div>
     <div class="metric"><div class="ml">Tổng chi phí / 總進貨成本</div><div class="mv amber">${vnd(tv)}</div></div>
-  </div>
-  <div style="padding:0 16px 10px;display:flex;justify-content:flex-end">
+  </div>`;
+
+  // 月份篩選頁籤
+  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none">
+    <button onclick="renderPur(null)" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${!purFilterMonth ? 'var(--acc)' : 'var(--bg2)'};color:${!purFilterMonth ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">全部</button>
+    ${allMonths.map(m => {
+      const [yr, mo] = m.split('-');
+      const isActive = purFilterMonth === m;
+      return `<button onclick="renderPur('${m}')" style="flex-shrink:0;padding:5px 12px;border-radius:100px;border:1px solid var(--border);background:${isActive ? 'var(--acc)' : 'var(--bg2)'};color:${isActive ? '#000' : 'var(--text)'};font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">${yr}/${mo}</button>`;
+    }).join('')}
+  </div>`;
+
+  h += `<div style="padding:0 16px 10px;display:flex;justify-content:flex-end">
     <button class="btn btnp btnsm" onclick="openM('m-newpur')">+ Thêm lô / 新增進貨</button>
   </div>`;
-  DATA.purchases.forEach(p => {
+
+  const filtered = purFilterMonth ? DATA.purchases.filter(p => p.purchase_date.startsWith(purFilterMonth)) : DATA.purchases;
+
+  filtered.forEach(p => {
     const items = p.purchase_items || [];
     h += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin:0 16px 10px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -370,8 +405,7 @@ async function saveAdminConfig() {
     max_inc: parseInt(document.getElementById('cfg-max-inc').value) || 300000
   };
   await DB.saveConfig(cfg);
-  renderInv();
-  renderPos();
+  renderInv(); renderPos();
 }
 
 async function savePassword() {
@@ -383,37 +417,30 @@ async function savePassword() {
   document.getElementById('pw-new').value = '';
 }
 
-// PURCHASE
+// PURCHASE FORM
 let purItems = [];
-
 function addPurItem() {
   purItems.push({ name: '', qty: 1, cost_ntd: 0, price: 0 });
   renderPurItems();
 }
 
 function renderPurItems() {
-  // 加入 data-index 方便後續讀取
   document.getElementById('pur-items-wrap').innerHTML = purItems.map((item, i) => `
     <div style="background:var(--bg3);border-radius:var(--r);padding:11px;margin-bottom:9px">
-      <div class="field" style="margin-bottom:7px"><input class="inp" id="pur-name-${i}" placeholder="Tên cây / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value" onchange="purItems[${i}].name=this.value"></div>
+      <div class="field" style="margin-bottom:7px"><input class="inp" id="pur-name-${i}" placeholder="Tên cây / 品名" value="${item.name || ''}" oninput="purItems[${i}].name=this.value"></div>
       <div class="irow" style="margin-bottom:7px">
-        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-qty-${i}" type="number" placeholder="SL / 數量" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0" onchange="purItems[${i}].qty=parseInt(this.value)||0"></div>
-        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-cost-${i}" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" oninput="purItems[${i}].cost_ntd=parseInt(this.value)||0" onchange="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
+        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-qty-${i}" type="number" placeholder="SL / 數量" value="${item.qty || ''}" oninput="purItems[${i}].qty=parseInt(this.value)||0"></div>
+        <div class="field" style="margin-bottom:0"><input class="inp" id="pur-cost-${i}" type="number" placeholder="Giá vốn NTD / 成本NTD" value="${item.cost_ntd || ''}" oninput="purItems[${i}].cost_ntd=parseInt(this.value)||0"></div>
       </div>
-      <div class="field" style="margin-bottom:0"><input class="inp" id="pur-price-${i}" type="number" placeholder="Giá bán VND / 建議售價 VND" value="${item.price || ''}" oninput="purItems[${i}].price=parseInt(this.value)||0" onchange="purItems[${i}].price=parseInt(this.value)||0"></div>
+      <div class="field" style="margin-bottom:0"><input class="inp" id="pur-price-${i}" type="number" placeholder="Giá bán VND / 建議售價 VND" value="${item.price || ''}" oninput="purItems[${i}].price=parseInt(this.value)||0"></div>
     </div>`).join('');
 }
 
 async function savePurchase() {
   const vendor = document.getElementById('pur-vendor').value.trim();
-  if (!vendor || purItems.length === 0) {
-    showToast('Vui lòng nhập đầy đủ / 請填寫廠商和品項', 'error');
-    return;
-  }
+  if (!vendor || purItems.length === 0) { showToast('Vui lòng nhập đầy đủ / 請填寫廠商和品項', 'error'); return; }
   const addToStock = document.getElementById('pur-add-stock').checked;
   const stockLoc = document.getElementById('pur-stock-loc').value;
-
-  // 儲存前用 id 讀取最新值（Safari 相容）
   purItems.forEach((item, i) => {
     const n = document.getElementById('pur-name-' + i);
     const q = document.getElementById('pur-qty-' + i);
@@ -424,51 +451,24 @@ async function savePurchase() {
     if (c) item.cost_ntd = parseInt(c.value) || 0;
     if (p) item.price = parseInt(p.value) || 0;
   });
-
   const items = purItems.map(i => ({
-    item_name: i.name,
-    qty: i.qty,
-    cost_ntd: i.cost_ntd,
-    cost_vnd: i.cost_ntd * CFG.rate,
-    total_vnd: i.qty * i.cost_ntd * CFG.rate
+    item_name: i.name, qty: i.qty, cost_ntd: i.cost_ntd,
+    cost_vnd: i.cost_ntd * CFG.rate, total_vnd: i.qty * i.cost_ntd * CFG.rate
   }));
-  // price 只用於庫存，不存入 purchase_items
   const itemPrices = purItems.map(i => i.price || 0);
-
   const totalVnd = items.reduce((s, i) => s + i.total_vnd, 0);
   const purchaseDate = document.getElementById('pur-date').value || todayStr();
   showLoading(true);
-  await DB.addPurchase({
-    vendor,
-    purchase_date: purchaseDate,
-    note: document.getElementById('pur-note').value,
-    total_vnd: totalVnd
-  }, items);
-
+  await DB.addPurchase({ vendor, purchase_date: purchaseDate, note: document.getElementById('pur-note').value, total_vnd: totalVnd }, items);
   if (addToStock) {
     for (let idx = 0; idx < items.length; idx++) {
       const i = items[idx];
       if (!i.item_name) continue;
       const existing = DATA.plants.find(p => p.name === i.item_name && p.loc === stockLoc && p.status === 'ok');
-      if (existing) {
-        await DB.updatePlant(existing.id, { qty: existing.qty + i.qty });
-      } else {
-        await DB.addPlant({
-          name: i.item_name,
-          cat: '植物',
-          cost_ntd: i.cost_ntd,
-          cost_vnd: i.cost_vnd,
-          price: itemPrices[idx],
-          qty: i.qty,
-          purchase_date: purchaseDate,
-          loc: stockLoc,
-          note: vendor,
-          status: 'ok'
-        });
-      }
+      if (existing) { await DB.updatePlant(existing.id, { qty: existing.qty + i.qty }); }
+      else { await DB.addPlant({ name: i.item_name, cat: '植物', cost_ntd: i.cost_ntd, cost_vnd: i.cost_vnd, price: itemPrices[idx], qty: i.qty, purchase_date: purchaseDate, loc: stockLoc, note: vendor, status: 'ok' }); }
     }
   }
-
   purItems = [];
   ['pur-vendor','pur-note'].forEach(id => document.getElementById(id).value = '');
   await loadAllData();
@@ -497,11 +497,8 @@ async function saveBoard() {
   const price = parseInt(document.getElementById('eb-price').value) || 0;
   const qty = parseInt(document.getElementById('eb-qty').value) || 0;
   showLoading(true);
-  if (id) {
-    await DB.updateBoard(id, { name, cost_vnd, price });
-  } else {
-    await DB.addBoard({ name, cost_vnd, price, qty_mine: qty, qty_quang: 0, qty_helper: 0 });
-  }
+  if (id) { await DB.updateBoard(id, { name, cost_vnd, price }); }
+  else { await DB.addBoard({ name, cost_vnd, price, qty_mine: qty, qty_quang: 0, qty_helper: 0 }); }
   await loadAllData();
   showLoading(false);
   closeM('m-addboard');
@@ -598,9 +595,6 @@ function exportCSV(type) {
   const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
 }
