@@ -212,15 +212,32 @@ async function doMove() {
   const qty = parseInt(document.getElementById('move-qty').value) || 1;
   const toLoc = document.getElementById('move-loc').value;
   const note = document.getElementById('move-note').value;
-  if (qty > p.qty) { showToast('Vượt SL / 數量超過庫存', 'error'); return; }
   if (toLoc === p.loc) { showToast('Vị trí giống nhau / 目標位置相同', 'error'); return; }
-  showLoading(true);
-  if (qty < p.qty) {
+
+  // active rehab 株數（修整中/追蹤/可販售）
+  const activeRehabRecs = DATA.rehab.filter(r =>
+    r.plant_id === p.id && ['rehab','tracking','available'].includes(r.status)
+  );
+  const activeRehab = activeRehabRecs.length;
+  const maxMovable = p.qty - activeRehab;
+
+  if (qty === p.qty) {
+    // 全部移動（含 rehab）：plants + rehab loc 全部同步
+    showLoading(true);
+    await DB.updatePlant(p.id, { loc: toLoc, note: note || p.note });
+    for (const r of activeRehabRecs) {
+      await DB.updateRehab(r.id, { loc: toLoc });
+    }
+  } else {
+    // 部分移動：只能移動非 rehab 的普通庫存
+    if (maxMovable <= 0) { showToast(`全部庫存均在修整區，請個別移動 / Toàn bộ đang trong khu chỉnh sửa`, 'error'); return; }
+    if (qty > maxMovable) { showToast(`最多可移動 ${maxMovable} 株（${activeRehab} 株在修整區）/ Tối đa ${maxMovable}`, 'error'); return; }
+    showLoading(true);
     await DB.updatePlant(p.id, { qty: p.qty - qty });
     const existing = DATA.plants.find(x => x.name === p.name && x.loc === toLoc && x.status === 'ok');
     if (existing) { await DB.updatePlant(existing.id, { qty: existing.qty + qty }); }
     else { await DB.addPlant({ name: p.name, cat: p.cat, cost_ntd: p.cost_ntd, cost_vnd: p.cost_vnd, price: p.price, qty, purchase_date: p.purchase_date, loc: toLoc, note: note || p.note, status: 'ok' }); }
-  } else { await DB.updatePlant(p.id, { loc: toLoc, note: note || p.note }); }
+  }
   await loadAllData();
   showLoading(false);
   closeM('m-moveplant');
