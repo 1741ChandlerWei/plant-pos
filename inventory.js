@@ -8,7 +8,7 @@ function invTab(t) {
   if (t === 'board') renderBoardInv();
   if (t === 'member') renderMember();
   if (t === 'rehab') renderRehab();
-  if (t === 'tracking') renderTracking();
+  if (t === 'tracking') renderTracking(trackingSubTab);
 }
 
 function renderInv() {
@@ -363,36 +363,37 @@ async function confirmTracking() {
   showToast(`🎬 ${firstRid} ~ ${lastRid} 已開始追蹤`);
 }
 
-function renderTracking() {
+let trackingSubTab = 'tracking';
+
+function renderTracking(sub) {
+  if (sub) trackingSubTab = sub;
   const el = document.getElementById('inv-tracking');
   const trackingItems = DATA.rehab.filter(r => r.status === 'tracking');
   const availableItems = DATA.rehab.filter(r => r.status === 'available');
   const soldItems = DATA.rehab.filter(r => r.status === 'sold');
 
-  if (trackingItems.length === 0 && availableItems.length === 0 && soldItems.length === 0) {
-    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">🎬 尚無縮時追蹤植物<br><span style="font-size:11px">在庫存植物頁面點「追蹤」開始</span></div>';
-    return;
-  }
+  const tabs = [
+    { key: 'tracking', label: `🎬 追蹤中`, count: trackingItems.length, color: 'var(--blue)' },
+    { key: 'available', label: `✅ 可售`, count: availableItems.length, color: 'var(--acc)' },
+    { key: 'sold', label: `🏠 已售出`, count: soldItems.length, color: 'var(--green)' },
+  ];
 
-  const renderGroup = (items, label, color) => {
-    if (items.length === 0) return '';
-    const groupId = 'tg-' + label.replace(/\s/g,'');
-    let h = `<div style="margin:0 16px 4px">
-      <div onclick="document.getElementById('${groupId}').style.display=document.getElementById('${groupId}').style.display==='none'?'block':'none'"
-        style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-radius:var(--r);cursor:pointer;border:1px solid var(--border)">
-        <span style="font-size:11px;font-weight:700;color:${color}">${label} (${items.length})</span>
-        <span style="font-size:10px;color:var(--text3)">點擊展開/收合</span>
-      </div>
-      <div id="${groupId}">`;
+  let h = `<div style="display:flex;gap:4px;padding:8px 16px 10px;border-bottom:1px solid var(--border)">`;
+  tabs.forEach(t => {
+    const active = trackingSubTab === t.key;
+    h += `<button onclick="renderTracking('${t.key}')" style="flex:1;padding:6px 4px;border-radius:var(--r);border:1px solid ${active ? t.color : 'var(--border)'};background:${active ? 'rgba(0,0,0,0.3)' : 'transparent'};color:${active ? t.color : 'var(--text2)'};font-size:11px;font-weight:${active ? '700' : '400'};cursor:pointer;font-family:inherit;line-height:1.4">
+      ${t.label}<br><span style="font-size:10px">(${t.count})</span>
+    </button>`;
+  });
+  h += `</div>`;
+
+  const items = trackingSubTab === 'tracking' ? trackingItems : trackingSubTab === 'available' ? availableItems : soldItems;
+
+  if (items.length === 0) {
+    h += '<div style="padding:32px;text-align:center;color:var(--text3)">此分類目前無植物</div>';
+  } else {
     items.forEach(r => { h += renderTrackingRow(r); });
-    h += `</div></div>`;
-    return h;
-  };
-
-  let h = '';
-  h += renderGroup(trackingItems, '🎬 追蹤中', 'var(--blue)');
-  h += renderGroup(availableItems, '✅ 可售中', 'var(--acc)');
-  h += renderGroup(soldItems, '🏠 已售出', 'var(--green)');
+  }
 
   el.innerHTML = h;
 }
