@@ -1,5 +1,4 @@
 // ==================== INVENTORY MODULE ====================
-
 function invTab(t) {
   ['plant','board','member','rehab'].forEach(x => {
     document.getElementById('itab-' + x).classList.toggle('active', x === t);
@@ -12,8 +11,7 @@ function invTab(t) {
 }
 
 function renderInv() {
-  document.getElementById('inv-addbtn').innerHTML = ROLE === 'owner'
-    ? '<button class="btn btnp btnsm" onclick="openM(\'m-addplant\')">+ Thêm / 新增</button>' : '';
+  document.getElementById('inv-addbtn').innerHTML = ROLE === 'owner' ? '<button class="btn btnp btnsm" onclick="openM(\'m-addplant\')">+ Thêm / 新增</button>' : '';
   renderInvPlants();
 }
 
@@ -29,11 +27,11 @@ function renderInvPlants() {
         const pct = Math.min(days / 90 * 100, 100);
         const bc = pct > 66 ? 'var(--red)' : pct > 33 ? 'var(--amber)' : 'var(--green)';
         const lb = ROLE === 'owner' ? `<span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span>` : '';
-        const btns = ROLE === 'owner'
-          ? `<div style="display:flex;gap:4px;margin-top:6px">
-              <button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal(${p.id})">Di chuyển / 移動</button>
-              <button class="btn btnw btnsm" onclick="event.stopPropagation();openRehabModal(${p.id})">Chỉnh sửa / 修整</button>
-             </div>` : '';
+        const btns = ROLE === 'owner' ? `<div style="display:flex;gap:4px;margin-top:6px">
+          <button class="btn btns btnsm" onclick="event.stopPropagation();openMoveModal(${p.id})">Di chuyển / 移動</button>
+          <button class="btn btnw btnsm" onclick="event.stopPropagation();openRehabModal(${p.id})">Chỉnh sửa / 修整</button>
+          <button class="btn btnt btnsm" onclick="event.stopPropagation();openTrackingModal(${p.id})">🎬 追蹤</button>
+        </div>` : '';
         return `<div class="pi" onclick="openPlantDetail(${p.id})" style="align-items:flex-start;padding:13px 18px">
           <div class="pdot" style="background:${mc};margin-top:4px"></div>
           <div class="pinfo">
@@ -68,7 +66,7 @@ function renderBoardInv() {
       </div>` : ''}
     </div>`;
   });
-  document.getElementById('inv-board').innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">Không có tấm gỗ / 無板子庫存</div>';
+  document.getElementById('inv-board').innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">Không có tấm / 無板子庫存</div>';
 }
 
 function renderMember() {
@@ -138,7 +136,8 @@ function openPlantDetail(id) {
   <div class="age-bar" style="height:7px;margin-bottom:14px"><div class="age-fill" style="width:${pct}%;background:${bc}"></div></div>
   <div style="display:flex;gap:10px">
     <button class="btn btns" style="flex:1" onclick="closeM('m-detail')">Đóng / 關閉</button>
-    ${ROLE === 'owner' ? `<button class="btn btnd" style="flex:1" onclick="closeM('m-detail');openRehabModal(${p.id})">→ Khu CS / 修整區</button>` : ''}
+    ${ROLE === 'owner' ? `<button class="btn btnw" style="flex:1" onclick="closeM('m-detail');openRehabModal(${p.id})">→ Khu CS / 修整區</button>` : ''}
+    ${ROLE === 'owner' ? `<button class="btn btnt" style="flex:1" onclick="closeM('m-detail');openTrackingModal(${p.id})">🎬 追蹤</button>` : ''}
   </div>`;
   document.getElementById('detail-inner').innerHTML = h;
   openM('m-detail');
@@ -168,17 +167,11 @@ async function doMove() {
   if (toLoc === p.loc) { showToast('Vị trí giống nhau / 目標位置相同', 'error'); return; }
   showLoading(true);
   if (qty < p.qty) {
-    // 部分移動 — 更新原記錄，新增目標位置記錄
     await DB.updatePlant(p.id, { qty: p.qty - qty });
     const existing = DATA.plants.find(x => x.name === p.name && x.loc === toLoc && x.status === 'ok');
-    if (existing) {
-      await DB.updatePlant(existing.id, { qty: existing.qty + qty });
-    } else {
-      await DB.addPlant({ name: p.name, cat: p.cat, cost_ntd: p.cost_ntd, cost_vnd: p.cost_vnd, price: p.price, qty, purchase_date: p.purchase_date, loc: toLoc, note: note || p.note, status: 'ok' });
-    }
-  } else {
-    await DB.updatePlant(p.id, { loc: toLoc, note: note || p.note });
-  }
+    if (existing) { await DB.updatePlant(existing.id, { qty: existing.qty + qty }); }
+    else { await DB.addPlant({ name: p.name, cat: p.cat, cost_ntd: p.cost_ntd, cost_vnd: p.cost_vnd, price: p.price, qty, purchase_date: p.purchase_date, loc: toLoc, note: note || p.note, status: 'ok' }); }
+  } else { await DB.updatePlant(p.id, { loc: toLoc, note: note || p.note }); }
   await loadAllData();
   showLoading(false);
   closeM('m-moveplant');
@@ -245,7 +238,7 @@ async function addPlant() {
   showToast('Đã thêm cây / 已新增植物');
 }
 
-// EDIT PLANT (admin)
+// EDIT PLANT
 let editPlantId = null;
 function openEditPlant(id) {
   editPlantId = id;
@@ -269,8 +262,7 @@ async function savePlantEdit() {
   const costVnd = parseInt(document.getElementById('ep-cost-vnd').value) || costNtd * CFG.rate;
   const updates = {
     name: document.getElementById('ep-name').value,
-    cost_ntd: costNtd,
-    cost_vnd: costVnd,
+    cost_ntd: costNtd, cost_vnd: costVnd,
     price: parseInt(document.getElementById('ep-price').value) || 0,
     qty: parseInt(document.getElementById('ep-qty').value) || 0,
     purchase_date: document.getElementById('ep-date').value,
@@ -307,15 +299,15 @@ async function confirmRehab() {
   const note = document.getElementById('rehab-note').value;
   if (qty > p.qty) { showToast('Vượt SL / 數量超過庫存', 'error'); return; }
   showLoading(true);
-  // 每株建立獨立記錄
   const firstRid = await DB.getNextRid();
   const firstNum = parseInt(firstRid.replace('R-', ''));
   for (let i = 0; i < qty; i++) {
     const rid = 'R-' + String(firstNum + i).padStart(3, '0');
+    const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
       purchase_date: p.purchase_date, rehab_date: todayStr(),
-      note, loc: p.loc, status: 'rehab'
+      note, loc: p.loc, status: 'rehab', qr_code: qrUrl, price: p.price
     });
   }
   await DB.updatePlant(p.id, { qty: p.qty - qty });
@@ -328,54 +320,176 @@ async function confirmRehab() {
   showToast(`已移入修整區 ${firstRid} ~ ${lastRid}`);
 }
 
-function renderRehab() {
-  const el = document.getElementById('inv-rehab');
-  if (DATA.rehab.length === 0) { el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây trong khu CS / 修整區無植物</div>'; return; }
-  // 按植物名稱分組顯示
-  const groups = {};
-  DATA.rehab.forEach(r => {
-    if (!groups[r.plant_name]) groups[r.plant_name] = [];
-    groups[r.plant_name].push(r);
-  });
-  let h = '';
-  Object.keys(groups).forEach(plantName => {
-    const plants = groups[plantName];
-    h += `<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg3);border-bottom:1px solid var(--border)">
-        <span style="font-size:14px;font-weight:700">${plantName}</span>
-        <span class="badge ba">${plants.length}株 修整中</span>
-      </div>`;
-    plants.forEach(r => {
-      const stockDays = daysSince(r.purchase_date);
-      const rehabDays = daysSince(r.rehab_date);
-      const bc = rehabDays > 14 ? 'var(--red)' : rehabDays > 7 ? 'var(--amber)' : 'var(--green)';
-      h += `<div style="padding:11px 14px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--amber);font-weight:700">${r.rid}</span>
-          <span class="${LOC_CLASS[r.loc]}" style="font-size:10px">${LOC_LABELS[r.loc]}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text2)">在庫天數</div>
-            <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
-          </div>
-          <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
-            <div style="font-size:9px;color:var(--text2)">修整天數</div>
-            <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${rehabDays}</div>
-          </div>
-        </div>
-        ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:7px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
-        ${ROLE === 'owner' ? `<div style="display:flex;gap:6px">
-          <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
-          <button class="btn btns btnsm" style="flex:1" onclick="openReleaseRehab('${r.rid}')">移回庫存</button>
-        </div>` : ''}
-      </div>`;
-    });
-    h += '</div>';
-  });
-  el.innerHTML = h;
+// TRACKING（縮時追蹤）
+let trackingPlantId = null;
+function openTrackingModal(id) {
+  closeM('m-detail');
+  trackingPlantId = id;
+  const p = DATA.plants.find(x => x.id === id);
+  document.getElementById('tracking-info').innerHTML = `<span style="font-weight:500">${p.name}</span> <span class="${LOC_CLASS[p.loc]}">${LOC_LABELS[p.loc]}</span> · ${p.qty}株`;
+  document.getElementById('tracking-note').value = '';
+  openM('m-tracking');
 }
 
+async function confirmTracking() {
+  const p = DATA.plants.find(x => x.id === trackingPlantId);
+  if (!p) return;
+  const note = document.getElementById('tracking-note').value;
+  if (p.qty <= 0) { showToast('庫存不足', 'error'); return; }
+  showLoading(true);
+  const rid = await DB.getNextRid();
+  const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
+  // 新增一筆到rehab表，status為tracking
+  await DB.addRehab({
+    rid, plant_id: p.id, plant_name: p.name, qty: 1,
+    purchase_date: p.purchase_date, rehab_date: todayStr(),
+    note, loc: p.loc, status: 'tracking', qr_code: qrUrl, price: p.price
+  });
+  // 從庫存扣1株
+  await DB.updatePlant(p.id, { qty: p.qty - 1 });
+  await loadAllData();
+  showLoading(false);
+  closeM('m-tracking');
+  renderInv();
+  invTab('rehab');
+  showToast(`🎬 ${rid} 已開始追蹤，QR Code 已產生`);
+}
+
+function renderRehab() {
+  const el = document.getElementById('inv-rehab');
+  if (DATA.rehab.length === 0) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây trong khu CS / 修整區無植物</div>';
+    return;
+  }
+
+  // 依狀態分組顯示
+  const rehabItems = DATA.rehab.filter(r => r.status === 'rehab');
+  const trackingItems = DATA.rehab.filter(r => r.status === 'tracking');
+  const availableItems = DATA.rehab.filter(r => r.status === 'available');
+
+  let h = '';
+
+  // 追蹤中區塊
+  if (trackingItems.length > 0) {
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--acc);padding:8px 0">🎬 縮時追蹤中 / Đang theo dõi</div>`;
+    trackingItems.forEach(r => h += renderRehabCard(r));
+  }
+
+  // 可售區塊
+  if (availableItems.length > 0) {
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--green);padding:8px 0">✅ 可售 / Có thể bán</div>`;
+    availableItems.forEach(r => h += renderRehabCard(r));
+  }
+
+  // 修整中區塊
+  if (rehabItems.length > 0) {
+    h += `<div style="margin:0 16px 6px;font-size:11px;font-weight:700;color:var(--amber);padding:8px 0">🔧 修整中 / Đang chỉnh sửa</div>`;
+    // 按植物名稱分組
+    const groups = {};
+    rehabItems.forEach(r => {
+      if (!groups[r.plant_name]) groups[r.plant_name] = [];
+      groups[r.plant_name].push(r);
+    });
+    Object.keys(groups).forEach(plantName => {
+      const plants = groups[plantName];
+      h += `<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--rl);overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg3);border-bottom:1px solid var(--border)">
+          <span style="font-size:14px;font-weight:700">${plantName}</span>
+          <span class="badge ba">${plants.length}株 修整中</span>
+        </div>`;
+      plants.forEach(r => { h += renderRehabCardInner(r); });
+      h += '</div>';
+    });
+  }
+
+  el.innerHTML = h || '<div style="padding:32px;text-align:center;color:var(--text3)">無記錄</div>';
+}
+
+function renderRehabCard(r) {
+  return `<div style="margin:0 16px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${r.plant_name}</div>
+      ${renderRehabCardInner(r)}
+    </div>
+  </div>`;
+}
+
+function renderRehabCardInner(r) {
+  const stockDays = daysSince(r.purchase_date);
+  const rehabDays = daysSince(r.rehab_date);
+  const bc = rehabDays > 14 ? 'var(--red)' : rehabDays > 7 ? 'var(--amber)' : 'var(--green)';
+  const statusLabel = r.status === 'tracking' ? '🎬 追蹤中' : r.status === 'available' ? '✅ 可售' : '🔧 修整中';
+  return `<div style="padding:11px 14px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--amber);font-weight:700">${r.rid}</span>
+      <span class="${LOC_CLASS[r.loc]}" style="font-size:10px">${LOC_LABELS[r.loc]}</span>
+    </div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:6px">${statusLabel}</div>
+    ${r.qr_code ? `<div style="font-size:10px;color:var(--blue);margin-bottom:6px">QR: ${r.qr_code}</div>` : ''}
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="background:var(--bg3);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
+        <div style="font-size:9px;color:var(--text2)">在庫天數</div>
+        <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace">${stockDays}</div>
+      </div>
+      <div style="background:var(--rbg);border:1px solid var(--rborder);border-radius:var(--r);padding:6px 10px;text-align:center;flex:1">
+        <div style="font-size:9px;color:var(--text2)">${r.status === 'tracking' ? '追蹤天數' : '修整天數'}</div>
+        <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:${bc}">${rehabDays}</div>
+      </div>
+    </div>
+    ${r.note ? `<div style="font-size:11px;color:var(--text3);margin-bottom:7px;padding:6px 8px;background:var(--bg3);border-radius:6px">${r.note}</div>` : ''}
+    ${ROLE === 'owner' ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btns btnsm" style="flex:1" onclick="openEditRehab('${r.rid}')">編輯</button>
+      ${r.status !== 'available' ? `<button class="btn btnp btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','available')">✅ 標記可售</button>` : ''}
+      ${r.status !== 'tracking' ? `<button class="btn btnt btnsm" style="flex:1" onclick="setRehabStatus('${r.rid}','tracking')">🎬 追蹤</button>` : ''}
+      <button class="btn btnd btnsm" style="flex:1" onclick="openRehabWriteoff('${r.rid}')">報廢</button>
+    </div>` : ''}
+  </div>`;
+}
+
+async function setRehabStatus(rid, status) {
+  const r = DATA.rehab.find(x => x.rid === rid);
+  if (!r) return;
+  showLoading(true);
+  await DB.updateRehab(r.id, { status });
+  await loadAllData();
+  showLoading(false);
+  renderRehab();
+  renderPos();
+  const msg = status === 'available' ? `${rid} 已標記可售，開單區可看到` : `${rid} 已開始縮時追蹤`;
+  showToast(msg);
+}
+
+// 報廢修整區植物
+let rehabWriteoffRid = null;
+function openRehabWriteoff(rid) {
+  rehabWriteoffRid = rid;
+  const r = DATA.rehab.find(x => x.rid === rid);
+  document.getElementById('rwo-info').innerHTML = `<span style="font-weight:500">${r.rid} ${r.plant_name}</span>`;
+  document.getElementById('rwo-reason').value = '';
+  openM('m-rehabwriteoff');
+}
+
+async function confirmRehabWriteoff() {
+  const reason = document.getElementById('rwo-reason').value.trim();
+  if (!reason) { showToast('請填寫報廢原因', 'error'); return; }
+  const r = DATA.rehab.find(x => x.rid === rehabWriteoffRid);
+  if (!r) return;
+  if (!confirm(`確認報廢 ${r.rid} ${r.plant_name}？`)) return;
+  showLoading(true);
+  await DB.addWriteoff({
+    writeoff_date: todayStr(), plant_name: r.plant_name,
+    qty: 1, reason, loc: r.loc, operator: ROLE === 'owner' ? 'Chandler Wei' : ROLE,
+    cost: 0
+  });
+  await DB.updateRehab(r.id, { status: 'writeoff' });
+  await loadAllData();
+  showLoading(false);
+  closeM('m-rehabwriteoff');
+  renderRehab();
+  showToast(`${r.rid} 已報廢`);
+}
+
+// 編輯修整記錄
 let editRehabRid = null;
 function openEditRehab(rid) {
   editRehabRid = rid;
@@ -392,43 +506,13 @@ async function saveRehabEdit() {
   const r = DATA.rehab.find(x => x.rid === rid);
   if (!r) return;
   showLoading(true);
-  await DB.updateRehab(r.id, { rehab_date: document.getElementById('er-date').value, note: document.getElementById('er-note').value });
+  await DB.updateRehab(r.id, {
+    rehab_date: document.getElementById('er-date').value,
+    note: document.getElementById('er-note').value
+  });
   await loadAllData();
   showLoading(false);
   closeM('m-editrehab');
   renderRehab();
   showToast('Đã lưu / 已儲存');
-}
-
-function openReleaseRehab(rid) {
-  const r = DATA.rehab.find(x => x.rid === rid);
-  if (!r) return;
-  document.getElementById('rr-rid').value = rid;
-  document.getElementById('rr-info').innerHTML = `<span style="font-weight:500">${r.rid} ${r.plant_name}</span> · ${r.qty}株`;
-  document.getElementById('rr-qty').value = r.qty;
-  document.getElementById('rr-qty').max = r.qty;
-  document.getElementById('rr-loc').value = r.loc;
-  openM('m-releaserhab');
-}
-
-async function doReleaseRehab() {
-  const rid = document.getElementById('rr-rid').value;
-  const r = DATA.rehab.find(x => x.rid === rid);
-  if (!r) return;
-  const toLoc = document.getElementById('rr-loc').value;
-  showLoading(true);
-  // 每筆都是 qty=1，直接移回
-  const existing = DATA.plants.find(p => p.name === r.plant_name && p.loc === toLoc && p.status === 'ok');
-  if (existing) {
-    await DB.updatePlant(existing.id, { qty: existing.qty + 1 });
-  } else {
-    await DB.addPlant({ name: r.plant_name, cat: '植物', cost_ntd: 0, cost_vnd: 0, price: 0, qty: 1, purchase_date: r.purchase_date || todayStr(), loc: toLoc, note: 'Từ khu CS / 從修整區移回', status: 'ok' });
-  }
-  await DB.releaseRehab(r.id);
-  await loadAllData();
-  showLoading(false);
-  closeM('m-releaserhab');
-  renderRehab();
-  renderInv();
-  showToast(`${rid} 已移回庫存`);
 }

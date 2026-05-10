@@ -103,7 +103,7 @@ const DB = {
 
   // REHAB
   async getRehab() {
-    const { data } = await sb.from('rehab').select('*').eq('status', 'rehab').order('rehab_date', { ascending: false });
+    const { data } = await sb.from('rehab').select('*').in('status', ['rehab', 'tracking', 'available']).order('rehab_date', { ascending: false });
     return data || [];
   },
   async addRehab(rehab) {
@@ -113,6 +113,12 @@ const DB = {
   },
   async updateRehab(id, updates) {
     const { error } = await sb.from('rehab').update(updates).eq('id', id);
+    if (error) showToast('Lỗi / 錯誤: ' + error.message, 'error');
+    return !error;
+  },
+  async updateRehabStatus(id, status) {
+    const { error } = await sb.from('rehab').update({ status }).eq('id', id);
+    if (error) showToast('Lỗi / 錯誤: ' + error.message, 'error');
     return !error;
   },
   async releaseRehab(id) {

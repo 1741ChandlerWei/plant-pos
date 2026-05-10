@@ -12,10 +12,43 @@ function posTab(t) {
 }
 
 function renderPos() {
+  // 一般庫存植物
   const avail = DATA.plants.filter(p => p.qty > 0 && p.status === 'ok');
-  document.getElementById('pos-plant').innerHTML = avail.length === 0
+
+  // 修整區中可售 + 追蹤中的植物（R 編號獨立個體）
+  const rehabAvail = DATA.rehab.filter(r => r.status === 'available' || r.status === 'tracking');
+
+  // 渲染一般植物
+  let plantHtml = avail.length === 0 && rehabAvail.length === 0
     ? '<div style="padding:32px;text-align:center;color:var(--text3)">Không có cây / 無庫存</div>'
-    : avail.map(p => {
+    : '';
+
+  // 先顯示追蹤中和可售的 R 編號植物
+  if (rehabAvail.length > 0) {
+    plantHtml += rehabAvail.map(r => {
+      const days = daysSince(r.purchase_date);
+      const rehabDays = daysSince(r.rehab_date);
+      const isTracking = r.status === 'tracking';
+      const statusLabel = isTracking ? '🎬 追蹤中' : '✅ 可售';
+      const statusColor = isTracking ? 'var(--acc)' : 'var(--green)';
+      return `<div class="pi" onclick="addCartRehab('${r.rid}')">
+        <div class="pdot" style="background:${statusColor}"></div>
+        <div class="pinfo">
+          <div class="pname">
+            ${r.plant_name}
+            <span style="font-size:10px;font-weight:700;color:var(--amber);font-family:DM Mono,monospace;margin-left:4px">${r.rid}</span>
+            <span class="${LOC_CLASS[r.loc]}">${LOC_LABELS[r.loc]}</span>
+          </div>
+          <div class="pmeta">${statusLabel} · 1株 · 在庫${days}天 · 追蹤${rehabDays}天</div>
+        </div>
+        <div class="pright"><div class="pprice" style="font-size:13px;color:var(--text2)">點擊開單</div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // 再顯示一般庫存植物
+  if (avail.length > 0) {
+    plantHtml += avail.map(p => {
       const ac = agedCost(p.cost_vnd, p.purchase_date);
       const mg = parseFloat(margin(p.price, p.cost_vnd, p.purchase_date));
       const mc = mg > 40 ? 'var(--green)' : mg > 20 ? 'var(--amber)' : 'var(--red)';
@@ -32,7 +65,11 @@ function renderPos() {
         <div class="pright"><div class="pprice">${vnd(p.price)}</div><div class="psub" style="color:${mc}">${vnd(p.price - ac)}</div><div class="psub" style="color:${mc}">${mg}%</div></div>
       </div>`;
     }).join('');
+  }
 
+  document.getElementById('pos-plant').innerHTML = plantHtml;
+
+  // 板材
   let boardHtml = '';
   DATA.boards.forEach(b => {
     const locs = { mine: b.qty_mine, quang: b.qty_quang, helper: b.qty_helper };
@@ -51,6 +88,7 @@ function renderPos() {
   document.getElementById('pos-board').innerHTML = boardHtml || '<div style="padding:32px;text-align:center;color:var(--text3)">Không có tấm / 無庫存</div>';
 }
 
+// 加入購物車 — 一般植物
 function addCart(type, id) {
   const p = DATA.plants.find(x => x.id === id);
   if (!p || p.qty === 0) return;
@@ -59,6 +97,24 @@ function addCart(type, id) {
   if (ex) { if (ex.qty < p.qty) ex.qty++; }
   else cart.push({ key, type: 'plant', id, name: p.name, qty: 1, price: p.price, cost: agedCost(p.cost_vnd, p.purchase_date), loc: p.loc });
   updateBadge();
+}
+
+// 加入購物車 — R 編號植物（修整區可售/追蹤中）
+function addCartRehab(rid) {
+  const r = DATA.rehab.find(x => x.rid === rid);
+  if (!r) return;
+  const key = 'rehab-' + rid;
+  const ex = cart.find(c => c.key === key);
+  if (ex) { showToast('此株已在購物車中', 'error'); return; }
+  const price = r.price || 0;
+  cart.push({
+    key, type: 'rehab', rid, id: r.id,
+    name: `${r.plant_name} [${rid}]`,
+    qty: 1, price, cost: 0, loc: r.loc,
+    isRehab: true
+  });
+  updateBadge();
+  showToast(`${rid} 已加入購物車，可在購物車修改售價`);
 }
 
 function addCartBoard(id, loc) {
@@ -80,10 +136,7 @@ function updateBadge() {
 
 function renderCart() {
   const el = document.getElementById('pos-cart');
-  if (cart.length === 0) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3)">Giỏ hàng trống / 購物車為空</div>';
-    return;
-  }
+  if (cart.length === 0) { el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3)">Giỏ hàng trống / 購物車為空</div>'; return; }
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const cost = cart.reduce((s, c) => s + c.cost * c.qty, 0);
   const prof = sub - cost;
@@ -119,13 +172,9 @@ function updPrice(i, v) { cart[i].price = parseInt(v) || cart[i].price; renderCa
 function chgQty(i, d) {
   const c = cart[i];
   let max;
-  if (c.type === 'plant') {
-    const p = DATA.plants.find(x => x.id === c.id);
-    max = p ? p.qty : 0;
-  } else {
-    const b = DATA.boards.find(x => x.id === c.id);
-    max = b ? { mine: b.qty_mine, quang: b.qty_quang, helper: b.qty_helper }[c.loc] || 0 : 0;
-  }
+  if (c.type === 'rehab') { max = 1; }
+  else if (c.type === 'plant') { const p = DATA.plants.find(x => x.id === c.id); max = p ? p.qty : 0; }
+  else { const b = DATA.boards.find(x => x.id === c.id); max = b ? { mine: b.qty_mine, quang: b.qty_quang, helper: b.qty_helper }[c.loc] || 0 : 0; }
   c.qty += d;
   if (c.qty <= 0) cart.splice(i, 1);
   if (c.qty > max) c.qty = max;
@@ -139,13 +188,11 @@ function openCheckout() {
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const prof = sub - cart.reduce((s, c) => s + c.cost * c.qty, 0);
   ['co-name','co-contact','co-addr','co-note'].forEach(id => document.getElementById(id).value = '');
-  // 重設日期為今天
   const coDate = document.getElementById('co-date');
   if (coDate) coDate.value = new Date().toISOString().split('T')[0];
-  document.getElementById('co-summary').innerHTML =
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">Sản phẩm / 品項</div>' +
-    cart.map(c => `<div style="font-size:12px;padding:2px 0">${c.name} × ${c.qty} <span class="${LOC_CLASS[c.loc]}">${LOC_LABELS[c.loc]}</span> = ${vnd(c.price * c.qty)}</div>`).join('') +
-    `<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:8px"><span>Tổng / 合計</span><span>${vnd(sub)}</span></div>
+  document.getElementById('co-summary').innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">Sản phẩm / 品項</div>'
+    + cart.map(c => `<div style="font-size:12px;padding:2px 0">${c.name} × ${c.qty} <span class="${LOC_CLASS[c.loc]}">${LOC_LABELS[c.loc]}</span> = ${vnd(c.price * c.qty)}</div>`).join('')
+    + `<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding:10px 0 0;border-top:1px solid var(--border2);margin-top:8px"><span>Tổng / 合計</span><span>${vnd(sub)}</span></div>
     <div style="font-size:12px;color:var(--green)">Lợi nhuận / 毛利 ${vnd(prof)}</div>`;
   openM('m-checkout');
 }
@@ -155,39 +202,40 @@ async function completeOrder() {
   if (!name) { showToast('Vui lòng nhập tên khách / 請填寫客戶姓名', 'error'); return; }
   const sub = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const cost = cart.reduce((s, c) => s + c.cost * c.qty, 0);
-  // 讀取日期欄位，預設今天
   const coDateEl = document.getElementById('co-date');
   const orderDate = (coDateEl && coDateEl.value) ? coDateEl.value : todayStr();
   const order = {
-    order_date: orderDate,
-    customer: name,
+    order_date: orderDate, customer: name,
     contact: document.getElementById('co-contact').value,
     address: document.getElementById('co-addr').value,
     source: document.getElementById('co-src').value,
     payment: document.getElementById('co-pay').value,
     seller: document.getElementById('co-seller').value,
     note: document.getElementById('co-note').value,
-    total: sub,
-    profit: sub - cost,
-    status: 'completed'
+    total: sub, profit: sub - cost, status: 'completed'
   };
-  const items = cart.map(c => ({ item_type: c.type, item_name: c.name, qty: c.qty, price: c.price, cost: c.cost, loc: c.loc }));
+  const items = cart.map(c => ({
+    item_type: c.type, item_name: c.name,
+    qty: c.qty, price: c.price, cost: c.cost, loc: c.loc
+  }));
   showLoading(true);
   const o = await DB.addOrder(order, items);
   if (!o) { showLoading(false); return; }
+
   // 扣庫存
   for (const c of cart) {
     if (c.type === 'plant') {
       const p = DATA.plants.find(x => x.id === c.id);
       if (p) await DB.updatePlant(p.id, { qty: p.qty - c.qty });
+    } else if (c.type === 'rehab') {
+      // R 編號植物售出，更新狀態為 sold
+      await DB.updateRehab(c.id, { status: 'sold' });
     } else {
       const b = DATA.boards.find(x => x.id === c.id);
-      if (b) {
-        const field = 'qty_' + c.loc;
-        await DB.updateBoard(b.id, { [field]: b[field] - c.qty });
-      }
+      if (b) { const field = 'qty_' + c.loc; await DB.updateBoard(b.id, { [field]: b[field] - c.qty }); }
     }
   }
+
   cart = [];
   updateBadge();
   await loadAllData();
