@@ -140,6 +140,6 @@ const DB = {
   // REHAB COUNT for RID generation
   async getNextRid() {
     const { count } = await sb.from('rehab').select('*', { count: 'exact', head: true });
-    return 'R-' + String((count || 0) + 1).padStart(3, '0');
+    return 'R-' + String((count || 0) + 1).padStart(4, '0');
   }
 };

@@ -368,7 +368,7 @@ async function confirmRehab() {
   const firstRid = await DB.getNextRid();
   const firstNum = parseInt(firstRid.replace('R-', ''));
   for (let i = 0; i < qty; i++) {
-    const rid = 'R-' + String(firstNum + i).padStart(3, '0');
+    const rid = 'R-' + String(firstNum + i).padStart(4, '0');
     const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
@@ -382,7 +382,7 @@ async function confirmRehab() {
   closeM('m-rehab');
   renderInv();
   invTab('rehab');
-  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(3, '0');
+  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(4, '0');
   showToast(`已移入修整區 ${firstRid} ~ ${lastRid} / Đã chuyển vào khu chỉnh sửa`);
 }
 
@@ -410,7 +410,7 @@ async function confirmTracking() {
   const firstRid = await DB.getNextRid();
   const firstNum = parseInt(firstRid.replace('R-', ''));
   for (let i = 0; i < qty; i++) {
-    const rid = 'R-' + String(firstNum + i).padStart(3, '0');
+    const rid = 'R-' + String(firstNum + i).padStart(4, '0');
     const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
@@ -424,7 +424,7 @@ async function confirmTracking() {
   closeM('m-tracking');
   renderInv();
   invTab('tracking');
-  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(3, '0');
+  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(4, '0');
   showToast(`🎬 ${firstRid} ~ ${lastRid} 已開始追蹤 / Bắt đầu theo dõi`);
 }
 
