@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rễ , thân , lá studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E8;--cream2:#EDE6D6;--dark:#0D0D0A;--dark2:#1A1A14;--green:#2D4A2D;--green2:#3D6B3D;--green-pale:#C8DBC8;--red:#8B1A1A;--gold:#B8922A;--text:#1A1A14;--text2:#6B6B55;--text3:#9B9B85;--border:#D8D0C0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--text);font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(245,240,232,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-size:13px;letter-spacing:.15em;color:var(--green);font-style:italic}
+.nav-rid{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
+.nav-upload{background:var(--green);color:var(--cream);border:none;padding:7px 16px;font-size:11px;letter-spacing:.12em;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nav-upload:hover{background:var(--green2)}
+.loading{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:200}
+.loading-logo{font-size:28px;font-style:italic;color:var(--green);letter-spacing:.1em}
+.loading-bar{width:120px;height:1px;background:var(--border);position:relative;overflow:hidden}
+.loading-bar::after{content:'';position:absolute;left:-40%;top:0;width:40%;height:100%;background:var(--green);animation:load 1.2s ease-in-out infinite}
+@keyframes load{to{left:140%}}
+main{padding-top:56px}
+.photo-hero{position:relative;width:100%;background:var(--dark2);display:flex;align-items:center;justify-content:center;overflow:hidden;height:calc(100vh - 56px);max-height:700px}
+.photo-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .12s ease}
+.photo-img.hidden{opacity:0;pointer-events:none}
+.photo-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(245,240,232,.15);backdrop-filter:blur(4px);border:1px solid rgba(245,240,232,.2);color:var(--cream);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .2s;z-index:10;user-select:none}
+.photo-nav:hover{background:rgba(245,240,232,.3)}
+.photo-nav.prev{left:16px}
+.photo-nav.next{right:16px}
+.photo-nav:disabled{opacity:.3;cursor:not-allowed}
+.photo-info{position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(transparent,rgba(13,13,10,.85));color:var(--cream)}
+.photo-meta{display:flex;gap:20px;align-items:baseline;margin-bottom:4px}
+.photo-date{font-family:'DM Mono',monospace;font-size:12px;opacity:.7}
+.photo-weight{font-size:20px;font-style:italic}
+.photo-note{font-size:13px;opacity:.6;font-style:italic}
+.photo-counter{position:absolute;top:16px;right:16px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(245,240,232,.5)}
+.thumbnails{display:flex;gap:4px;padding:12px 16px;overflow-x:auto;background:var(--dark);scrollbar-width:none}
+.thumbnails::-webkit-scrollbar{display:none}
+.thumb{width:56px;height:56px;flex-shrink:0;object-fit:cover;opacity:.5;cursor:pointer;transition:opacity .2s;border:2px solid transparent}
+.thumb.active{opacity:1;border-color:var(--gold)}
+.thumb:hover{opacity:.8}
+.plant-info{padding:24px;border-bottom:1px solid var(--border)}
+.plant-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.plant-name-big{font-size:32px;font-weight:300;font-style:italic;color:var(--dark)}
+.plant-status{font-size:10px;letter-spacing:.15em;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+.status-available{background:rgba(45,74,45,.1);color:var(--green);border:1px solid var(--green-pale)}
+.status-sold{background:rgba(139,26,26,.1);color:var(--red);border:1px solid rgba(139,26,26,.3)}
+.status-tracking{background:rgba(155,155,133,.1);color:var(--text3);border:1px solid var(--border)}
+.plant-rid-big{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:12px}
+.plant-desc{font-size:15px;color:var(--text2);line-height:1.7;font-style:italic}
+.video-section{padding:24px;border-bottom:1px solid var(--border)}
+.quick-view{padding:24px;border-bottom:1px solid var(--border)}
+.section-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+.video-controls{display:flex;gap:10px;flex-wrap:wrap}
+.quick-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.quick-speed{display:flex;gap:6px}
+.speed-btn{padding:6px 12px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;transition:all .2s}
+.speed-btn.active{border-color:var(--green);color:var(--green);background:rgba(45,74,45,.05)}
+.btn-outline{padding:10px 20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;letter-spacing:.1em;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:8px}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-solid{padding:10px 20px;border:none;background:var(--green);color:var(--cream);font-size:12px;letter-spacing:.1em;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:8px}
+.btn-solid:hover{background:var(--green2)}
+.btn-solid:disabled{opacity:.4;cursor:not-allowed}
+.video-preview{margin-top:16px;display:none}
+.video-preview video{width:100%;max-height:400px;background:#000}
+.progress-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:8px}
+.progress-bar-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;width:0%}
+.progress-text{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px}
+.empty-state{padding:60px 24px;text-align:center;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:16px;font-style:italic}
+footer{padding:32px 24px;text-align:center}
+.footer-logo{font-size:13px;font-style:italic;color:var(--text3);letter-spacing:.1em}
+@media(max-width:600px){.photo-hero{height:calc(60vw + 80px);max-height:400px}.plant-name-big{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div class="loading-logo">rễ , thân , lá</div><div class="loading-bar"></div></div>
+<nav>
+  <div class="nav-logo">rễ , thân , lá studio</div>
+  <div class="nav-rid" id="nav-rid">—</div>
+  <a class="nav-upload" id="upload-link" href="#">📷 上傳照片</a>
+</nav>
+<main id="main" style="display:none">
+  <div class="photo-hero" id="photo-hero">
+    <div class="photo-counter" id="photo-counter"></div>
+    <button class="photo-nav prev" id="prev-btn" onclick="changePhoto(-1)">‹</button>
+    <button class="photo-nav next" id="next-btn" onclick="changePhoto(1)">›</button>
+    <div class="photo-info">
+      <div class="photo-meta"><span class="photo-date" id="photo-date"></span><span class="photo-weight" id="photo-weight"></span></div>
+      <div class="photo-note" id="photo-note"></div>
+    </div>
+  </div>
+  <div class="thumbnails" id="thumbnails"></div>
+  <div class="plant-info">
+    <div class="plant-header">
+      <div class="plant-name-big" id="plant-name">—</div>
+      <div class="plant-status" id="plant-status"></div>
+    </div>
+    <div class="plant-rid-big" id="plant-rid"></div>
+    <div class="plant-desc" id="plant-desc"></div>
+  </div>
+  <div class="quick-view" id="quick-view" style="display:none">
+    <div class="section-label">快速瀏覽變化 / Xem nhanh sự thay đổi</div>
+    <div class="quick-controls">
+      <div class="quick-speed">
+        <button class="speed-btn" onclick="setSpeed(800,this)">慢</button>
+        <button class="speed-btn active" onclick="setSpeed(300,this)">中</button>
+        <button class="speed-btn" onclick="setSpeed(100,this)">快</button>
+      </div>
+      <button class="btn-outline" id="play-btn" onclick="togglePlay()">▶ 播放</button>
+      <button class="btn-outline" onclick="goFirst()">⏮ 第一張</button>
+    </div>
+  </div>
+  <div class="video-section" id="video-section" style="display:none">
+    <div class="section-label">生長影片 / Video tăng trưởng</div>
+    <div class="video-controls">
+      <button class="btn-solid" id="make-video-btn" onclick="makeVideo()">🎬 合成影片</button>
+      <button class="btn-outline" id="download-btn" onclick="downloadVideo()" style="display:none">⬇ 下載影片</button>
+    </div>
+    <div id="video-progress" style="display:none"><div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div><div class="progress-text" id="progress-text">準備中...</div></div>
+    <div class="video-preview" id="video-preview"><video id="video-player" controls playsinline></video></div>
+  </div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div class="empty-icon">🌿</div>
+    <div class="empty-text">還沒有照片記錄 / Chưa có ảnh</div>
+    <a class="btn-solid" id="empty-upload" href="#" style="display:inline-flex;margin-top:16px">📷 上傳第一張照片</a>
+  </div>
+  <footer><div class="footer-logo">rễ , thân , lá studio · 根莖葉</div></footer>
+</main>
+<script>
+const SB='https://edvklxnzhuhmijdwyzrl.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
+const STATUS_LABELS={available:'可販售',sold:'已售出',tracking:'追蹤中',rehab:'修整中',writeoff:'報廢'};
+const STATUS_CLASS={available:'status-available',sold:'status-sold',tracking:'status-tracking',rehab:'status-tracking',writeoff:'status-tracking'};
+let photos=[],current=0,preloaded=[],playTimer=null,playSpeed=300,videoBlob=null;
+const params=new URLSearchParams(location.search);
+const rid=params.get('rid')||params.get('r');
+
+async function init(){
+  if(!rid){document.getElementById('loading').style.display='none';document.body.innerHTML='<div style="padding:60px;text-align:center;font-family:Georgia,serif;color:#6B6B55;font-size:18px;font-style:italic">請掃描植物 QR Code</div>';return;}
+  const uploadUrl='/upload.html?rid='+rid;
+  document.getElementById('upload-link').href=uploadUrl;
+  document.getElementById('nav-rid').textContent=rid;
+  const [rehabRes,photosRes]=await Promise.all([
+    fetch(SB+'/rest/v1/rehab?rid=eq.'+rid+'&limit=1',{headers:{apikey:SK,Authorization:'Bearer '+SK}}),
+    fetch(SB+'/rest/v1/photos?rid=eq.'+rid+'&approved=eq.true&order=upload_date.asc',{headers:{apikey:SK,Authorization:'Bearer '+SK}})
+  ]);
+  const plant=(await rehabRes.json())[0];
+  photos=await photosRes.json();
+  if(plant){
+    document.getElementById('plant-name').textContent=plant.plant_name||rid;
+    document.getElementById('plant-rid').textContent=rid;
+    document.title=(plant.plant_name||rid)+' · rễ , thân , lá';
+    const s=plant.status||'tracking';
+    const el=document.getElementById('plant-status');
+    el.textContent=STATUS_LABELS[s]||s;
+    el.className='plant-status '+(STATUS_CLASS[s]||'status-tracking');
+    document.getElementById('plant-desc').textContent=plant.note||'';
+  }
+  document.getElementById('loading').style.display='none';
+  document.getElementById('main').style.display='block';
+  if(!photos.length){
+    document.getElementById('photo-hero').style.display='none';
+    document.getElementById('thumbnails').style.display='none';
+    document.getElementById('empty-state').style.display='block';
+    document.getElementById('empty-upload').href=uploadUrl;
+    return;
+  }
+  document.getElementById('quick-view').style.display='block';
+  if(photos.length>=5)document.getElementById('video-section').style.display='block';
+  buildThumbnails();preloadAll();
+}
+
+function buildThumbnails(){
+  document.getElementById('thumbnails').innerHTML=photos.map((p,i)=>'<img class="thumb'+(i===0?' active':'')+'" src="'+p.photo_url+'" onclick="goTo('+i+')" loading="lazy">').join('');
+}
+
+function preloadAll(){
+  const hero=document.getElementById('photo-hero');
+  preloaded=photos.map((p,i)=>{
+    const img=new Image();img.src=p.photo_url;
+    img.className='photo-img'+(i===0?'':' hidden');
+    img.id='photo-'+i;
+    hero.insertBefore(img,hero.firstChild);
+    return img;
+  });
+  updateInfo(0);updateNav();
+}
+
+function goTo(idx){
+  if(idx<0||idx>=photos.length)return;
+  if(preloaded[current])preloaded[current].classList.add('hidden');
+  current=idx;
+  if(preloaded[current])preloaded[current].classList.remove('hidden');
+  updateInfo(current);updateNav();
+  document.querySelectorAll('.thumb').forEach((t,i)=>t.classList.toggle('active',i===current));
+  const thumb=document.querySelectorAll('.thumb')[current];
+  if(thumb)thumb.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function changePhoto(dir){goTo(current+dir);}
+function goFirst(){goTo(0);stopPlay();}
+
+function updateInfo(idx){
+  const p=photos[idx];
+  document.getElementById('photo-counter').textContent=(idx+1)+' / '+photos.length;
+  document.getElementById('photo-date').textContent=p.upload_date?new Date(p.upload_date).toLocaleDateString('zh-TW'):'';
+  document.getElementById('photo-weight').textContent=p.weight_g?p.weight_g+'g':'';
+  document.getElementById('photo-note').textContent=p.note||'';
+}
+
+function updateNav(){
+  document.getElementById('prev-btn').disabled=current===0;
+  document.getElementById('next-btn').disabled=current===photos.length-1;
+}
+
+function setSpeed(ms,el){
+  playSpeed=ms;
+  document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(playTimer){stopPlay();togglePlay();}
+}
+
+function togglePlay(){
+  const btn=document.getElementById('play-btn');
+  if(playTimer){stopPlay();}
+  else{
+    if(current>=photos.length-1)goTo(0);
+    btn.textContent='⏸ 暫停';
+    playTimer=setInterval(()=>{if(current>=photos.length-1){stopPlay();return;}goTo(current+1);},playSpeed);
+  }
+}
+
+function stopPlay(){clearInterval(playTimer);playTimer=null;document.getElementById('play-btn').textContent='▶ 播放';}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')changePhoto(-1);
+  if(e.key==='ArrowRight')changePhoto(1);
+  if(e.key===' '){e.preventDefault();togglePlay();}
+});
+
+let touchStartX=0;
+document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>50)changePhoto(dx<0?1:-1);});
+
+async function makeVideo(){
+  const btn=document.getElementById('make-video-btn');
+  btn.disabled=true;
+  document.getElementById('video-progress').style.display='block';
+  const canvas=document.createElement('canvas');
+  canvas.width=1080;canvas.height=1080;
+  const ctx=canvas.getContext('2d');
+  const stream=canvas.captureStream(10);
+  const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'});
+  const chunks=[];
+  recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+  recorder.start();
+  for(let i=0;i<preloaded.length;i++){
+    document.getElementById('progress-fill').style.width=Math.round(i/preloaded.length*100)+'%';
+    document.getElementById('progress-text').textContent='處理中 '+(i+1)+'/'+preloaded.length+' 張...';
+    const img=preloaded[i];
+    if(img.complete&&img.naturalWidth>0){
+      ctx.fillStyle='#0D0D0A';ctx.fillRect(0,0,1080,1080);
+      const ratio=Math.min(1080/img.naturalWidth,1080/img.naturalHeight);
+      const w=img.naturalWidth*ratio,h=img.naturalHeight*ratio;
+      ctx.drawImage(img,(1080-w)/2,(1080-h)/2,w,h);
+      ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,980,1080,100);
+      ctx.fillStyle='#F5F0E8';ctx.font='28px Georgia';
+      const p=photos[i];
+      const date=p.upload_date?new Date(p.upload_date).toLocaleDateString('zh-TW'):'';
+      const weight=p.weight_g?p.weight_g+'g':'';
+      ctx.fillText(date+(weight?' '+weight:''),40,1040);
+    }
+    await new Promise(r=>setTimeout(r,200));
+  }
+  document.getElementById('progress-fill').style.width='100%';
+  document.getElementById('progress-text').textContent='完成！';
+  recorder.stop();
+  recorder.onstop=()=>{
+    videoBlob=new Blob(chunks,{type:'video/webm'});
+    const url=URL.createObjectURL(videoBlob);
+    document.getElementById('video-player').src=url;
+    document.getElementById('video-preview').style.display='block';
+    document.getElementById('download-btn').style.display='inline-flex';
+    btn.disabled=false;
+  };
+}
+
+function downloadVideo(){
+  if(!videoBlob)return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(videoBlob);
+  a.download=rid+'_growth.webm';
+  a.click();
+}
+
+init();
+</script>
+</body>
+</html>
