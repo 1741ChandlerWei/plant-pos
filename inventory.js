@@ -365,10 +365,11 @@ async function confirmRehab() {
   const note = document.getElementById('rehab-note').value;
   if (qty > p.qty) { showToast('Vượt SL / 數量超過庫存', 'error'); return; }
   showLoading(true);
-  const firstRid = await DB.getNextRid();
-  const firstNum = parseInt(firstRid.replace('R-', ''));
+  const speciesPrefix = document.getElementById('rehab-prefix') ? document.getElementById('rehab-prefix').value : 'R';
+  const firstRid = await DB.getNextRid(speciesPrefix);
+  const firstNum = parseInt(firstRid.replace(speciesPrefix + '-', ''));
   for (let i = 0; i < qty; i++) {
-    const rid = 'R-' + String(firstNum + i).padStart(4, '0');
+    const rid = speciesPrefix + '-' + String(firstNum + i).padStart(6, '0');
     const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
@@ -382,7 +383,7 @@ async function confirmRehab() {
   closeM('m-rehab');
   renderInv();
   invTab('rehab');
-  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(4, '0');
+  const lastRid = speciesPrefix + '-' + String(firstNum + qty - 1).padStart(6, '0');
   showToast(`已移入修整區 ${firstRid} ~ ${lastRid} / Đã chuyển vào khu chỉnh sửa`);
 }
 
@@ -407,10 +408,11 @@ async function confirmTracking() {
   if (qty > p.qty) { showToast('數量超過庫存 / Vượt số lượng tồn kho', 'error'); return; }
   if (p.qty <= 0) { showToast('庫存不足 / Không đủ tồn kho', 'error'); return; }
   showLoading(true);
-  const firstRid = await DB.getNextRid();
-  const firstNum = parseInt(firstRid.replace('R-', ''));
+  const speciesPrefix = document.getElementById('rehab-prefix') ? document.getElementById('rehab-prefix').value : 'R';
+  const firstRid = await DB.getNextRid(speciesPrefix);
+  const firstNum = parseInt(firstRid.replace(speciesPrefix + '-', ''));
   for (let i = 0; i < qty; i++) {
-    const rid = 'R-' + String(firstNum + i).padStart(4, '0');
+    const rid = speciesPrefix + '-' + String(firstNum + i).padStart(6, '0');
     const qrUrl = `https://plant-profile.vercel.app/plant/${rid}`;
     await DB.addRehab({
       rid, plant_id: p.id, plant_name: p.name, qty: 1,
@@ -424,7 +426,7 @@ async function confirmTracking() {
   closeM('m-tracking');
   renderInv();
   invTab('tracking');
-  const lastRid = 'R-' + String(firstNum + qty - 1).padStart(4, '0');
+  const lastRid = speciesPrefix + '-' + String(firstNum + qty - 1).padStart(6, '0');
   showToast(`🎬 ${firstRid} ~ ${lastRid} 已開始追蹤 / Bắt đầu theo dõi`);
 }
 

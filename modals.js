@@ -128,7 +128,18 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="mhandle"></div>
         <div class="mtitle">Khu chỉnh sửa / 移入修整區</div>
         <div id="rehab-info" style="margin-bottom:12px;padding:11px;background:var(--bg3);border-radius:var(--r);font-size:13px"></div>
-        <div class="field"><label class="flabel">Số lượng / 數量</label><input class="inp" id="rehab-qty" type="number" min="1" value="1"></div>
+        <div class="field"><label class="flabel">Loại / 物種前綴</label>
+        <select class="inp" id="rehab-prefix">
+          <option value="R">R — 鹿角蕨 Platycerium</option>
+          <option value="M">M — 苔球 Moss Ball</option>
+          <option value="O">O — 蘭花 Orchid</option>
+          <option value="S">S — 石松 Selaginella</option>
+          <option value="F">F — 蕨類 Fern</option>
+          <option value="C">C — 仙人掌 Cactus</option>
+          <option value="G">G — 一般 General</option>
+        </select>
+      </div>
+      <div class="field"><label class="flabel">Số lượng / 數量</label><input class="inp" id="rehab-qty" type="number" min="1" value="1"></div>
         <div class="field"><label class="flabel">Lý do chỉnh sửa / 修整原因</label><input class="inp" id="rehab-note" placeholder="Lá bị hư / 葉片受損..."></div>
         <div style="background:var(--abg);border:1px solid var(--aborder);border-radius:var(--r);padding:10px;margin-bottom:13px;font-size:11px;color:var(--amber)">
           自動分配 R-XXX 編號並產生 QR Code / Tự động cấp mã R-XXX và tạo QR Code
