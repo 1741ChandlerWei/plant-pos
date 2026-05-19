@@ -52,6 +52,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .record-item{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;display:flex;gap:10px;align-items:center}
 .record-thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg2)}
 .record-info{flex:1;min-width:0}
+.selected-badge{background:var(--accdim);border:1px solid var(--acc);border-radius:var(--r);padding:10px 14px;color:var(--acc);font-size:13px;font-weight:600;text-align:center;margin-bottom:8px;display:none}
 </style>
 </head>
 <body>
@@ -64,6 +65,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="container">
   <div class="section">
     <div class="section-title">選擇植物 / Chọn cây</div>
+    <div class="selected-badge" id="selected-badge"></div>
     <div class="field"><input class="inp" id="search-plant" placeholder="搜尋植物名稱或R編號..." oninput="filterPlants(this.value)"></div>
     <div class="plant-grid" id="plant-list"><div style="text-align:center;color:var(--text3);padding:20px;font-size:13px">載入中...</div></div>
   </div>
@@ -111,26 +113,60 @@ async function loadPlants(){
   const r=await fetch(SB+'/rest/v1/rehab?select=*&order=rid',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
   allPlants=await r.json();
   renderPlants(allPlants);
+
+  // 如果 URL 帶 rid 參數，自動選取
+  const urlRid=new URLSearchParams(location.search).get('rid');
+  if(urlRid){
+    const plant=allPlants.find(p=>p.rid===urlRid.toUpperCase());
+    if(plant){
+      selectPlant(plant.id);
+      document.getElementById('search-plant').value=urlRid;
+      filterPlants(urlRid);
+    }
+  }
 }
 
 function renderPlants(plants){
   const el=document.getElementById('plant-list');
   if(!plants.length){el.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;font-size:13px">沒有找到植物</div>';return;}
-  el.innerHTML=plants.map(p=>'<div class="plant-card '+(selectedPlant&&selectedPlant.id===p.id?'selected':'')+'" onclick="selectPlant('+p.id+')"><div><div class="plant-name">'+p.plant_name+'</div><div class="plant-loc">'+(LOC[p.loc]||p.loc)+'</div></div><div class="plant-rid">'+p.rid+'</div></div>').join('');
+  el.innerHTML=plants.map(p=>'<div class="plant-card '+(selectedPlant&&selectedPlant.id===p.id?'selected':'')+'" onclick="selectPlant('+p.id+')"><div><div class="plant-name">'+p.plant_name+'</div><div class="plant-loc">'+(LOC[p.loc]||p.loc||'')+'</div></div><div class="plant-rid">'+p.rid+'</div></div>').join('');
 }
 
-function filterPlants(q){renderPlants(allPlants.filter(p=>p.plant_name.includes(q)||p.rid.toLowerCase().includes(q.toLowerCase())));}
-function selectPlant(id){selectedPlant=allPlants.find(p=>p.id===id);renderPlants(allPlants);checkReady();}
+function filterPlants(q){renderPlants(allPlants.filter(p=>(p.plant_name||'').includes(q)||(p.rid||'').toLowerCase().includes(q.toLowerCase())));}
+
+function selectPlant(id){
+  selectedPlant=allPlants.find(p=>p.id===id);
+  renderPlants(allPlants);
+  // 顯示已選取的植物
+  const badge=document.getElementById('selected-badge');
+  if(selectedPlant){
+    badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';
+    badge.style.display='block';
+  }
+  checkReady();
+}
 
 function handleFile(input){
   const file=input.files[0];if(!file)return;
   selectedFile=file;
   const reader=new FileReader();
-  reader.onload=e=>{document.getElementById('preview-img').src=e.target.result;document.getElementById('preview-img').style.display='block';document.getElementById('remove-btn').style.display='flex';};
+  reader.onload=e=>{
+    document.getElementById('preview-img').src=e.target.result;
+    document.getElementById('preview-img').style.display='block';
+    document.getElementById('remove-btn').style.display='flex';
+  };
   reader.readAsDataURL(file);checkReady();
 }
 
-function removePhoto(){selectedFile=null;document.getElementById('preview-img').style.display='none';document.getElementById('remove-btn').style.display='none';document.getElementById('file-input').value='';document.getElementById('camera-input').value='';checkReady();}
+function removePhoto(){
+  selectedFile=null;
+  document.getElementById('preview-img').style.display='none';
+  document.getElementById('remove-btn').style.display='none';
+  document.getElementById('file-input').value='';
+  document.getElementById('camera-input').value='';
+  checkReady();
+}
+
 function checkReady(){document.getElementById('submit-btn').disabled=!(selectedPlant&&selectedFile);}
 
 async function submitUpload(){
@@ -145,7 +181,9 @@ async function submitUpload(){
     const data=await r.json();
     if(!r.ok)throw new Error(data.error);
     showToast('✅ 上傳成功！','success');
-    removePhoto();document.getElementById('weight-input').value='';document.getElementById('note-input').value='';
+    removePhoto();
+    document.getElementById('weight-input').value='';
+    document.getElementById('note-input').value='';
     loadTodayRecords();
   }catch(err){showToast('❌ 上傳失敗：'+err.message,'error');}
   finally{document.getElementById('progress').style.display='none';checkReady();}
@@ -155,28 +193,51 @@ function compressImage(file,maxWidth,quality){
   return new Promise(resolve=>{
     const canvas=document.createElement('canvas');
     const img=new Image();
-    img.onload=()=>{const ratio=Math.min(maxWidth/img.width,maxWidth/img.height,1);canvas.width=img.width*ratio;canvas.height=img.height*ratio;canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',quality));};
+    img.onload=()=>{
+      const ratio=Math.min(maxWidth/img.width,maxWidth/img.height,1);
+      canvas.width=img.width*ratio;canvas.height=img.height*ratio;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
     img.src=URL.createObjectURL(file);
   });
 }
 
 async function loadTodayRecords(){
+  // 用 created_at 而不是 upload_date，避免欄位不存在的錯誤
   const today=new Date().toISOString().split('T')[0];
-  const r=await fetch(SB+'/rest/v1/photos?upload_date=gte.'+today+'T00:00:00&order=upload_date.desc&limit=20',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
-  const records=await r.json();
-  const section=document.getElementById('records-section');
-  const list=document.getElementById('record-list');
-  if(!records.length){section.style.display='none';return;}
-  section.style.display='block';
-  list.innerHTML=records.map(r=>'<div class="record-item"><img class="record-thumb" src="'+r.photo_url+'" onerror="this.src=''"><div class="record-info"><div style="display:flex;justify-content:space-between"><div style="font-size:13px;font-weight:500">'+(r.plant_name||'-')+'</div><div style="font-family:monospace;font-size:11px;color:var(--amber)">'+r.rid+'</div></div>'+(r.weight_g?'<div style="font-size:12px;color:var(--green)">⚖️ '+r.weight_g+'g</div>':'')+'<div style="font-size:11px;color:var(--text3)">'+new Date(r.upload_date).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'</div></div></div>').join('');
+  try{
+    const r=await fetch(SB+'/rest/v1/photos?select=*&order=created_at.desc&limit=20',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
+    const records=await r.json();
+    if(!Array.isArray(records)||!records.length){document.getElementById('records-section').style.display='none';return;}
+    // 篩選今天的
+    const todayRecords=records.filter(r=>{
+      const d=(r.created_at||r.upload_date||'').slice(0,10);
+      return d===today;
+    });
+    const section=document.getElementById('records-section');
+    const list=document.getElementById('record-list');
+    if(!todayRecords.length){section.style.display='none';return;}
+    section.style.display='block';
+    list.innerHTML=todayRecords.map(r=>'<div class="record-item"><img class="record-thumb" src="'+(r.photo_url||'')+'" onerror="this.style.display=\'none\'"><div class="record-info"><div style="display:flex;justify-content:space-between"><div style="font-size:13px;font-weight:500">'+(r.plant_name||r.rid||'-')+'</div><div style="font-family:monospace;font-size:11px;color:var(--amber)">'+(r.rid||'')+'</div></div>'+(r.weight_g?'<div style="font-size:12px;color:var(--green)">⚖️ '+r.weight_g+'g</div>':'')+'</div></div>').join('');
+  }catch(e){document.getElementById('records-section').style.display='none';}
 }
 
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
 
 document.getElementById('upload-area').addEventListener('dragover',e=>{e.preventDefault();});
-document.getElementById('upload-area').addEventListener('drop',e=>{e.preventDefault();const file=e.dataTransfer.files[0];if(file&&file.type.startsWith('image/')){const dt=new DataTransfer();dt.items.add(file);document.getElementById('file-input').files=dt.files;handleFile(document.getElementById('file-input'));}});
+document.getElementById('upload-area').addEventListener('drop',e=>{
+  e.preventDefault();
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){
+    const dt=new DataTransfer();dt.items.add(file);
+    document.getElementById('file-input').files=dt.files;
+    handleFile(document.getElementById('file-input'));
+  }
+});
 
-loadPlants();loadTodayRecords();
+loadPlants();
+loadTodayRecords();
 </script>
 </body>
 </html>
