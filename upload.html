@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .submit-btn{width:100%;padding:16px;background:var(--acc);border:none;border-radius:var(--r);color:#0f1a0f;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed}
 .submit-btn:not(:disabled):hover{opacity:.9}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:14px;font-weight:500;z-index:999;display:none;white-space:nowrap}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:14px;font-weight:500;z-index:999;display:none;white-space:normal;max-width:90vw;word-break:break-all}
 .toast.success{background:#166534;color:#6ee7b7;border:1px solid #166534}
 .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #7f1d1d}
 .progress{display:none;text-align:center;padding:20px}
@@ -59,7 +59,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.2</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.3</div>
   </div>
 </div>
 <div class="container">
@@ -223,7 +223,7 @@ async function loadTodayRecords(){
   }catch(e){document.getElementById('records-section').style.display='none';}
 }
 
-function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';// 不自動消失;}
 
 document.getElementById('upload-area').addEventListener('dragover',e=>{e.preventDefault();});
 document.getElementById('upload-area').addEventListener('drop',e=>{
