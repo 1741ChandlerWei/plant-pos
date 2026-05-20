@@ -18,6 +18,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .flabel{font-size:11px;color:var(--text2);margin-bottom:5px;display:block}
 .inp{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:14px;font-family:inherit;outline:none}
 .inp:focus{border-color:var(--acc)}
+.inp.error{border-color:var(--red)}
 .plant-grid{display:flex;flex-direction:column;gap:8px}
 .plant-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
 .plant-card:hover{border-color:var(--acc)}
@@ -42,6 +43,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .submit-btn{width:100%;padding:16px;background:var(--acc);border:none;border-radius:var(--r);color:#0f1a0f;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed}
 .submit-btn:not(:disabled):hover{opacity:.9}
+.view-btn{width:100%;padding:14px;background:transparent;border:2px solid var(--acc);border-radius:var(--r);color:var(--acc);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;display:none;margin-top:10px}
+.view-btn:hover{background:var(--accdim)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:999;display:none;white-space:normal;max-width:90vw;word-break:break-all;text-align:center}
 .toast.success{background:#166534;color:#6ee7b7;border:1px solid #166534}
 .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #7f1d1d}
@@ -53,13 +56,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .record-thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg2)}
 .record-info{flex:1;min-width:0}
 .selected-badge{background:var(--accdim);border:1px solid var(--acc);border-radius:var(--r);padding:10px 14px;color:var(--acc);font-size:13px;font-weight:600;text-align:center;margin-bottom:8px;display:none}
+.error-hint{font-size:11px;color:var(--red);margin-top:4px;display:none}
 </style>
 </head>
 <body>
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.4</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.5</div>
   </div>
 </div>
 <div class="container">
@@ -72,9 +76,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div class="section">
     <div class="section-title">拍照上傳 / Chụp ảnh</div>
     <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 直接拍照 / Chụp ảnh trực tiếp</button>
-    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this)">
+    <input type="file" id="camera-input" accept="image/jpeg,image/png,image/heic,image/heif,image/*" capture="environment" style="display:none" onchange="handleFile(this)">
     <div class="upload-area" id="upload-area">
-      <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)">
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/heic,image/heif,image/*" onchange="handleFile(this)">
       <div class="upload-icon">🖼️</div>
       <div class="upload-text">從相簿選擇 / Chọn từ thư viện</div>
       <div class="upload-hint">JPG, PNG, HEIC</div>
@@ -87,16 +91,21 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div class="section">
     <div class="section-title">數據記錄 / Ghi dữ liệu</div>
     <div class="field">
-      <label class="flabel">重量 / Trọng lượng</label>
-      <div class="weight-wrap"><input class="inp" id="weight-input" type="number" placeholder="例：284" min="0"><div class="weight-unit">g</div></div>
+      <label class="flabel">重量 / Trọng lượng（選填）</label>
+      <div class="weight-wrap">
+        <input class="inp" id="weight-input" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="例：284" min="0" max="99999" oninput="validateWeight(this)">
+        <div class="weight-unit">g</div>
+      </div>
+      <div class="error-hint" id="weight-error">請輸入數字（0-99999）</div>
     </div>
     <div class="field">
-      <label class="flabel">備註 / Ghi chú</label>
+      <label class="flabel">備註 / Ghi chú（選填）</label>
       <input class="inp" id="note-input" placeholder="今天狀況、澆水記錄...">
     </div>
   </div>
   <div class="progress" id="progress"><div class="spinner"></div><div style="color:var(--text2);font-size:13px">上傳中...</div></div>
   <button class="submit-btn" id="submit-btn" onclick="submitUpload()" disabled>📤 上傳照片 / Tải ảnh lên</button>
+  <a class="view-btn" id="view-btn" href="#" target="_blank">🌿 查看植物頁面</a>
   <div class="section" id="records-section" style="margin-top:20px;display:none">
     <div class="section-title">今日上傳 / Đã tải hôm nay</div>
     <div class="record-list" id="record-list"></div>
@@ -107,18 +116,42 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 const SB='https://edvklxnzhuhmijdwyzrl.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
 const LOC={mine:'我家',quang:'Quang家',helper:'小幫手家'};
-let allPlants=[],selectedPlant=null,selectedFile=null;
+let allPlants=[],selectedPlant=null,selectedFile=null,weightValid=true;
+
+function validateWeight(input){
+  const val = input.value;
+  const errEl = document.getElementById('weight-error');
+  if(val === ''){
+    // 空白允許（選填）
+    input.classList.remove('error');
+    errEl.style.display='none';
+    weightValid=true;
+  } else if(!/^\d+$/.test(val) || parseInt(val)<0 || parseInt(val)>99999){
+    input.classList.add('error');
+    errEl.style.display='block';
+    weightValid=false;
+  } else {
+    input.classList.remove('error');
+    errEl.style.display='none';
+    weightValid=true;
+  }
+  checkReady();
+}
 
 async function loadPlants(){
   try{
     const r=await fetch(SB+'/rest/v1/rehab?select=*&order=rid',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
     allPlants=await r.json();
-    if(!Array.isArray(allPlants)){allPlants=[];showToast('載入植物失敗：'+JSON.stringify(allPlants),'error');return;}
+    if(!Array.isArray(allPlants)){allPlants=[];showToast('載入植物失敗','error');return;}
     renderPlants(allPlants);
     const urlRid=new URLSearchParams(location.search).get('rid');
     if(urlRid){
       const plant=allPlants.find(p=>p.rid===urlRid.toUpperCase());
-      if(plant){selectPlant(plant.id);document.getElementById('search-plant').value=urlRid;filterPlants(urlRid);}
+      if(plant){
+        selectPlant(plant.id);
+        document.getElementById('search-plant').value=urlRid;
+        filterPlants(urlRid);
+      }
     }
   }catch(e){showToast('載入錯誤：'+e.message,'error');}
 }
@@ -135,12 +168,26 @@ function selectPlant(id){
   selectedPlant=allPlants.find(p=>p.id===id);
   renderPlants(allPlants);
   const badge=document.getElementById('selected-badge');
-  if(selectedPlant){badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';badge.style.display='block';}
+  if(selectedPlant){
+    badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';
+    badge.style.display='block';
+    // 更新查看按鈕連結
+    document.getElementById('view-btn').href='https://plant-profile.vercel.app/plant/'+selectedPlant.rid;
+  }
   checkReady();
 }
 
 function handleFile(input){
-  const file=input.files[0];if(!file)return;
+  const file=input.files[0];
+  if(!file)return;
+  // 檢查檔案類型
+  const validTypes=['image/jpeg','image/jpg','image/png','image/heic','image/heif'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  const validExts=['jpg','jpeg','png','heic','heif'];
+  if(!validTypes.includes(file.type) && !validExts.includes(ext)){
+    showToast('請選擇 JPG、PNG 或 HEIC 格式的圖片','error');
+    return;
+  }
   selectedFile=file;
   const reader=new FileReader();
   reader.onload=e=>{
@@ -148,7 +195,8 @@ function handleFile(input){
     document.getElementById('preview-img').style.display='block';
     document.getElementById('remove-btn').style.display='flex';
   };
-  reader.readAsDataURL(file);checkReady();
+  reader.readAsDataURL(file);
+  checkReady();
 }
 
 function removePhoto(){
@@ -160,20 +208,30 @@ function removePhoto(){
   checkReady();
 }
 
-function checkReady(){document.getElementById('submit-btn').disabled=!(selectedPlant&&selectedFile);}
+function checkReady(){
+  document.getElementById('submit-btn').disabled=!(selectedPlant&&selectedFile&&weightValid);
+}
 
 async function submitUpload(){
-  if(!selectedPlant||!selectedFile)return;
-  const weight=document.getElementById('weight-input').value;
+  if(!selectedPlant||!selectedFile||!weightValid)return;
+  const weightVal=document.getElementById('weight-input').value.trim();
+  const weight=weightVal===''?null:parseInt(weightVal);
   const note=document.getElementById('note-input').value;
   const base64=await compressImage(selectedFile,1200,.85);
   document.getElementById('progress').style.display='block';
   document.getElementById('submit-btn').disabled=true;
   try{
-    const r=await fetch('/api/upload-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:base64,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight||null,note:note||null,uploadedBy:'owner'})});
+    const r=await fetch('/api/upload-photo',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:base64,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight,note:note||null,uploadedBy:'owner'})
+    });
     const data=await r.json();
     if(!r.ok)throw new Error(JSON.stringify(data));
     showToast('✅ 上傳成功！','success');
+    // 顯示查看按鈕
+    const viewBtn=document.getElementById('view-btn');
+    viewBtn.style.display='block';
     removePhoto();
     document.getElementById('weight-input').value='';
     document.getElementById('note-input').value='';
