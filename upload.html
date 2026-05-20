@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .submit-btn{width:100%;padding:16px;background:var(--acc);border:none;border-radius:var(--r);color:#0f1a0f;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed}
 .submit-btn:not(:disabled):hover{opacity:.9}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:14px;font-weight:500;z-index:999;display:none;white-space:normal;max-width:90vw;word-break:break-all}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:999;display:none;white-space:normal;max-width:90vw;word-break:break-all;text-align:center}
 .toast.success{background:#166534;color:#6ee7b7;border:1px solid #166534}
 .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #7f1d1d}
 .progress{display:none;text-align:center;padding:20px}
@@ -59,7 +59,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.3</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.4</div>
   </div>
 </div>
 <div class="container">
@@ -110,20 +110,17 @@ const LOC={mine:'我家',quang:'Quang家',helper:'小幫手家'};
 let allPlants=[],selectedPlant=null,selectedFile=null;
 
 async function loadPlants(){
-  const r=await fetch(SB+'/rest/v1/rehab?select=*&order=rid',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
-  allPlants=await r.json();
-  renderPlants(allPlants);
-
-  // 如果 URL 帶 rid 參數，自動選取
-  const urlRid=new URLSearchParams(location.search).get('rid');
-  if(urlRid){
-    const plant=allPlants.find(p=>p.rid===urlRid.toUpperCase());
-    if(plant){
-      selectPlant(plant.id);
-      document.getElementById('search-plant').value=urlRid;
-      filterPlants(urlRid);
+  try{
+    const r=await fetch(SB+'/rest/v1/rehab?select=*&order=rid',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
+    allPlants=await r.json();
+    if(!Array.isArray(allPlants)){allPlants=[];showToast('載入植物失敗：'+JSON.stringify(allPlants),'error');return;}
+    renderPlants(allPlants);
+    const urlRid=new URLSearchParams(location.search).get('rid');
+    if(urlRid){
+      const plant=allPlants.find(p=>p.rid===urlRid.toUpperCase());
+      if(plant){selectPlant(plant.id);document.getElementById('search-plant').value=urlRid;filterPlants(urlRid);}
     }
-  }
+  }catch(e){showToast('載入錯誤：'+e.message,'error');}
 }
 
 function renderPlants(plants){
@@ -137,12 +134,8 @@ function filterPlants(q){renderPlants(allPlants.filter(p=>(p.plant_name||'').inc
 function selectPlant(id){
   selectedPlant=allPlants.find(p=>p.id===id);
   renderPlants(allPlants);
-  // 顯示已選取的植物
   const badge=document.getElementById('selected-badge');
-  if(selectedPlant){
-    badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';
-    badge.style.display='block';
-  }
+  if(selectedPlant){badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';badge.style.display='block';}
   checkReady();
 }
 
@@ -179,13 +172,13 @@ async function submitUpload(){
   try{
     const r=await fetch('/api/upload-photo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:base64,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight||null,note:note||null,uploadedBy:'owner'})});
     const data=await r.json();
-    if(!r.ok)throw new Error(data.error);
+    if(!r.ok)throw new Error(JSON.stringify(data));
     showToast('✅ 上傳成功！','success');
     removePhoto();
     document.getElementById('weight-input').value='';
     document.getElementById('note-input').value='';
     loadTodayRecords();
-  }catch(err){showToast('❌ 上傳失敗：'+err.message,'error');}
+  }catch(err){showToast('❌ '+err.message,'error');}
   finally{document.getElementById('progress').style.display='none';checkReady();}
 }
 
@@ -204,26 +197,25 @@ function compressImage(file,maxWidth,quality){
 }
 
 async function loadTodayRecords(){
-  // 用 created_at 而不是 upload_date，避免欄位不存在的錯誤
   const today=new Date().toISOString().split('T')[0];
   try{
     const r=await fetch(SB+'/rest/v1/photos?select=*&order=created_at.desc&limit=20',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
     const records=await r.json();
     if(!Array.isArray(records)||!records.length){document.getElementById('records-section').style.display='none';return;}
-    // 篩選今天的
-    const todayRecords=records.filter(r=>{
-      const d=(r.created_at||r.upload_date||'').slice(0,10);
-      return d===today;
-    });
-    const section=document.getElementById('records-section');
-    const list=document.getElementById('record-list');
-    if(!todayRecords.length){section.style.display='none';return;}
-    section.style.display='block';
-    list.innerHTML=todayRecords.map(r=>'<div class="record-item"><img class="record-thumb" src="'+(r.photo_url||'')+'" onerror="this.style.display=\'none\'"><div class="record-info"><div style="display:flex;justify-content:space-between"><div style="font-size:13px;font-weight:500">'+(r.plant_name||r.rid||'-')+'</div><div style="font-family:monospace;font-size:11px;color:var(--amber)">'+(r.rid||'')+'</div></div>'+(r.weight_g?'<div style="font-size:12px;color:var(--green)">⚖️ '+r.weight_g+'g</div>':'')+'</div></div>').join('');
+    const todayRecords=records.filter(r=>(r.created_at||'').slice(0,10)===today);
+    if(!todayRecords.length){document.getElementById('records-section').style.display='none';return;}
+    document.getElementById('records-section').style.display='block';
+    document.getElementById('record-list').innerHTML=todayRecords.map(r=>'<div class="record-item"><img class="record-thumb" src="'+(r.photo_url||'')+'" onerror="this.style.display=\'none\'"><div class="record-info"><div style="display:flex;justify-content:space-between"><div style="font-size:13px;font-weight:500">'+(r.plant_name||r.rid||'-')+'</div><div style="font-family:monospace;font-size:11px;color:var(--amber)">'+(r.rid||'')+'</div></div>'+(r.weight_g?'<div style="font-size:12px;color:var(--green)">⚖️ '+r.weight_g+'g</div>':'')+'</div></div>').join('');
   }catch(e){document.getElementById('records-section').style.display='none';}
 }
 
-function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';// 不自動消失;}
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+type;
+  t.style.display='block';
+  if(type==='success'){setTimeout(()=>t.style.display='none',3500);}
+}
 
 document.getElementById('upload-area').addEventListener('dragover',e=>{e.preventDefault();});
 document.getElementById('upload-area').addEventListener('drop',e=>{
