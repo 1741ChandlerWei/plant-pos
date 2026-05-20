@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>上傳照片 / Tải ảnh lên</title>
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.4.3/dist/heic2any.min.js"></script>
+<script src="https://unpkg.com/heic2any"></script>
 <style>
 :root{--bg:#0f1a0f;--bg2:#1a2e1a;--bg3:#243824;--text:#e8f5e8;--text2:#a0c8a0;--text3:#5a8a5a;--acc:#a3e635;--accdim:rgba(163,230,53,.1);--border:#2a3a2a;--border2:#3a4a3a;--r:10px;--rl:14px;--green:#6ee7b7;--red:#f87171;--amber:#fbbf24}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -66,7 +66,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.7</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.8</div>
   </div>
 </div>
 <div class="container">
@@ -203,6 +203,7 @@ async function handleFile(input){
     let processFile=file;
     if(isHeic){
       // 用heic2any轉成JPEG Blob，讓所有瀏覽器都能處理
+      if(typeof heic2any==='undefined') throw new Error('轉檔套件載入失敗，請關閉廣告阻擋器後重新整理');
       document.getElementById('progress-text').textContent='HEIC 轉換中...';
       const blob=await heic2any({blob:file,toType:'image/jpeg',quality:0.9});
       processFile=new File([blob],'converted.jpg',{type:'image/jpeg'});
