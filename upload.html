@@ -103,6 +103,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <div class="error-hint" id="weight-error">請輸入整數（0-99999）</div>
     </div>
     <div class="field">
+      <label class="flabel">拍攝時間 / Thời gian chụp（選填，預設為現在）</label>
+      <input class="inp" id="taken-at-input" type="datetime-local">
+    </div>
+    <div class="field">
       <label class="flabel">備註 / Ghi chú（選填）</label>
       <input class="inp" id="note-input" placeholder="今天狀況、澆水記錄...">
     </div>
@@ -272,6 +276,8 @@ async function submitUpload(){
   const weightVal=document.getElementById('weight-input').value.trim();
   const weight=weightVal===''?null:parseInt(weightVal);
   const note=document.getElementById('note-input').value;
+  const takenAtVal=document.getElementById('taken-at-input').value;
+  const takenAt=takenAtVal ? new Date(takenAtVal).toISOString() : null;
   document.getElementById('progress').style.display='block';
   document.getElementById('progress-text').textContent='上傳中...';
   document.getElementById('submit-btn').disabled=true;
@@ -279,13 +285,14 @@ async function submitUpload(){
     const r=await fetch('/api/upload-photo',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({imageBase64:convertedWebP,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight,note:note||null,uploadedBy:'owner'})
+      body:JSON.stringify({imageBase64:convertedWebP,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight,note:note||null,uploadedBy:'owner',takenAt:takenAt})
     });
     const data=await r.json();
     if(!r.ok)throw new Error(JSON.stringify(data));
     showToast('✅ 上傳成功！','success');
     removePhoto();
     document.getElementById('weight-input').value='';
+    document.getElementById('taken-at-input').value='';
     document.getElementById('note-input').value='';
     loadTodayRecords();
   }catch(err){showToast('❌ '+err.message,'error');}
