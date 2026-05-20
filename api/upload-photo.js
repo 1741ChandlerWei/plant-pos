@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     if (!dbRes.ok) throw new Error('Supabase: ' + await dbRes.text());
     return res.status(200).json({ success: true, photoUrl, fileId: uploadResponse.data.id });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message, stack: error.stack, rootFolderId: ROOT_FOLDER_ID });
   }
 }
 
