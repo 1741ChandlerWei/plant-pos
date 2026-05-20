@@ -4,14 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>上傳照片 / Tải ảnh lên</title>
-<script src="https://unpkg.com/heic2any"></script>
 <style>
 :root{--bg:#0f1a0f;--bg2:#1a2e1a;--bg3:#243824;--text:#e8f5e8;--text2:#a0c8a0;--text3:#5a8a5a;--acc:#a3e635;--accdim:rgba(163,230,53,.1);--border:#2a3a2a;--border2:#3a4a3a;--r:10px;--rl:14px;--green:#6ee7b7;--red:#f87171;--amber:#fbbf24}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;min-height:100vh}
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:12px}
-.header-title{font-size:16px;font-weight:600;color:var(--acc)}
-.header-sub{font-size:11px;color:var(--text3)}
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.header-left .header-title{font-size:16px;font-weight:600;color:var(--acc)}
+.header-left .header-sub{font-size:11px;color:var(--text3)}
+.header-view{background:transparent;border:1px solid var(--acc);color:var(--acc);padding:7px 14px;border-radius:var(--r);font-size:12px;font-family:inherit;cursor:pointer;text-decoration:none;display:none;white-space:nowrap}
+.header-view:hover{background:var(--accdim)}
 .container{padding:20px;max-width:500px;margin:0 auto}
 .section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:14px}
 .section-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
@@ -45,8 +46,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .submit-btn{width:100%;padding:16px;background:var(--acc);border:none;border-radius:var(--r);color:#0f1a0f;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed}
 .submit-btn:not(:disabled):hover{opacity:.9}
-.view-btn{width:100%;padding:14px;background:transparent;border:2px solid var(--acc);border-radius:var(--r);color:var(--acc);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;display:none;margin-top:10px}
-.view-btn:hover{background:var(--accdim)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:999;display:none;white-space:normal;max-width:90vw;word-break:break-all;text-align:center}
 .toast.success{background:#166534;color:#6ee7b7;border:1px solid #166534}
 .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #7f1d1d}
@@ -64,10 +63,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 </head>
 <body>
 <div class="header">
-  <div>
+  <div class="header-left">
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.8</div>
+    <div class="header-sub">Tải ảnh cây lên · v2.0</div>
   </div>
+  <a class="header-view" id="header-view-btn" href="#" target="_blank">🌿 查看展示頁</a>
 </div>
 <div class="container">
   <div class="section">
@@ -84,7 +84,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)">
       <div class="upload-icon">🖼️</div>
       <div class="upload-text">從相簿選擇 / Chọn từ thư viện</div>
-      <div class="upload-hint">JPG, PNG, HEIC（自動轉 WebP）</div>
+      <div class="upload-hint">JPG, PNG（Safari 支援 HEIC）</div>
     </div>
     <div class="preview-wrap">
       <img id="preview-img" alt="預覽">
@@ -112,7 +112,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div class="progress-text" id="progress-text">處理中...</div>
   </div>
   <button class="submit-btn" id="submit-btn" onclick="submitUpload()" disabled>📤 上傳照片 / Tải ảnh lên</button>
-  <a class="view-btn" id="view-btn" href="#" target="_blank">🌿 查看植物頁面</a>
   <div class="section" id="records-section" style="margin-top:20px;display:none">
     <div class="section-title">今日上傳 / Đã tải hôm nay</div>
     <div class="record-list" id="record-list"></div>
@@ -126,7 +125,6 @@ const LOC={mine:'我家',quang:'Quang家',helper:'小幫手家'};
 const MAX_SIZE_MB=10;
 let allPlants=[],selectedPlant=null,selectedFile=null,convertedWebP=null,weightValid=true;
 
-// 重量防呆：即時過濾非數字字元
 function validateWeight(input){
   input.value=input.value.replace(/[^0-9]/g,'');
   const val=input.value;
@@ -176,7 +174,10 @@ function selectPlant(id){
   if(selectedPlant){
     badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';
     badge.style.display='block';
-    document.getElementById('view-btn').href='https://plant-profile.vercel.app/plant/'+selectedPlant.rid;
+    // 一選好植物就顯示查看按鈕
+    const viewBtn=document.getElementById('header-view-btn');
+    viewBtn.href='https://plant-profile.vercel.app/plant/'+selectedPlant.rid;
+    viewBtn.style.display='block';
   }
   checkReady();
 }
@@ -184,33 +185,34 @@ function selectPlant(id){
 async function handleFile(input){
   const file=input.files[0];
   if(!file)return;
+
   const sizeMB=file.size/1024/1024;
   if(sizeMB>MAX_SIZE_MB){
     showToast('檔案太大（'+sizeMB.toFixed(1)+'MB），請選擇小於 '+MAX_SIZE_MB+'MB 的圖片','error');
     input.value='';
     return;
   }
+
+  // HEIC 在非 Safari 瀏覽器直接提示
+  const isHeic=file.type==='image/heic'||file.type==='image/heif'||
+               file.name.toLowerCase().endsWith('.heic')||
+               file.name.toLowerCase().endsWith('.heif');
+  const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if(isHeic && !isSafari){
+    showToast('HEIC 格式請改用 Safari 上傳，或先將照片轉存為 JPG','error');
+    input.value='';
+    return;
+  }
+
   selectedFile=file;
   convertedWebP=null;
-  document.getElementById('progress-text').textContent='轉換中...';
+  document.getElementById('progress-text').textContent='圖片處理中...';
   document.getElementById('progress').style.display='block';
   document.getElementById('submit-btn').disabled=true;
+
   try{
-    // 判斷是否為HEIC格式
-    const isHeic = file.type==='image/heic'||file.type==='image/heif'||
-                   file.name.toLowerCase().endsWith('.heic')||
-                   file.name.toLowerCase().endsWith('.heif');
-    let processFile=file;
-    if(isHeic){
-      // 用heic2any轉成JPEG Blob，讓所有瀏覽器都能處理
-      if(typeof heic2any==='undefined') throw new Error('轉檔套件載入失敗，請關閉廣告阻擋器後重新整理');
-      document.getElementById('progress-text').textContent='HEIC 轉換中...';
-      const blob=await heic2any({blob:file,toType:'image/jpeg',quality:0.9});
-      processFile=new File([blob],'converted.jpg',{type:'image/jpeg'});
-    }
-    // 再轉成WebP並壓縮
-    convertedWebP=await convertToWebP(processFile,1600,0.85);
-    // 顯示預覽
+    convertedWebP=await convertToWebP(file,1600,0.85);
     const preview=document.getElementById('preview-img');
     preview.src=convertedWebP;
     preview.style.display='block';
@@ -218,12 +220,13 @@ async function handleFile(input){
     const origSize=(file.size/1024).toFixed(0);
     const webpSize=(convertedWebP.length*0.75/1024).toFixed(0);
     const infoEl=document.getElementById('preview-info');
-    infoEl.textContent='原始: '+origSize+'KB → WebP: ~'+webpSize+'KB'+(isHeic?' (HEIC已轉換)':'');
+    infoEl.textContent='原始: '+origSize+'KB → WebP: ~'+webpSize+'KB';
     infoEl.style.display='block';
   }catch(e){
     showToast('圖片處理失敗：'+e.message,'error');
     selectedFile=null;
     convertedWebP=null;
+    input.value='';
   }finally{
     document.getElementById('progress').style.display='none';
     checkReady();
@@ -281,7 +284,6 @@ async function submitUpload(){
     const data=await r.json();
     if(!r.ok)throw new Error(JSON.stringify(data));
     showToast('✅ 上傳成功！','success');
-    document.getElementById('view-btn').style.display='block';
     removePhoto();
     document.getElementById('weight-input').value='';
     document.getElementById('note-input').value='';
