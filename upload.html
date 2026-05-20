@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>上傳照片 / Tải ảnh lên</title>
+<!-- 替換為更穩定的 unpkg CDN -->
 <script src="https://unpkg.com/heic2any"></script>
 <style>
 :root{--bg:#0f1a0f;--bg2:#1a2e1a;--bg3:#243824;--text:#e8f5e8;--text2:#a0c8a0;--text3:#5a8a5a;--acc:#a3e635;--accdim:rgba(163,230,53,.1);--border:#2a3a2a;--border2:#3a4a3a;--r:10px;--rl:14px;--green:#6ee7b7;--red:#f87171;--amber:#fbbf24}
@@ -66,7 +67,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.8</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.9 (Pro Fix)</div>
   </div>
 </div>
 <div class="container">
@@ -81,6 +82,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 直接拍照 / Chụp ảnh trực tiếp</button>
     <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this)">
     <div class="upload-area" id="upload-area">
+      <!-- 限制了 accept 有助於觸發部分手機底層的原生轉換機制 -->
       <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)">
       <div class="upload-icon">🖼️</div>
       <div class="upload-text">從相簿選擇 / Chọn từ thư viện</div>
@@ -97,7 +99,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div class="field">
       <label class="flabel">重量 / Trọng lượng（選填）</label>
       <div class="weight-wrap">
-        <input class="inp" id="weight-input" type="text" inputmode="numeric" placeholder="例：284" oninput="validateWeight(this)">
+        <!-- 【防呆修正】改為 text，並在 keydown 時攔截所有可能干擾的符號 -->
+        <input class="inp" id="weight-input" type="text" inputmode="numeric" placeholder="例：284" 
+               onkeydown="if(['e','E','+','-','.'].includes(event.key)) event.preventDefault();" 
+               oninput="validateWeight(this)">
         <div class="weight-unit">g</div>
       </div>
       <div class="error-hint" id="weight-error">請輸入整數（0-99999）</div>
@@ -192,38 +197,57 @@ async function handleFile(input){
   }
   selectedFile=file;
   convertedWebP=null;
-  document.getElementById('progress-text').textContent='轉換中...';
+  document.getElementById('progress-text').textContent='準備處理...';
   document.getElementById('progress').style.display='block';
   document.getElementById('submit-btn').disabled=true;
+  
   try{
-    // 判斷是否為HEIC格式
     const isHeic = file.type==='image/heic'||file.type==='image/heif'||
                    file.name.toLowerCase().endsWith('.heic')||
                    file.name.toLowerCase().endsWith('.heif');
     let processFile=file;
+    
     if(isHeic){
-      // 用heic2any轉成JPEG Blob，讓所有瀏覽器都能處理
-      if(typeof heic2any==='undefined') throw new Error('轉檔套件載入失敗，請關閉廣告阻擋器後重新整理');
-      document.getElementById('progress-text').textContent='HEIC 轉換中...';
-      const blob=await heic2any({blob:file,toType:'image/jpeg',quality:0.9});
-      processFile=new File([blob],'converted.jpg',{type:'image/jpeg'});
+      if(typeof heic2any==='undefined') throw new Error('轉檔套件載入失敗，請檢查網路或關閉廣告阻擋器');
+      
+      document.getElementById('progress-text').textContent='HEIC 轉換中 (較耗時)...';
+      // 【防凍結修正】暫停 50ms 讓上一行文字成功渲染到畫面上
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      try {
+        const blob=await heic2any({blob:file,toType:'image/jpeg',quality:0.9});
+        // heic2any 遇到連續拍攝的檔案可能會回傳陣列，這裡做個防呆
+        const finalBlob = Array.isArray(blob) ? blob[0] : blob;
+        processFile=new File([finalBlob],'converted.jpg',{type:'image/jpeg'});
+      } catch (heicErr) {
+        // 【特定錯誤攔截】專門處理 Live Photo 或無法解析的怪異 HEIC
+        if(heicErr.message && heicErr.message.includes('ERR_LIBHEIF')){
+          throw new Error('這張 HEIC 照片格式較特殊 (可能是原況照片)，系統無法解析。請轉存為 JPG 後再上傳。');
+        }
+        throw heicErr; // 丟出其他錯誤
+      }
     }
-    // 再轉成WebP並壓縮
+    
+    document.getElementById('progress-text').textContent='圖片壓縮中...';
     convertedWebP=await convertToWebP(processFile,1600,0.85);
-    // 顯示預覽
+    
     const preview=document.getElementById('preview-img');
     preview.src=convertedWebP;
     preview.style.display='block';
     document.getElementById('remove-btn').style.display='flex';
+    
     const origSize=(file.size/1024).toFixed(0);
-    const webpSize=(convertedWebP.length*0.75/1024).toFixed(0);
+    const webpSize=(convertedWebP.length*0.75/1024).toFixed(0); // 概算 base64 體積
     const infoEl=document.getElementById('preview-info');
     infoEl.textContent='原始: '+origSize+'KB → WebP: ~'+webpSize+'KB'+(isHeic?' (HEIC已轉換)':'');
     infoEl.style.display='block';
+    
   }catch(e){
-    showToast('圖片處理失敗：'+e.message,'error');
+    // 讓剛剛定義的人類可讀訊息直接顯示
+    showToast(e.message.includes('這張 HEIC') ? e.message : '圖片處理失敗：'+e.message, 'error');
     selectedFile=null;
     convertedWebP=null;
+    input.value=''; // 清除錯誤的輸入
   }finally{
     document.getElementById('progress').style.display='none';
     checkReady();
@@ -244,7 +268,7 @@ function convertToWebP(file,maxWidth,quality){
       const webp=canvas.toDataURL('image/webp',quality);
       resolve(webp.startsWith('data:image/webp')?webp:canvas.toDataURL('image/jpeg',quality));
     };
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('無法讀取圖片'));};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('無法讀取圖片，可能格式不受支援'));};
     img.src=url;
   });
 }
@@ -299,7 +323,7 @@ async function loadTodayRecords(){
     const todayRecords=records.filter(r=>(r.created_at||'').slice(0,10)===today);
     if(!todayRecords.length){document.getElementById('records-section').style.display='none';return;}
     document.getElementById('records-section').style.display='block';
-    document.getElementById('record-list').innerHTML=todayRecords.map(r=>'<div class="record-item"><img class="record-thumb" src="'+(r.photo_url||'')+'" onerror="this.style.display=\'none\'"><div class="record-info"><div style="display:flex;justify-content:space-between"><div style="font-size:13px;font-weight:500">'+(r.plant_name||r.rid||'-')+'</div><div style="font-family:monospace;font-size:11px;color:var(--amber)">'+(r.rid||'')+'</div></div>'+(r.weight_g?'<div style="font-size:12px;color:var(--green)">⚖️ '+r.weight_g+'g</div>':'')+'</div></div>').join('');
+    document.getElementById('record-list').innerHTML=todayRecords.map(r=>'<div class="record-item"><img class="record-thumb" src="'+(r.photo_url||'')+'" onerror="this.style.display='none'"><div class="record-info"><div style="display:flex;justify-content:space-between"><div style="font-size:13px;font-weight:500">'+(r.plant_name||r.rid||'-')+'</div><div style="font-family:monospace;font-size:11px;color:var(--amber)">'+(r.rid||'')+'</div></div>'+(r.weight_g?'<div style="font-size:12px;color:var(--green)">⚖️ '+r.weight_g+'g</div>':'')+'</div></div>').join('');
   }catch(e){document.getElementById('records-section').style.display='none';}
 }
 
