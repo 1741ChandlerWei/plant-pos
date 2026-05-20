@@ -1,41 +1,51 @@
-const { google } = require('googleapis');
-const { Readable } = require('stream');
-
 export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
 
-const ROOT_FOLDER_ID = '1gz1yMRvB0NajSfdKAk-s7KTFLH5h3sNG';
+const SUPABASE_URL = 'https://edvklxnzhuhmijdwyzrl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
+const BUCKET = 'plant-media';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const { imageBase64, rid, plantName, weightG, note, uploadedBy } = req.body;
+    const { imageBase64, rid, plantName, weightG, note, uploadedBy, takenAt } = req.body;
     if (!imageBase64 || !rid) return res.status(400).json({ error: 'Missing params' });
-    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-    const auth = new google.auth.GoogleAuth({ credentials, scopes: ['https://www.googleapis.com/auth/drive'] });
-    const drive = google.drive({ version: 'v3', auth });
-    const plantFolderId = await getOrCreateFolder(drive, rid + '_' + (plantName || rid), ROOT_FOLDER_ID);
-    const imageBuffer = Buffer.from((imageBase64.split(',')[1] || imageBase64), 'base64');
-    const stream = Readable.from(imageBuffer);
+
+    // 1. 轉換 base64 為 buffer
+    const base64Data = imageBase64.split(',')[1] || imageBase64;
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    // 2. 產生檔案路徑
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const uploadFileName = rid + '_' + timestamp + '_' + (weightG || 0) + 'g.jpg';
-    const uploadResponse = await drive.files.create({
-      requestBody: { name: uploadFileName, parents: [plantFolderId] },
-      media: { mimeType: 'image/jpeg', body: stream },
-      fields: 'id'
+    const fileName = `${rid}/${rid}_${timestamp}_${weightG || 0}g.jpg`;
+
+    // 3. 上傳到 Supabase Storage
+    const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fileName}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'image/jpeg',
+        'x-upsert': 'true'
+      },
+      body: imageBuffer
     });
-    await drive.permissions.create({
-      fileId: uploadResponse.data.id,
-      requestBody: { role: 'reader', type: 'anyone' }
-    });
-    const photoUrl = 'https://drive.google.com/uc?id=' + uploadResponse.data.id;
-    const supabaseUrl = 'https://edvklxnzhuhmijdwyzrl.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
-    const dbRes = await fetch(supabaseUrl + '/rest/v1/photos', {
+
+    if (!uploadRes.ok) {
+      const err = await uploadRes.text();
+      throw new Error('Storage upload failed: ' + err);
+    }
+
+    // 4. 取得公開 URL
+    const photoUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${fileName}`;
+
+    // 5. 寫入 Supabase photos 表
+    const photoDate = takenAt || new Date().toISOString();
+    const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/photos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': supabaseKey,
-        'Authorization': 'Bearer ' + supabaseKey
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=representation'
       },
       body: JSON.stringify({
         rid,
@@ -44,27 +54,16 @@ export default async function handler(req, res) {
         weight_g: weightG ? parseInt(weightG) : null,
         note: note || null,
         uploaded_by: uploadedBy || 'owner',
-        approved: true
+        approved: true,
+        taken_at: photoDate
       })
     });
-    if (!dbRes.ok) throw new Error('Supabase: ' + await dbRes.text());
-    return res.status(200).json({ success: true, photoUrl, fileId: uploadResponse.data.id });
-  } catch (error) {
-    return res.status(500).json({ error: error.message, stack: error.stack, rootFolderId: ROOT_FOLDER_ID });
-  }
-}
 
-async function getOrCreateFolder(drive, name, parentId) {
-  const res = await drive.files.list({
-    q: "name='" + name + "' and mimeType='application/vnd.google-apps.folder' and '" + parentId + "' in parents and trashed=false",
-    fields: 'files(id)',
-    includeItemsFromAllDrives: false,
-    supportsAllDrives: false
-  });
-  if (res.data.files.length > 0) return res.data.files[0].id;
-  const f = await drive.files.create({
-    requestBody: { name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] },
-    fields: 'id'
-  });
-  return f.data.id;
+    if (!dbRes.ok) throw new Error('Supabase DB: ' + await dbRes.text());
+
+    return res.status(200).json({ success: true, photoUrl });
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 }
