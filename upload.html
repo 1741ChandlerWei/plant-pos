@@ -35,6 +35,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .preview-wrap{position:relative;margin-top:12px}
 #preview-img{width:100%;border-radius:var(--r);display:none;max-height:300px;object-fit:cover}
 .preview-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;display:none;align-items:center;justify-content:center}
+.preview-info{font-size:11px;color:var(--text3);margin-top:6px;text-align:center;display:none}
 .camera-btn{width:100%;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-family:inherit}
 .camera-btn:hover{border-color:var(--acc);color:var(--acc)}
 .weight-wrap{display:flex;gap:8px;align-items:center}
@@ -49,7 +50,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .toast.success{background:#166534;color:#6ee7b7;border:1px solid #166534}
 .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #7f1d1d}
 .progress{display:none;text-align:center;padding:20px}
-.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px}
+.progress-text{color:var(--text2);font-size:13px;margin-top:8px}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 .record-list{display:flex;flex-direction:column;gap:8px}
 .record-item{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;display:flex;gap:10px;align-items:center}
@@ -63,7 +65,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.5</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.6</div>
   </div>
 </div>
 <div class="container">
@@ -76,17 +78,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div class="section">
     <div class="section-title">拍照上傳 / Chụp ảnh</div>
     <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 直接拍照 / Chụp ảnh trực tiếp</button>
-    <input type="file" id="camera-input" accept="image/jpeg,image/png,image/heic,image/heif,image/*" capture="environment" style="display:none" onchange="handleFile(this)">
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this)">
     <div class="upload-area" id="upload-area">
-      <input type="file" id="file-input" accept="image/jpeg,image/png,image/heic,image/heif,image/*" onchange="handleFile(this)">
+      <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)">
       <div class="upload-icon">🖼️</div>
       <div class="upload-text">從相簿選擇 / Chọn từ thư viện</div>
-      <div class="upload-hint">JPG, PNG, HEIC</div>
+      <div class="upload-hint">JPG, PNG, HEIC（自動轉 WebP）</div>
     </div>
     <div class="preview-wrap">
       <img id="preview-img" alt="預覽">
       <button class="preview-remove" id="remove-btn" onclick="removePhoto()">✕</button>
     </div>
+    <div class="preview-info" id="preview-info"></div>
   </div>
   <div class="section">
     <div class="section-title">數據記錄 / Ghi dữ liệu</div>
@@ -103,7 +106,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <input class="inp" id="note-input" placeholder="今天狀況、澆水記錄...">
     </div>
   </div>
-  <div class="progress" id="progress"><div class="spinner"></div><div style="color:var(--text2);font-size:13px">上傳中...</div></div>
+  <div class="progress" id="progress">
+    <div class="spinner"></div>
+    <div class="progress-text" id="progress-text">處理中...</div>
+  </div>
   <button class="submit-btn" id="submit-btn" onclick="submitUpload()" disabled>📤 上傳照片 / Tải ảnh lên</button>
   <a class="view-btn" id="view-btn" href="#" target="_blank">🌿 查看植物頁面</a>
   <div class="section" id="records-section" style="margin-top:20px;display:none">
@@ -116,17 +122,17 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 const SB='https://edvklxnzhuhmijdwyzrl.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
 const LOC={mine:'我家',quang:'Quang家',helper:'小幫手家'};
-let allPlants=[],selectedPlant=null,selectedFile=null,weightValid=true;
+const MAX_SIZE_MB = 10;
+let allPlants=[],selectedPlant=null,selectedFile=null,convertedWebP=null,weightValid=true;
 
 function validateWeight(input){
-  const val = input.value;
-  const errEl = document.getElementById('weight-error');
-  if(val === ''){
-    // 空白允許（選填）
+  const val=input.value;
+  const errEl=document.getElementById('weight-error');
+  if(val===''){
     input.classList.remove('error');
     errEl.style.display='none';
     weightValid=true;
-  } else if(!/^\d+$/.test(val) || parseInt(val)<0 || parseInt(val)>99999){
+  } else if(!/^\d+$/.test(val)||parseInt(val)<0||parseInt(val)>99999){
     input.classList.add('error');
     errEl.style.display='block';
     weightValid=false;
@@ -147,11 +153,7 @@ async function loadPlants(){
     const urlRid=new URLSearchParams(location.search).get('rid');
     if(urlRid){
       const plant=allPlants.find(p=>p.rid===urlRid.toUpperCase());
-      if(plant){
-        selectPlant(plant.id);
-        document.getElementById('search-plant').value=urlRid;
-        filterPlants(urlRid);
-      }
+      if(plant){selectPlant(plant.id);document.getElementById('search-plant').value=urlRid;filterPlants(urlRid);}
     }
   }catch(e){showToast('載入錯誤：'+e.message,'error');}
 }
@@ -171,87 +173,123 @@ function selectPlant(id){
   if(selectedPlant){
     badge.textContent='✓ 已選：'+selectedPlant.plant_name+' ('+selectedPlant.rid+')';
     badge.style.display='block';
-    // 更新查看按鈕連結
     document.getElementById('view-btn').href='https://plant-profile.vercel.app/plant/'+selectedPlant.rid;
   }
   checkReady();
 }
 
-function handleFile(input){
+async function handleFile(input){
   const file=input.files[0];
   if(!file)return;
-  // 檢查檔案類型
-  const validTypes=['image/jpeg','image/jpg','image/png','image/heic','image/heif'];
-  const ext = file.name.split('.').pop().toLowerCase();
-  const validExts=['jpg','jpeg','png','heic','heif'];
-  if(!validTypes.includes(file.type) && !validExts.includes(ext)){
-    showToast('請選擇 JPG、PNG 或 HEIC 格式的圖片','error');
+
+  // 檔案大小檢查
+  const sizeMB = file.size/1024/1024;
+  if(sizeMB > MAX_SIZE_MB){
+    showToast(`檔案太大（${sizeMB.toFixed(1)}MB），請選擇小於 ${MAX_SIZE_MB}MB 的圖片`,'error');
+    input.value='';
     return;
   }
+
   selectedFile=file;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    document.getElementById('preview-img').src=e.target.result;
-    document.getElementById('preview-img').style.display='block';
+  document.getElementById('progress-text').textContent='轉換中...';
+  document.getElementById('progress').style.display='block';
+  document.getElementById('submit-btn').disabled=true;
+
+  try{
+    // 用Canvas轉成WebP（所有瀏覽器和格式都能處理，包括HEIC）
+    convertedWebP = await convertToWebP(file, 1600, 0.85);
+
+    // 顯示預覽
+    const preview = document.getElementById('preview-img');
+    preview.src = convertedWebP;
+    preview.style.display='block';
     document.getElementById('remove-btn').style.display='flex';
-  };
-  reader.readAsDataURL(file);
-  checkReady();
+
+    // 顯示檔案資訊
+    const origSize = (file.size/1024).toFixed(0);
+    const webpSize = (convertedWebP.length * 0.75 / 1024).toFixed(0);
+    const infoEl = document.getElementById('preview-info');
+    infoEl.textContent = `原始: ${origSize}KB → 轉換後: ~${webpSize}KB (WebP)`;
+    infoEl.style.display='block';
+
+  }catch(e){
+    showToast('圖片處理失敗：'+e.message,'error');
+    selectedFile=null;
+    convertedWebP=null;
+  }finally{
+    document.getElementById('progress').style.display='none';
+    checkReady();
+  }
+}
+
+function convertToWebP(file, maxWidth, quality){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const ratio = Math.min(maxWidth/img.width, maxWidth/img.height, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const webp = canvas.toDataURL('image/webp', quality);
+      // 若瀏覽器不支援WebP輸出，fallback到jpeg
+      if(webp.startsWith('data:image/webp')){
+        resolve(webp);
+      } else {
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      }
+    };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error('無法讀取圖片'));
+    };
+    img.src = url;
+  });
 }
 
 function removePhoto(){
   selectedFile=null;
+  convertedWebP=null;
   document.getElementById('preview-img').style.display='none';
   document.getElementById('remove-btn').style.display='none';
+  document.getElementById('preview-info').style.display='none';
   document.getElementById('file-input').value='';
   document.getElementById('camera-input').value='';
   checkReady();
 }
 
 function checkReady(){
-  document.getElementById('submit-btn').disabled=!(selectedPlant&&selectedFile&&weightValid);
+  document.getElementById('submit-btn').disabled=!(selectedPlant&&selectedFile&&convertedWebP&&weightValid);
 }
 
 async function submitUpload(){
-  if(!selectedPlant||!selectedFile||!weightValid)return;
+  if(!selectedPlant||!selectedFile||!convertedWebP||!weightValid)return;
   const weightVal=document.getElementById('weight-input').value.trim();
   const weight=weightVal===''?null:parseInt(weightVal);
   const note=document.getElementById('note-input').value;
-  const base64=await compressImage(selectedFile,1200,.85);
+
   document.getElementById('progress').style.display='block';
+  document.getElementById('progress-text').textContent='上傳中...';
   document.getElementById('submit-btn').disabled=true;
+
   try{
     const r=await fetch('/api/upload-photo',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({imageBase64:base64,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight,note:note||null,uploadedBy:'owner'})
+      body:JSON.stringify({imageBase64:convertedWebP,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight,note:note||null,uploadedBy:'owner'})
     });
     const data=await r.json();
     if(!r.ok)throw new Error(JSON.stringify(data));
     showToast('✅ 上傳成功！','success');
-    // 顯示查看按鈕
-    const viewBtn=document.getElementById('view-btn');
-    viewBtn.style.display='block';
+    document.getElementById('view-btn').style.display='block';
     removePhoto();
     document.getElementById('weight-input').value='';
     document.getElementById('note-input').value='';
     loadTodayRecords();
   }catch(err){showToast('❌ '+err.message,'error');}
   finally{document.getElementById('progress').style.display='none';checkReady();}
-}
-
-function compressImage(file,maxWidth,quality){
-  return new Promise(resolve=>{
-    const canvas=document.createElement('canvas');
-    const img=new Image();
-    img.onload=()=>{
-      const ratio=Math.min(maxWidth/img.width,maxWidth/img.height,1);
-      canvas.width=img.width*ratio;canvas.height=img.height*ratio;
-      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-      resolve(canvas.toDataURL('image/jpeg',quality));
-    };
-    img.src=URL.createObjectURL(file);
-  });
 }
 
 async function loadTodayRecords(){
