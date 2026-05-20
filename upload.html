@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>上傳照片 / Tải ảnh lên</title>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.4.3/dist/heic2any.min.js"></script>
 <style>
 :root{--bg:#0f1a0f;--bg2:#1a2e1a;--bg3:#243824;--text:#e8f5e8;--text2:#a0c8a0;--text3:#5a8a5a;--acc:#a3e635;--accdim:rgba(163,230,53,.1);--border:#2a3a2a;--border2:#3a4a3a;--r:10px;--rl:14px;--green:#6ee7b7;--red:#f87171;--amber:#fbbf24}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -65,7 +66,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div class="header">
   <div>
     <div class="header-title">🌿 上傳植物照片</div>
-    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.6</div>
+    <div class="header-sub">Tải ảnh cây lên / Upload Plant Photo · v1.7</div>
   </div>
 </div>
 <div class="container">
@@ -96,10 +97,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div class="field">
       <label class="flabel">重量 / Trọng lượng（選填）</label>
       <div class="weight-wrap">
-        <input class="inp" id="weight-input" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="例：284" min="0" max="99999" oninput="validateWeight(this)">
+        <input class="inp" id="weight-input" type="text" inputmode="numeric" placeholder="例：284" oninput="validateWeight(this)">
         <div class="weight-unit">g</div>
       </div>
-      <div class="error-hint" id="weight-error">請輸入數字（0-99999）</div>
+      <div class="error-hint" id="weight-error">請輸入整數（0-99999）</div>
     </div>
     <div class="field">
       <label class="flabel">備註 / Ghi chú（選填）</label>
@@ -122,17 +123,19 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 const SB='https://edvklxnzhuhmijdwyzrl.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
 const LOC={mine:'我家',quang:'Quang家',helper:'小幫手家'};
-const MAX_SIZE_MB = 10;
+const MAX_SIZE_MB=10;
 let allPlants=[],selectedPlant=null,selectedFile=null,convertedWebP=null,weightValid=true;
 
+// 重量防呆：即時過濾非數字字元
 function validateWeight(input){
+  input.value=input.value.replace(/[^0-9]/g,'');
   const val=input.value;
   const errEl=document.getElementById('weight-error');
   if(val===''){
     input.classList.remove('error');
     errEl.style.display='none';
     weightValid=true;
-  } else if(!/^\d+$/.test(val)||parseInt(val)<0||parseInt(val)>99999){
+  } else if(parseInt(val)>99999){
     input.classList.add('error');
     errEl.style.display='block';
     weightValid=false;
@@ -181,37 +184,41 @@ function selectPlant(id){
 async function handleFile(input){
   const file=input.files[0];
   if(!file)return;
-
-  // 檔案大小檢查
-  const sizeMB = file.size/1024/1024;
-  if(sizeMB > MAX_SIZE_MB){
-    showToast(`檔案太大（${sizeMB.toFixed(1)}MB），請選擇小於 ${MAX_SIZE_MB}MB 的圖片`,'error');
+  const sizeMB=file.size/1024/1024;
+  if(sizeMB>MAX_SIZE_MB){
+    showToast('檔案太大（'+sizeMB.toFixed(1)+'MB），請選擇小於 '+MAX_SIZE_MB+'MB 的圖片','error');
     input.value='';
     return;
   }
-
   selectedFile=file;
+  convertedWebP=null;
   document.getElementById('progress-text').textContent='轉換中...';
   document.getElementById('progress').style.display='block';
   document.getElementById('submit-btn').disabled=true;
-
   try{
-    // 用Canvas轉成WebP（所有瀏覽器和格式都能處理，包括HEIC）
-    convertedWebP = await convertToWebP(file, 1600, 0.85);
-
+    // 判斷是否為HEIC格式
+    const isHeic = file.type==='image/heic'||file.type==='image/heif'||
+                   file.name.toLowerCase().endsWith('.heic')||
+                   file.name.toLowerCase().endsWith('.heif');
+    let processFile=file;
+    if(isHeic){
+      // 用heic2any轉成JPEG Blob，讓所有瀏覽器都能處理
+      document.getElementById('progress-text').textContent='HEIC 轉換中...';
+      const blob=await heic2any({blob:file,toType:'image/jpeg',quality:0.9});
+      processFile=new File([blob],'converted.jpg',{type:'image/jpeg'});
+    }
+    // 再轉成WebP並壓縮
+    convertedWebP=await convertToWebP(processFile,1600,0.85);
     // 顯示預覽
-    const preview = document.getElementById('preview-img');
-    preview.src = convertedWebP;
+    const preview=document.getElementById('preview-img');
+    preview.src=convertedWebP;
     preview.style.display='block';
     document.getElementById('remove-btn').style.display='flex';
-
-    // 顯示檔案資訊
-    const origSize = (file.size/1024).toFixed(0);
-    const webpSize = (convertedWebP.length * 0.75 / 1024).toFixed(0);
-    const infoEl = document.getElementById('preview-info');
-    infoEl.textContent = `原始: ${origSize}KB → 轉換後: ~${webpSize}KB (WebP)`;
+    const origSize=(file.size/1024).toFixed(0);
+    const webpSize=(convertedWebP.length*0.75/1024).toFixed(0);
+    const infoEl=document.getElementById('preview-info');
+    infoEl.textContent='原始: '+origSize+'KB → WebP: ~'+webpSize+'KB'+(isHeic?' (HEIC已轉換)':'');
     infoEl.style.display='block';
-
   }catch(e){
     showToast('圖片處理失敗：'+e.message,'error');
     selectedFile=null;
@@ -222,30 +229,22 @@ async function handleFile(input){
   }
 }
 
-function convertToWebP(file, maxWidth, quality){
-  return new Promise((resolve, reject)=>{
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = ()=>{
+function convertToWebP(file,maxWidth,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
       URL.revokeObjectURL(url);
-      const ratio = Math.min(maxWidth/img.width, maxWidth/img.height, 1);
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width * ratio;
-      canvas.height = img.height * ratio;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      const webp = canvas.toDataURL('image/webp', quality);
-      // 若瀏覽器不支援WebP輸出，fallback到jpeg
-      if(webp.startsWith('data:image/webp')){
-        resolve(webp);
-      } else {
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      }
+      const ratio=Math.min(maxWidth/img.width,maxWidth/img.height,1);
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width*ratio;
+      canvas.height=img.height*ratio;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      const webp=canvas.toDataURL('image/webp',quality);
+      resolve(webp.startsWith('data:image/webp')?webp:canvas.toDataURL('image/jpeg',quality));
     };
-    img.onerror = ()=>{
-      URL.revokeObjectURL(url);
-      reject(new Error('無法讀取圖片'));
-    };
-    img.src = url;
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('無法讀取圖片'));};
+    img.src=url;
   });
 }
 
@@ -269,11 +268,9 @@ async function submitUpload(){
   const weightVal=document.getElementById('weight-input').value.trim();
   const weight=weightVal===''?null:parseInt(weightVal);
   const note=document.getElementById('note-input').value;
-
   document.getElementById('progress').style.display='block';
   document.getElementById('progress-text').textContent='上傳中...';
   document.getElementById('submit-btn').disabled=true;
-
   try{
     const r=await fetch('/api/upload-photo',{
       method:'POST',
