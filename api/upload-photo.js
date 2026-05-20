@@ -16,14 +16,14 @@ export default async function handler(req, res) {
 
     // 2. 產生檔案路徑
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `${rid}/${rid}_${timestamp}_${weightG || 0}g.jpg`;
+    const fileName = `${rid}/${rid}_${timestamp}_${weightG || 0}g.webp`;
 
     // 3. 上傳到 Supabase Storage
     const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fileName}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'image/jpeg',
+        'Content-Type': 'image/webp',
         'x-upsert': 'true'
       },
       body: imageBuffer
