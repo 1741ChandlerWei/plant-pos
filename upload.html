@@ -59,6 +59,21 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .record-info{flex:1;min-width:0}
 .selected-badge{background:var(--accdim);border:1px solid var(--acc);border-radius:var(--r);padding:10px 14px;color:var(--acc);font-size:13px;font-weight:600;text-align:center;margin-bottom:8px;display:none}
 .error-hint{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.ghost-modal{display:none;position:fixed;inset:0;z-index:500;background:#000;flex-direction:column}
+.ghost-modal.open{display:flex}
+.ghost-wrap{position:relative;flex:1;overflow:hidden}
+#ghost-video{width:100%;height:100%;object-fit:cover;display:block}
+#ghost-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.ghost-controls{background:rgba(0,0,0,.7);padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.ghost-ctrl-row{display:flex;align-items:center;gap:10px}
+.ghost-label{font-size:11px;color:rgba(255,255,255,.6);min-width:60px}
+#ghost-opacity{flex:1;accent-color:#a3e635}
+.ghost-toggle{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+.ghost-toggle.active{border-color:#a3e635;color:#a3e635}
+.ghost-actions{display:flex;gap:10px}
+.ghost-capture{flex:1;padding:14px;background:#a3e635;border:none;border-radius:10px;font-size:16px;font-weight:700;color:#0f1a0f;cursor:pointer}
+.ghost-close{padding:14px 18px;background:rgba(255,255,255,.1);border:none;border-radius:10px;color:#fff;font-size:14px;cursor:pointer}
+.ghost-no-prev{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:rgba(255,255,255,.5);font-size:11px;padding:4px 10px;border-radius:20px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -78,7 +93,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
   <div class="section">
     <div class="section-title">拍照上傳 / Chụp ảnh</div>
-    <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 直接拍照 / Chụp ảnh trực tiếp</button>
+    <button class="camera-btn" style="border-color:var(--acc);color:var(--acc)" onclick="openGhostCamera()">👻 Ghost 拍照 / Chụp có ghost</button>
+    <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 普通拍照 / Chụp thường</button>
     <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this)">
     <div class="upload-area" id="upload-area">
       <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)">
@@ -122,6 +138,27 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<div class="ghost-modal" id="ghost-modal">
+  <div class="ghost-wrap">
+    <video id="ghost-video" autoplay playsinline muted></video>
+    <canvas id="ghost-canvas"></canvas>
+    <div class="ghost-no-prev" id="ghost-no-prev" style="display:none">尚無上次照片 / Chưa có ảnh trước</div>
+  </div>
+  <div class="ghost-controls">
+    <div class="ghost-ctrl-row">
+      <span class="ghost-label">👻 透明度</span>
+      <input type="range" id="ghost-opacity" min="0" max="80" value="40">
+      <span id="ghost-opacity-val" style="font-size:11px;color:#a3e635;min-width:30px">40%</span>
+      <button class="ghost-toggle active" id="ghost-toggle" onclick="toggleGhost()">顯示</button>
+    </div>
+    <div class="ghost-actions">
+      <button class="ghost-close" onclick="closeGhostCamera()">✕ 取消</button>
+      <button class="ghost-capture" onclick="captureGhostPhoto()">📸 拍攝</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SB='https://edvklxnzhuhmijdwyzrl.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
@@ -182,6 +219,7 @@ function selectPlant(id){
     const viewBtn=document.getElementById('header-view-btn');
     viewBtn.href='https://plant-profile.vercel.app/plant/'+selectedPlant.rid;
     viewBtn.style.display='block';
+    loadLastPhoto(selectedPlant.rid);
   }
   checkReady();
 }
@@ -330,6 +368,118 @@ document.getElementById('upload-area').addEventListener('drop',e=>{
     handleFile(document.getElementById('file-input'));
   }
 });
+
+let lastPhotoUrl = null;
+let ghostStream = null;
+let ghostAnimFrame = null;
+let showGhost = true;
+
+async function loadLastPhoto(rid) {
+  try {
+    const r = await fetch(SB + '/rest/v1/photos?rid=eq.' + rid + '&order=taken_at.desc&limit=1&select=photo_url', {
+      headers: { apikey: SK, Authorization: 'Bearer ' + SK }
+    });
+    const rows = await r.json();
+    lastPhotoUrl = (rows && rows[0]) ? rows[0].photo_url : null;
+  } catch(e) { lastPhotoUrl = null; }
+}
+
+async function openGhostCamera() {
+  if (!selectedPlant) { showToast('請先選擇植物 / Chọn cây trước', 'error'); return; }
+  const modal = document.getElementById('ghost-modal');
+  modal.classList.add('open');
+  // Start camera
+  try {
+    ghostStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    const video = document.getElementById('ghost-video');
+    video.srcObject = ghostStream;
+    await video.play();
+    startGhostOverlay();
+  } catch(e) {
+    showToast('無法開啟相機：' + e.message, 'error');
+    closeGhostCamera();
+  }
+}
+
+let ghostImg = null;
+
+function startGhostOverlay() {
+  const video = document.getElementById('ghost-video');
+  const canvas = document.getElementById('ghost-canvas');
+  const noPreview = document.getElementById('ghost-no-prev');
+  const opacitySlider = document.getElementById('ghost-opacity');
+  const opacityVal = document.getElementById('ghost-opacity-val');
+
+  opacitySlider.oninput = () => {
+    opacityVal.textContent = opacitySlider.value + '%';
+  };
+
+  if (lastPhotoUrl) {
+    noPreview.style.display = 'none';
+    ghostImg = new Image();
+    ghostImg.crossOrigin = 'anonymous';
+    ghostImg.src = lastPhotoUrl;
+  } else {
+    noPreview.style.display = 'block';
+    ghostImg = null;
+  }
+
+  function drawFrame() {
+    const W = video.videoWidth || canvas.offsetWidth;
+    const H = video.videoHeight || canvas.offsetHeight;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    if (showGhost && ghostImg && ghostImg.complete && ghostImg.naturalWidth) {
+      const opacity = parseInt(opacitySlider.value) / 100;
+      ctx.globalAlpha = opacity;
+      // cover-fit the ghost image
+      const ir = ghostImg.naturalWidth / ghostImg.naturalHeight;
+      const cr = W / H;
+      let sx=0,sy=0,sw=ghostImg.naturalWidth,sh=ghostImg.naturalHeight;
+      if (ir > cr) { sw = sh * cr; sx = (ghostImg.naturalWidth - sw) / 2; }
+      else { sh = sw / cr; sy = (ghostImg.naturalHeight - sh) / 2; }
+      ctx.drawImage(ghostImg, sx, sy, sw, sh, 0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
+    ghostAnimFrame = requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+}
+
+function toggleGhost() {
+  showGhost = !showGhost;
+  const btn = document.getElementById('ghost-toggle');
+  btn.textContent = showGhost ? '顯示' : '隱藏';
+  btn.classList.toggle('active', showGhost);
+}
+
+function captureGhostPhoto() {
+  const video = document.getElementById('ghost-video');
+  const W = video.videoWidth;
+  const H = video.videoHeight;
+  const cap = document.createElement('canvas');
+  cap.width = W; cap.height = H;
+  cap.getContext('2d').drawImage(video, 0, 0, W, H);
+  cap.toBlob(async blob => {
+    closeGhostCamera();
+    const file = new File([blob], 'ghost_capture.jpg', { type: 'image/jpeg' });
+    // reuse existing handleFile logic via DataTransfer
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const fakeInput = { files: dt.files };
+    await handleFile(fakeInput);
+  }, 'image/jpeg', 0.95);
+}
+
+function closeGhostCamera() {
+  if (ghostAnimFrame) { cancelAnimationFrame(ghostAnimFrame); ghostAnimFrame = null; }
+  if (ghostStream) { ghostStream.getTracks().forEach(t => t.stop()); ghostStream = null; }
+  document.getElementById('ghost-modal').classList.remove('open');
+}
 
 loadPlants();
 loadTodayRecords();
