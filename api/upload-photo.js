@@ -7,7 +7,7 @@ const BUCKET = 'plant-media';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const { imageBase64, rid, plantName, weightG, note, uploadedBy, takenAt } = req.body;
+    const { imageBase64, rid, plantName, weightG, note, uploadedBy, takenAt, angle, sessionDate } = req.body;
     if (!imageBase64 || !rid) return res.status(400).json({ error: 'Missing params' });
 
     // 1. 轉換 base64 為 buffer
@@ -16,7 +16,8 @@ export default async function handler(req, res) {
 
     // 2. 產生檔案路徑
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `${rid}/${rid}_${timestamp}_${weightG || 0}g.webp`;
+    const angleTag = angle || 'front';
+    const fileName = `${rid}/${rid}_${timestamp}_${angleTag}_${weightG || 0}g.webp`;
 
     // 3. 上傳到 Supabase Storage
     const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fileName}`, {
@@ -55,7 +56,9 @@ export default async function handler(req, res) {
         note: note || null,
         uploaded_by: uploadedBy || 'owner',
         approved: true,
-        taken_at: photoDate
+        taken_at: photoDate,
+        angle: angleTag,
+        session_date: sessionDate || photoDate.slice(0, 10)
       })
     });
 

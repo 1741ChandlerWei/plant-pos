@@ -74,6 +74,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .ghost-capture{flex:1;padding:14px;background:#a3e635;border:none;border-radius:10px;font-size:16px;font-weight:700;color:#0f1a0f;cursor:pointer}
 .ghost-close{padding:14px 18px;background:rgba(255,255,255,.1);border:none;border-radius:10px;color:#fff;font-size:14px;cursor:pointer}
 .ghost-no-prev{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:rgba(255,255,255,.5);font-size:11px;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.ghost-angle-tag{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.65);color:#a3e635;font-size:11px;font-weight:700;letter-spacing:.1em;padding:4px 10px;border-radius:20px}
+.ghost-angle-tag.detail{color:var(--amber)}
+.angle-label{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.angle-badge{font-size:10px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:4px}
+.angle-badge.front{background:rgba(163,230,53,.15);color:var(--acc);border:1px solid rgba(163,230,53,.3)}
+.angle-badge.detail{background:rgba(251,191,36,.15);color:var(--amber);border:1px solid rgba(251,191,36,.3)}
+.angle-optional{font-size:10px;color:var(--text3)}
+.angle-btns{display:flex;gap:8px;margin-bottom:8px}
+.angle-btns .camera-btn{flex:1;margin-bottom:0;padding:10px 8px;font-size:12px}
+.ghost-btn{border-color:var(--acc)!important;color:var(--acc)!important}
+.ghost-btn.detail{border-color:var(--amber)!important;color:var(--amber)!important}
+.upload-area.small{padding:14px 20px}
+.upload-area.small .upload-text{font-size:12px}
+.angle-preview{position:relative;margin-top:6px}
+.angle-preview img{width:100%;border-radius:var(--r);display:none;max-height:180px;object-fit:cover}
+.angle-preview .preview-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px;display:none;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -93,20 +109,38 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
   <div class="section">
     <div class="section-title">拍照上傳 / Chụp ảnh</div>
-    <button class="camera-btn" style="border-color:var(--acc);color:var(--acc)" onclick="openGhostCamera()">👻 Ghost 拍照 / Chụp có ghost</button>
-    <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 普通拍照 / Chụp thường</button>
-    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this)">
-    <div class="upload-area" id="upload-area">
-      <input type="file" id="file-input" accept="image/*" onchange="handleFile(this)">
-      <div class="upload-icon">🖼️</div>
+    <!-- 正面 (必填) -->
+    <div class="angle-label"><span class="angle-badge front">正面 FRONT</span><span class="angle-optional">必填</span></div>
+    <div class="angle-btns">
+      <button class="camera-btn ghost-btn" onclick="openGhostCamera('front')">👻 Ghost</button>
+      <button class="camera-btn" onclick="document.getElementById('camera-front').click()">📷 普通</button>
+    </div>
+    <input type="file" id="camera-front" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this,'front')">
+    <div class="upload-area small" onclick="document.getElementById('file-front').click()">
+      <input type="file" id="file-front" accept="image/*" style="display:none" onchange="handleFile(this,'front')">
       <div class="upload-text">從相簿選擇 / Chọn từ thư viện</div>
-      <div class="upload-hint">JPG, PNG（Safari 支援 HEIC）</div>
     </div>
-    <div class="preview-wrap">
-      <img id="preview-img" alt="預覽">
-      <button class="preview-remove" id="remove-btn" onclick="removePhoto()">✕</button>
+    <div class="angle-preview">
+      <img id="preview-front" alt="正面">
+      <button class="preview-remove" id="remove-front" onclick="removePhoto('front')">✕</button>
     </div>
-    <div class="preview-info" id="preview-info"></div>
+    <div class="preview-info" id="info-front"></div>
+    <!-- 細節 (選填) -->
+    <div class="angle-label" style="margin-top:14px"><span class="angle-badge detail">細節 DETAIL</span><span class="angle-optional">選填</span></div>
+    <div class="angle-btns">
+      <button class="camera-btn ghost-btn detail" onclick="openGhostCamera('detail')">👻 Ghost</button>
+      <button class="camera-btn" onclick="document.getElementById('camera-detail').click()">📷 普通</button>
+    </div>
+    <input type="file" id="camera-detail" accept="image/*" capture="environment" style="display:none" onchange="handleFile(this,'detail')">
+    <div class="upload-area small" onclick="document.getElementById('file-detail').click()">
+      <input type="file" id="file-detail" accept="image/*" style="display:none" onchange="handleFile(this,'detail')">
+      <div class="upload-text">從相簿選擇 / Chọn từ thư viện</div>
+    </div>
+    <div class="angle-preview">
+      <img id="preview-detail" alt="細節">
+      <button class="preview-remove" id="remove-detail" onclick="removePhoto('detail')">✕</button>
+    </div>
+    <div class="preview-info" id="info-detail"></div>
   </div>
   <div class="section">
     <div class="section-title">數據記錄 / Ghi dữ liệu</div>
@@ -143,7 +177,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div class="ghost-wrap">
     <video id="ghost-video" autoplay playsinline muted></video>
     <canvas id="ghost-canvas"></canvas>
-    <div class="ghost-no-prev" id="ghost-no-prev" style="display:none">尚無上次照片 / Chưa có ảnh trước</div>
+    <div class="ghost-no-prev" id="ghost-no-prev" style="display:none">尚無上次照片</div>
+    <div class="ghost-angle-tag" id="ghost-angle-tag">正面 FRONT</div>
   </div>
   <div class="ghost-controls">
     <div class="ghost-ctrl-row">
@@ -164,7 +199,8 @@ const SB='https://edvklxnzhuhmijdwyzrl.supabase.co';
 const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdmtseG56aHVobWlqZHd5enJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTE4MTQsImV4cCI6MjA5MzI2NzgxNH0.65Vf-XUlPZmhc-LWqzXq55bpR6RcG8iqNybf_bqyd60';
 const LOC={mine:'我家',quang:'Quang家',helper:'小幫手家'};
 const MAX_SIZE_MB=10;
-let allPlants=[],selectedPlant=null,selectedFile=null,convertedWebP=null,weightValid=true;
+let allPlants=[],selectedPlant=null,weightValid=true;
+let frontFile=null,frontWebP=null,detailFile=null,detailWebP=null;
 
 function validateWeight(input){
   input.value=input.value.replace(/[^0-9]/g,'');
@@ -224,55 +260,28 @@ function selectPlant(id){
   checkReady();
 }
 
-async function handleFile(input){
+async function handleFile(input, angle='front'){
   const file=input.files[0];
   if(!file)return;
-
   const sizeMB=file.size/1024/1024;
-  if(sizeMB>MAX_SIZE_MB){
-    showToast('檔案太大（'+sizeMB.toFixed(1)+'MB），請選擇小於 '+MAX_SIZE_MB+'MB 的圖片','error');
-    input.value='';
-    return;
-  }
-
-  // HEIC 在非 Safari 瀏覽器直接提示
-  const isHeic=file.type==='image/heic'||file.type==='image/heif'||
-               file.name.toLowerCase().endsWith('.heic')||
-               file.name.toLowerCase().endsWith('.heif');
+  if(sizeMB>MAX_SIZE_MB){showToast('檔案太大（'+sizeMB.toFixed(1)+'MB）','error');input.value='';return;}
+  const isHeic=file.type==='image/heic'||file.type==='image/heif'||file.name.toLowerCase().endsWith('.heic')||file.name.toLowerCase().endsWith('.heif');
   const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-  if(isHeic && !isSafari){
-    showToast('HEIC 格式請改用 Safari 上傳，或先將照片轉存為 JPG','error');
-    input.value='';
-    return;
-  }
-
-  selectedFile=file;
-  convertedWebP=null;
+  if(isHeic&&!isSafari){showToast('HEIC 請用 Safari 上傳','error');input.value='';return;}
   document.getElementById('progress-text').textContent='圖片處理中...';
   document.getElementById('progress').style.display='block';
   document.getElementById('submit-btn').disabled=true;
-
   try{
-    convertedWebP=await convertToWebP(file,1600,0.85);
-    const preview=document.getElementById('preview-img');
-    preview.src=convertedWebP;
-    preview.style.display='block';
-    document.getElementById('remove-btn').style.display='flex';
-    const origSize=(file.size/1024).toFixed(0);
-    const webpSize=(convertedWebP.length*0.75/1024).toFixed(0);
-    const infoEl=document.getElementById('preview-info');
-    infoEl.textContent='原始: '+origSize+'KB → WebP: ~'+webpSize+'KB';
-    infoEl.style.display='block';
-  }catch(e){
-    showToast('圖片處理失敗：'+e.message,'error');
-    selectedFile=null;
-    convertedWebP=null;
-    input.value='';
-  }finally{
-    document.getElementById('progress').style.display='none';
-    checkReady();
-  }
+    const webp=await convertToWebP(file,1600,0.85);
+    const sfx=angle==='front'?'front':'detail';
+    if(angle==='front'){frontFile=file;frontWebP=webp;}else{detailFile=file;detailWebP=webp;}
+    document.getElementById('preview-'+sfx).src=webp;
+    document.getElementById('preview-'+sfx).style.display='block';
+    document.getElementById('remove-'+sfx).style.display='flex';
+    document.getElementById('info-'+sfx).textContent='WebP: ~'+(webp.length*0.75/1024).toFixed(0)+'KB';
+    document.getElementById('info-'+sfx).style.display='block';
+  }catch(e){showToast('圖片處理失敗：'+e.message,'error');input.value='';}
+  finally{document.getElementById('progress').style.display='none';checkReady();}
 }
 
 function convertToWebP(file,maxWidth,quality){
@@ -294,41 +303,51 @@ function convertToWebP(file,maxWidth,quality){
   });
 }
 
-function removePhoto(){
-  selectedFile=null;
-  convertedWebP=null;
-  document.getElementById('preview-img').style.display='none';
-  document.getElementById('remove-btn').style.display='none';
-  document.getElementById('preview-info').style.display='none';
-  document.getElementById('file-input').value='';
-  document.getElementById('camera-input').value='';
+function removePhoto(angle){
+  const sfx=angle==='front'?'front':'detail';
+  if(angle==='front'){frontFile=null;frontWebP=null;}else{detailFile=null;detailWebP=null;}
+  document.getElementById('preview-'+sfx).style.display='none';
+  document.getElementById('remove-'+sfx).style.display='none';
+  document.getElementById('info-'+sfx).style.display='none';
+  document.getElementById('file-'+sfx).value='';
+  document.getElementById('camera-'+sfx).value='';
   checkReady();
 }
 
 function checkReady(){
-  document.getElementById('submit-btn').disabled=!(selectedPlant&&selectedFile&&convertedWebP&&weightValid);
+  document.getElementById('submit-btn').disabled=!(selectedPlant&&frontWebP&&weightValid);
+}
+
+async function uploadOne(webp, angle, rid, plantName, weight, note, takenAt, sessionDate){
+  const r=await fetch('/api/upload-photo',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({imageBase64:webp,rid,plantName,weightG:angle==='front'?weight:null,note:angle==='front'?note:null,uploadedBy:'owner',takenAt,angle,sessionDate})
+  });
+  const data=await r.json();
+  if(!r.ok)throw new Error(JSON.stringify(data));
+  return data;
 }
 
 async function submitUpload(){
-  if(!selectedPlant||!selectedFile||!convertedWebP||!weightValid)return;
+  if(!selectedPlant||!frontWebP||!weightValid)return;
   const weightVal=document.getElementById('weight-input').value.trim();
   const weight=weightVal===''?null:parseInt(weightVal);
   const note=document.getElementById('note-input').value;
   const takenAtVal=document.getElementById('taken-at-input').value;
-  const takenAt=takenAtVal ? new Date(takenAtVal).toISOString() : null;
+  const takenAt=takenAtVal?new Date(takenAtVal).toISOString():null;
+  const sessionDate=new Date().toISOString().slice(0,10);
   document.getElementById('progress').style.display='block';
-  document.getElementById('progress-text').textContent='上傳中...';
   document.getElementById('submit-btn').disabled=true;
   try{
-    const r=await fetch('/api/upload-photo',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({imageBase64:convertedWebP,rid:selectedPlant.rid,plantName:selectedPlant.plant_name,weightG:weight,note:note||null,uploadedBy:'owner',takenAt:takenAt})
-    });
-    const data=await r.json();
-    if(!r.ok)throw new Error(JSON.stringify(data));
-    showToast('✅ 上傳成功！','success');
-    removePhoto();
+    document.getElementById('progress-text').textContent='上傳正面照片...';
+    await uploadOne(frontWebP,'front',selectedPlant.rid,selectedPlant.plant_name,weight,note,takenAt,sessionDate);
+    if(detailWebP){
+      document.getElementById('progress-text').textContent='上傳細節照片...';
+      await uploadOne(detailWebP,'detail',selectedPlant.rid,selectedPlant.plant_name,weight,note,takenAt,sessionDate);
+    }
+    showToast(detailWebP?'✅ 兩張照片上傳成功！':'✅ 上傳成功！','success');
+    removePhoto('front');removePhoto('detail');
     document.getElementById('weight-input').value='';
     document.getElementById('taken-at-input').value='';
     document.getElementById('note-input').value='';
@@ -358,126 +377,100 @@ function showToast(msg,type){
   if(type==='success'){setTimeout(()=>t.style.display='none',3500);}
 }
 
-document.getElementById('upload-area').addEventListener('dragover',e=>{e.preventDefault();});
-document.getElementById('upload-area').addEventListener('drop',e=>{
-  e.preventDefault();
-  const file=e.dataTransfer.files[0];
-  if(file&&file.type.startsWith('image/')){
-    const dt=new DataTransfer();dt.items.add(file);
-    document.getElementById('file-input').files=dt.files;
-    handleFile(document.getElementById('file-input'));
-  }
-});
+let lastPhotoUrls={front:null,detail:null};
+let ghostStream=null,ghostAnimFrame=null,showGhost=true,ghostImg=null,currentGhostAngle='front';
 
-let lastPhotoUrl = null;
-let ghostStream = null;
-let ghostAnimFrame = null;
-let showGhost = true;
-
-async function loadLastPhoto(rid) {
-  try {
-    const r = await fetch(SB + '/rest/v1/photos?rid=eq.' + rid + '&order=taken_at.desc&limit=1&select=photo_url', {
-      headers: { apikey: SK, Authorization: 'Bearer ' + SK }
-    });
-    const rows = await r.json();
-    lastPhotoUrl = (rows && rows[0]) ? rows[0].photo_url : null;
-  } catch(e) { lastPhotoUrl = null; }
-}
-
-async function openGhostCamera() {
-  if (!selectedPlant) { showToast('請先選擇植物 / Chọn cây trước', 'error'); return; }
-  const modal = document.getElementById('ghost-modal');
-  modal.classList.add('open');
-  // Start camera
-  try {
-    ghostStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
-      audio: false
-    });
-    const video = document.getElementById('ghost-video');
-    video.srcObject = ghostStream;
-    await video.play();
-    startGhostOverlay();
-  } catch(e) {
-    showToast('無法開啟相機：' + e.message, 'error');
-    closeGhostCamera();
-  }
-}
-
-let ghostImg = null;
-
-function startGhostOverlay() {
-  const video = document.getElementById('ghost-video');
-  const canvas = document.getElementById('ghost-canvas');
-  const noPreview = document.getElementById('ghost-no-prev');
-  const opacitySlider = document.getElementById('ghost-opacity');
-  const opacityVal = document.getElementById('ghost-opacity-val');
-
-  opacitySlider.oninput = () => {
-    opacityVal.textContent = opacitySlider.value + '%';
-  };
-
-  if (lastPhotoUrl) {
-    noPreview.style.display = 'none';
-    ghostImg = new Image();
-    ghostImg.crossOrigin = 'anonymous';
-    ghostImg.src = lastPhotoUrl;
-  } else {
-    noPreview.style.display = 'block';
-    ghostImg = null;
-  }
-
-  function drawFrame() {
-    const W = video.videoWidth || canvas.offsetWidth;
-    const H = video.videoHeight || canvas.offsetHeight;
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
-    if (showGhost && ghostImg && ghostImg.complete && ghostImg.naturalWidth) {
-      const opacity = parseInt(opacitySlider.value) / 100;
-      ctx.globalAlpha = opacity;
-      // cover-fit the ghost image
-      const ir = ghostImg.naturalWidth / ghostImg.naturalHeight;
-      const cr = W / H;
-      let sx=0,sy=0,sw=ghostImg.naturalWidth,sh=ghostImg.naturalHeight;
-      if (ir > cr) { sw = sh * cr; sx = (ghostImg.naturalWidth - sw) / 2; }
-      else { sh = sw / cr; sy = (ghostImg.naturalHeight - sh) / 2; }
-      ctx.drawImage(ghostImg, sx, sy, sw, sh, 0, 0, W, H);
-      ctx.globalAlpha = 1;
+async function loadLastPhoto(rid){
+  try{
+    const [rF,rD]=await Promise.all([
+      fetch(SB+'/rest/v1/photos?rid=eq.'+rid+'&angle=eq.front&order=taken_at.desc&limit=1&select=photo_url',{headers:{apikey:SK,Authorization:'Bearer '+SK}}),
+      fetch(SB+'/rest/v1/photos?rid=eq.'+rid+'&angle=eq.detail&order=taken_at.desc&limit=1&select=photo_url',{headers:{apikey:SK,Authorization:'Bearer '+SK}})
+    ]);
+    const [rowsF,rowsD]=await Promise.all([rF.json(),rD.json()]);
+    lastPhotoUrls.front=(rowsF&&rowsF[0])?rowsF[0].photo_url:null;
+    lastPhotoUrls.detail=(rowsD&&rowsD[0])?rowsD[0].photo_url:null;
+    // 舊照片（無 angle 欄位）fallback
+    if(!lastPhotoUrls.front){
+      const rAny=await fetch(SB+'/rest/v1/photos?rid=eq.'+rid+'&order=taken_at.desc&limit=1&select=photo_url',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
+      const rowsAny=await rAny.json();
+      lastPhotoUrls.front=(rowsAny&&rowsAny[0])?rowsAny[0].photo_url:null;
     }
-    ghostAnimFrame = requestAnimationFrame(drawFrame);
+  }catch(e){lastPhotoUrls={front:null,detail:null};}
+}
+
+async function openGhostCamera(angle='front'){
+  if(!selectedPlant){showToast('請先選擇植物','error');return;}
+  currentGhostAngle=angle;
+  const tag=document.getElementById('ghost-angle-tag');
+  tag.textContent=angle==='front'?'正面 FRONT':'細節 DETAIL';
+  tag.className='ghost-angle-tag'+(angle==='detail'?' detail':'');
+  const modal=document.getElementById('ghost-modal');
+  modal.classList.add('open');
+  try{
+    ghostStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}},audio:false});
+    const video=document.getElementById('ghost-video');
+    video.srcObject=ghostStream;
+    await video.play();
+    startGhostOverlay(lastPhotoUrls[angle]);
+  }catch(e){showToast('無法開啟相機：'+e.message,'error');closeGhostCamera();}
+}
+
+function startGhostOverlay(photoUrl){
+  const video=document.getElementById('ghost-video');
+  const canvas=document.getElementById('ghost-canvas');
+  const noPreview=document.getElementById('ghost-no-prev');
+  const opacitySlider=document.getElementById('ghost-opacity');
+  const opacityVal=document.getElementById('ghost-opacity-val');
+  opacitySlider.oninput=()=>{opacityVal.textContent=opacitySlider.value+'%';};
+  if(photoUrl){
+    noPreview.style.display='none';
+    ghostImg=new Image();ghostImg.crossOrigin='anonymous';ghostImg.src=photoUrl;
+  }else{noPreview.style.display='block';ghostImg=null;}
+  function drawFrame(){
+    const W=video.videoWidth||canvas.offsetWidth;
+    const H=video.videoHeight||canvas.offsetHeight;
+    canvas.width=W;canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    if(showGhost&&ghostImg&&ghostImg.complete&&ghostImg.naturalWidth){
+      const opacity=parseInt(opacitySlider.value)/100;
+      ctx.globalAlpha=opacity;
+      const ir=ghostImg.naturalWidth/ghostImg.naturalHeight,cr=W/H;
+      let sx=0,sy=0,sw=ghostImg.naturalWidth,sh=ghostImg.naturalHeight;
+      if(ir>cr){sw=sh*cr;sx=(ghostImg.naturalWidth-sw)/2;}else{sh=sw/cr;sy=(ghostImg.naturalHeight-sh)/2;}
+      ctx.drawImage(ghostImg,sx,sy,sw,sh,0,0,W,H);
+      ctx.globalAlpha=1;
+    }
+    ghostAnimFrame=requestAnimationFrame(drawFrame);
   }
   drawFrame();
 }
 
-function toggleGhost() {
-  showGhost = !showGhost;
-  const btn = document.getElementById('ghost-toggle');
-  btn.textContent = showGhost ? '顯示' : '隱藏';
-  btn.classList.toggle('active', showGhost);
+function toggleGhost(){
+  showGhost=!showGhost;
+  const btn=document.getElementById('ghost-toggle');
+  btn.textContent=showGhost?'顯示':'隱藏';
+  btn.classList.toggle('active',showGhost);
 }
 
-function captureGhostPhoto() {
-  const video = document.getElementById('ghost-video');
-  const W = video.videoWidth;
-  const H = video.videoHeight;
-  const cap = document.createElement('canvas');
-  cap.width = W; cap.height = H;
-  cap.getContext('2d').drawImage(video, 0, 0, W, H);
-  cap.toBlob(async blob => {
+function captureGhostPhoto(){
+  const video=document.getElementById('ghost-video');
+  const W=video.videoWidth,H=video.videoHeight;
+  const cap=document.createElement('canvas');
+  cap.width=W;cap.height=H;
+  cap.getContext('2d').drawImage(video,0,0,W,H);
+  const angle=currentGhostAngle;
+  cap.toBlob(async blob=>{
     closeGhostCamera();
-    const file = new File([blob], 'ghost_capture.jpg', { type: 'image/jpeg' });
-    // reuse existing handleFile logic via DataTransfer
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    const fakeInput = { files: dt.files };
-    await handleFile(fakeInput);
-  }, 'image/jpeg', 0.95);
+    const file=new File([blob],'ghost_'+angle+'.jpg',{type:'image/jpeg'});
+    const dt=new DataTransfer();dt.items.add(file);
+    await handleFile({files:dt.files},angle);
+  },'image/jpeg',0.95);
 }
 
-function closeGhostCamera() {
-  if (ghostAnimFrame) { cancelAnimationFrame(ghostAnimFrame); ghostAnimFrame = null; }
-  if (ghostStream) { ghostStream.getTracks().forEach(t => t.stop()); ghostStream = null; }
+function closeGhostCamera(){
+  if(ghostAnimFrame){cancelAnimationFrame(ghostAnimFrame);ghostAnimFrame=null;}
+  if(ghostStream){ghostStream.getTracks().forEach(t=>t.stop());ghostStream=null;}
   document.getElementById('ghost-modal').classList.remove('open');
 }
 
