@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>上傳照片 / Tải ảnh lên</title>
+<script src="https://cdn.jsdelivr.net/npm/js-aruco2@2.1.2/dist/aruco.js"></script>
 <style>
 :root{--bg:#0f1a0f;--bg2:#1a2e1a;--bg3:#243824;--text:#e8f5e8;--text2:#a0c8a0;--text3:#5a8a5a;--acc:#a3e635;--accdim:rgba(163,230,53,.1);--border:#2a3a2a;--border2:#3a4a3a;--r:10px;--rl:14px;--green:#6ee7b7;--red:#f87171;--amber:#fbbf24}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -90,6 +91,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .angle-preview{position:relative;margin-top:6px}
 .angle-preview img{width:100%;border-radius:var(--r);display:none;max-height:180px;object-fit:cover}
 .angle-preview .preview-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px;display:none;align-items:center;justify-content:center}
+/* ── ArUco 警告 Modal ── */
+.aruco-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.85);align-items:center;justify-content:center;padding:24px}
+.aruco-modal.open{display:flex}
+.aruco-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:28px 24px;max-width:320px;width:100%;text-align:center}
+.aruco-icon{font-size:48px;margin-bottom:12px}
+.aruco-title{font-size:16px;font-weight:700;color:var(--amber);margin-bottom:8px}
+.aruco-sub{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:20px}
+.aruco-preview-wrap{margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid var(--border2)}
+.aruco-preview-wrap img{width:100%;max-height:180px;object-fit:cover;display:block}
+.aruco-btns{display:flex;flex-direction:column;gap:10px}
+.aruco-btn-retake{padding:13px;background:transparent;border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
+.aruco-btn-retake:hover{border-color:var(--acc);color:var(--acc)}
+.aruco-btn-upload{padding:13px;background:var(--bg3);border:1px solid var(--amber);border-radius:var(--r);color:var(--amber);font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
+.aruco-btn-upload:hover{background:rgba(251,191,36,.1)}
+/* ArUco 成功標示 */
+.aruco-ok-badge{display:none;align-items:center;gap:5px;font-size:11px;color:var(--green);background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.2);border-radius:6px;padding:4px 10px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -125,6 +142,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <button class="preview-remove" id="remove-front" onclick="removePhoto('front')">✕</button>
     </div>
     <div class="preview-info" id="info-front"></div>
+    <div class="aruco-ok-badge" id="aruco-ok-front">✅ ArUco 對位完成</div>
     <!-- 細節 (選填) -->
     <div class="angle-label" style="margin-top:14px"><span class="angle-badge detail">細節 DETAIL</span><span class="angle-optional">選填</span></div>
     <div class="angle-btns">
@@ -141,6 +159,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <button class="preview-remove" id="remove-detail" onclick="removePhoto('detail')">✕</button>
     </div>
     <div class="preview-info" id="info-detail"></div>
+    <div class="aruco-ok-badge" id="aruco-ok-detail">✅ ArUco 對位完成</div>
   </div>
   <div class="section">
     <div class="section-title">數據記錄 / Ghi dữ liệu</div>
@@ -172,6 +191,20 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<!-- ── ArUco 警告 Modal ── -->
+<div class="aruco-modal" id="aruco-modal">
+  <div class="aruco-box">
+    <div class="aruco-icon">⚠️</div>
+    <div class="aruco-title">未偵測到 ArUco Marker</div>
+    <div class="aruco-sub" id="aruco-modal-sub">可能是光線不足、marker 被遮擋，或距離太遠</div>
+    <div class="aruco-preview-wrap"><img id="aruco-preview-img" src="" alt=""></div>
+    <div class="aruco-btns">
+      <button class="aruco-btn-retake" onclick="arucoRetake()">🔄 重拍</button>
+      <button class="aruco-btn-upload" onclick="arucoDirectUpload()">📤 直接上傳（不對位）</button>
+    </div>
+  </div>
+</div>
 
 <div class="ghost-modal" id="ghost-modal">
   <div class="ghost-wrap">
@@ -272,16 +305,29 @@ async function handleFile(input, angle='front'){
   document.getElementById('progress').style.display='block';
   document.getElementById('submit-btn').disabled=true;
   try{
+    // 1. 轉換為 WebP
     const webp=await convertToWebP(file,1600,0.85);
-    const sfx=angle==='front'?'front':'detail';
-    if(angle==='front'){frontFile=file;frontWebP=webp;}else{detailFile=file;detailWebP=webp;}
-    document.getElementById('preview-'+sfx).src=webp;
-    document.getElementById('preview-'+sfx).style.display='block';
-    document.getElementById('remove-'+sfx).style.display='flex';
-    document.getElementById('info-'+sfx).textContent='WebP: ~'+(webp.length*0.75/1024).toFixed(0)+'KB';
-    document.getElementById('info-'+sfx).style.display='block';
+    if(angle==='front') frontFile=file; else detailFile=file;
+
+    // 2. ArUco 偵測（若函式庫未載入則略過）
+    if(arucoLibReady()){
+      document.getElementById('progress-text').textContent='ArUco 對位偵測中...';
+      const result = await runArucoDetection(webp);
+      document.getElementById('progress').style.display='none';
+      if(result.detected){
+        // 成功 → 直接套用裁切後的圖
+        applyPhotoResult(angle, result.webp, true);
+        showToast('✅ ArUco 對位成功 (ID:'+result.markerId+')','success');
+      } else {
+        // 失敗 → 問使用者
+        showArucoWarning(angle, webp);
+      }
+    } else {
+      // 函式庫未就緒 → 直接用原圖（靜默略過）
+      applyPhotoResult(angle, webp, false);
+    }
   }catch(e){showToast('圖片處理失敗：'+e.message,'error');input.value='';}
-  finally{document.getElementById('progress').style.display='none';checkReady();}
+  finally{document.getElementById('progress').style.display='none';}
 }
 
 function convertToWebP(file,maxWidth,quality){
@@ -309,6 +355,7 @@ function removePhoto(angle){
   document.getElementById('preview-'+sfx).style.display='none';
   document.getElementById('remove-'+sfx).style.display='none';
   document.getElementById('info-'+sfx).style.display='none';
+  document.getElementById('aruco-ok-'+sfx).style.display='none';
   document.getElementById('file-'+sfx).value='';
   document.getElementById('camera-'+sfx).value='';
   checkReady();
@@ -472,6 +519,119 @@ function closeGhostCamera(){
   if(ghostAnimFrame){cancelAnimationFrame(ghostAnimFrame);ghostAnimFrame=null;}
   if(ghostStream){ghostStream.getTracks().forEach(t=>t.stop());ghostStream=null;}
   document.getElementById('ghost-modal').classList.remove('open');
+}
+
+// ── ArUco 對位 ────────────────────────────────────────────
+// 📐 裁切參數（以 marker 寬度為單位，根據實際佈局調整）
+// marker 放背景板左上角
+const ARUCO_DICT    = 4; // DICT_4X4_50
+const CROP_OFFSET_X = 1.2;  // marker 右邊幾個 marker 寬開始裁
+const CROP_OFFSET_Y = 0.2;  // marker 下方幾個 marker 高開始裁
+const CROP_W_RATIO  = 8.0;  // 裁切寬度 = 幾個 marker 寬
+const CROP_H_RATIO  = 10.5; // 裁切高度 = 幾個 marker 高（直式3:4比例）
+
+let arucoAngle = null;   // 目前等待決定的 angle
+let arucoOrigWebP = null; // 未裁切的 webp
+
+function arucoLibReady() {
+  return typeof AR !== 'undefined' && AR.Detector;
+}
+
+async function runArucoDetection(webpDataUrl) {
+  if (!arucoLibReady()) return { detected: false, webp: webpDataUrl };
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        // 縮小到 800px 寬做偵測（夠快，marker 夠清楚）
+        const scale = Math.min(800 / img.width, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(img.width  * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+        const detector = new AR.Detector();
+        const markers  = detector.detect(imageData);
+        if (!markers || markers.length === 0) {
+          resolve({ detected: false, webp: webpDataUrl });
+          return;
+        }
+        // 有偵測到 → 用原始解析度做裁切
+        const origCanvas = document.createElement('canvas');
+        origCanvas.width  = img.width;
+        origCanvas.height = img.height;
+        origCanvas.getContext('2d').drawImage(img, 0, 0);
+        // marker corners 是 800px 空間，還原到原始尺寸
+        const m = markers[0];
+        const scaleBack = 1 / scale;
+        const corners = m.corners.map(c => ({ x: c.x * scaleBack, y: c.y * scaleBack }));
+        const croppedCanvas = cropByMarker(origCanvas, corners);
+        const croppedWebP   = croppedCanvas.toDataURL('image/webp', 0.88);
+        resolve({ detected: true, webp: croppedWebP, markerId: m.id });
+      } catch (e) {
+        resolve({ detected: false, webp: webpDataUrl });
+      }
+    };
+    img.onerror = () => resolve({ detected: false, webp: webpDataUrl });
+    img.src = webpDataUrl;
+  });
+}
+
+function cropByMarker(canvas, corners) {
+  const xs = corners.map(c => c.x);
+  const ys = corners.map(c => c.y);
+  const mW  = Math.max(...xs) - Math.min(...xs); // marker 視覺寬度
+  const mH  = Math.max(...ys) - Math.min(...ys);
+  const mSize = (mW + mH) / 2;
+  const cx  = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const cy  = (Math.min(...ys) + Math.max(...ys)) / 2;
+
+  const x0 = Math.max(0, Math.round(cx + mSize * CROP_OFFSET_X));
+  const y0 = Math.max(0, Math.round(cy - mSize * CROP_OFFSET_Y));
+  const cW  = Math.min(Math.round(mSize * CROP_W_RATIO),  canvas.width  - x0);
+  const cH  = Math.min(Math.round(mSize * CROP_H_RATIO),  canvas.height - y0);
+
+  const out = document.createElement('canvas');
+  out.width  = cW;
+  out.height = cH;
+  out.getContext('2d').drawImage(canvas, x0, y0, cW, cH, 0, 0, cW, cH);
+  return out;
+}
+
+function showArucoWarning(angle, origWebP) {
+  arucoAngle   = angle;
+  arucoOrigWebP = origWebP;
+  document.getElementById('aruco-preview-img').src = origWebP;
+  document.getElementById('aruco-modal').classList.add('open');
+}
+
+function arucoRetake() {
+  document.getElementById('aruco-modal').classList.remove('open');
+  // 清除該 slot，讓使用者重拍
+  removePhoto(arucoAngle);
+  arucoAngle = null; arucoOrigWebP = null;
+}
+
+function arucoDirectUpload() {
+  document.getElementById('aruco-modal').classList.remove('open');
+  // 使用未對位的原圖繼續
+  const sfx = arucoAngle;
+  applyPhotoResult(sfx, arucoOrigWebP, false);
+  arucoAngle = null; arucoOrigWebP = null;
+}
+
+function applyPhotoResult(angle, webp, arucoOk) {
+  if (angle === 'front') { frontWebP = webp; }
+  else                   { detailWebP = webp; }
+  document.getElementById('preview-' + angle).src = webp;
+  document.getElementById('preview-' + angle).style.display = 'block';
+  document.getElementById('remove-'  + angle).style.display = 'flex';
+  document.getElementById('info-'    + angle).textContent =
+    'WebP: ~' + (webp.length * 0.75 / 1024).toFixed(0) + 'KB';
+  document.getElementById('info-' + angle).style.display = 'block';
+  const badge = document.getElementById('aruco-ok-' + angle);
+  badge.style.display = arucoOk ? 'flex' : 'none';
+  checkReady();
 }
 
 loadPlants();
